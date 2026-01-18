@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>Deployment Analytics Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
@@ -75,18 +76,24 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
 }
 
 .header-logo {
     width: 280px;
     height: 180px;
     object-fit: contain;
-    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 4px 10px rgba(0,0,0,0.3));
     position: absolute;
     left: 160px;
     top: calc(50% - 90px);
     z-index: 2;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.header-logo:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)) drop-shadow(0 6px 15px rgba(0,0,0,0.4));
 }
 
 .header-content {
@@ -232,14 +239,13 @@
             padding: 20px 30px 30px 30px;
             background: #f8f9fa;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
         }
 
         @media (max-width: 768px) {
             .filters {
                 padding: 15px;
-                grid-template-columns: 1fr;
                 gap: 15px;
             }
         }
@@ -247,6 +253,9 @@
         .filter-group {
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-width: 160px;
+            margin-right: 10px;
         }
 
         .filter-group label {
@@ -735,7 +744,23 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Auth Container -->
+    <div id="auth-container" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%;">
+            <h2>Sign In Required</h2>
+            <p>Please sign in with your Google account to access the dashboard</p>
+            <div id="g_id_onload"
+                 data-client_id="1069170739830-r8k6nc60f28d70cnv5cvfpvgj1cqlp6n.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+            <p id="auth-message" style="margin-top: 15px; color: #dc3545;"></p>
+        </div>
+    </div>
+
+    <div class="container" id="main-content" style="display: none;">
+        <button onclick="signOut()" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; z-index: 1000;">Sign Out</button>
         <div class="header">
     <div class="header-background">
         <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_banner.jpg" alt="BODH Banner" class="header-bg-image" onerror="this.style.display='none'">
@@ -811,6 +836,16 @@
                         <div class="select-dropdown"></div>
                     </div>
                 </div>
+                <div class="filter-group">
+                    <label>Campaign</label>
+                    <div class="custom-select" data-filter="campaign">
+                        <div class="select-display">
+                            <span class="select-text">All Campaigns</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -851,6 +886,8 @@
     </div>
 
     <script>
+        // Authentication Configuration
+        const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaP4CXwnAQsRpKa20kHx5rXp8Ku5rtYI_fquVXxixBD7wYUjS2IvfThZnbzY0EHLpKGw/exec';
         const API_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
         
         let allData = [];
@@ -861,7 +898,8 @@
             branch: [],
             year: [],
             month: [],
-            programType: []
+            programType: [],
+            campaign: []
         };
 
         const activityFields = ['Lecture', 'Skit', 'Motivational Songs', 'Choreography', 'Demo', 
@@ -923,11 +961,13 @@
             const months = ['January', 'February', 'March', 'April', 'May', 'June', 
                            'July', 'August', 'September', 'October', 'November', 'December'];
             const programTypes = [...new Set(allData.map(d => d['Type of Program']).filter(Boolean))].sort();
+            const campaigns = [...new Set(allData.map(d => d['Campaign Name'] || 'Not Specified').filter(Boolean))].sort();
 
             createCustomSelect('state', states);
             createCustomSelect('year', years);
             createCustomSelect('month', months);
             createCustomSelect('programType', programTypes);
+            createCustomSelect('campaign', campaigns);
             
             updateBranchOptions();
         }
@@ -1063,7 +1103,8 @@
                     branch: 'All Branches',
                     year: 'All Years',
                     month: 'All Months',
-                    programType: 'All Types'
+                    programType: 'All Types',
+                    campaign: 'All Campaigns'
                 };
                 display.innerHTML = labels[filterType];
             } else if (selected.length === 1) {
@@ -1079,7 +1120,8 @@
                         branch: 'All Branches',
                         year: 'All Years',
                         month: 'All Months',
-                        programType: 'All Types'
+                        programType: 'All Types',
+                        campaign: 'All Campaigns'
                     };
                     display.innerHTML = labels[filterType];
                 } else {
@@ -1139,7 +1181,8 @@
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
                        (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
-                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program']));
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
             });
 
             updateDashboard();
@@ -1256,12 +1299,30 @@
             const monthData = {};
             monthOrder.forEach(m => monthData[m] = 0);
             
-            filteredData.forEach(d => {
+            // Get data to use based on year and campaign filters
+            let useData = selectedFilters.year.length === 0 ? allData : filteredData;
+            
+            // If campaign filter is applied, filter the data
+            if (selectedFilters.campaign.length > 0) {
+                useData = useData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            }
+            
+            useData.forEach(d => {
                 const normalizedMonth = normalizeMonth(d.Month);
                 if (normalizedMonth && monthData.hasOwnProperty(normalizedMonth)) {
                     monthData[normalizedMonth]++;
                 }
             });
+            
+            // Add a subtitle to indicate if showing all-time data and/or filtered by campaign
+            let subtitleText = '';
+            if (selectedFilters.year.length === 0) {
+                subtitleText = 'All-Time Data';
+            }
+            if (selectedFilters.campaign.length > 0) {
+                const campaignText = selectedFilters.campaign.join(', ');
+                subtitleText = subtitleText ? `${subtitleText} | Campaign: ${campaignText}` : `Campaign: ${campaignText}`;
+            }
 
             const ctx = document.getElementById('monthlyChart').getContext('2d');
             charts.monthly = new Chart(ctx, {
@@ -1281,14 +1342,30 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                    plugins: { 
+                        legend: { display: false },
+                        subtitle: {
+                            display: !!subtitleText,
+                            text: subtitleText,
+                            font: { size: 12, style: 'italic' },
+                            padding: { bottom: 10 }
+                        }
+                    }
                 }
             });
         }
 
         function createBranchChart() {
             const branchData = {};
-            filteredData.forEach(d => {
+            // Get data to use based on year and campaign filters
+            let useData = selectedFilters.year.length === 0 ? allData : filteredData;
+            
+            // If campaign filter is applied, filter the data
+            if (selectedFilters.campaign.length > 0) {
+                useData = useData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            }
+            
+            useData.forEach(d => {
                 branchData[d.Branch] = (branchData[d.Branch] || 0) + 1;
             });
 
@@ -1313,15 +1390,40 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     indexAxis: 'y',
-                    plugins: { legend: { display: false } }
+                    plugins: { 
+                        legend: { display: false },
+                        subtitle: {
+                            display: selectedFilters.year.length === 0 || selectedFilters.campaign.length > 0,
+                            text: (() => {
+                                const parts = [];
+                                if (selectedFilters.year.length === 0) parts.push('All-Time Data');
+                                if (selectedFilters.campaign.length > 0) {
+                                    parts.push(`Campaign: ${selectedFilters.campaign.join(', ')}`);
+                                }
+                                return parts.join(' | ');
+                            })(),
+                            font: { size: 12, style: 'italic' },
+                            padding: { bottom: 10 }
+                        }
+                    }
                 }
             });
         }
 
         function createActivityChart() {
             const activityData = {};
+            // Get data to use based on year and campaign filters
+            let useData = filteredData;
+            if (selectedFilters.year.length === 0) {
+                useData = allData;
+                // Still apply campaign filter if any is selected
+                if (selectedFilters.campaign.length > 0) {
+                    useData = allData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+                }
+            }
+            
             activityFields.forEach(field => {
-                activityData[field] = filteredData.filter(d => d[field]).length;
+                activityData[field] = useData.filter(d => d[field]).length;
             });
 
             const sorted = Object.entries(activityData)
@@ -1353,7 +1455,17 @@
 
         function createStateChart() {
             const stateData = {};
-            filteredData.forEach(d => {
+            // Get data to use based on year and campaign filters
+            let useData = filteredData;
+            if (selectedFilters.year.length === 0) {
+                useData = allData;
+                // Still apply campaign filter if any is selected
+                if (selectedFilters.campaign.length > 0) {
+                    useData = allData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+                }
+            }
+            
+            useData.forEach(d => {
                 stateData[d.State] = (stateData[d.State] || 0) + 1;
             });
 
@@ -1376,19 +1488,44 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
+                    plugins: { 
+                        legend: { display: false },
+                        subtitle: {
+                            display: selectedFilters.year.length === 0 || selectedFilters.campaign.length > 0,
+                            text: (() => {
+                                const parts = [];
+                                if (selectedFilters.year.length === 0) parts.push('All-Time Data');
+                                if (selectedFilters.campaign.length > 0) {
+                                    parts.push(`Campaign: ${selectedFilters.campaign.join(', ')}`);
+                                }
+                                return parts.join(' | ');
+                            })(),
+                            font: { size: 12, style: 'italic' },
+                            padding: { bottom: 10 }
+                        }
+                    }
                 }
             });
         }
 
         function createProgramTypeChart() {
-            const programData = {};
-            filteredData.forEach(d => {
-                const type = d['Type of Program'] || 'Not Specified';
-                programData[type] = (programData[type] || 0) + 1;
+            const programTypeData = {};
+            // Get data to use based on year and campaign filters
+            let useData = filteredData;
+            if (selectedFilters.year.length === 0) {
+                useData = allData;
+                // Still apply campaign filter if any is selected
+                if (selectedFilters.campaign.length > 0) {
+                    useData = allData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+                }
+            }
+            
+            useData.forEach(d => {
+                const type = d['Type of Program'] || 'Other';
+                programTypeData[type] = (programTypeData[type] || 0) + 1;
             });
 
-            const sorted = Object.entries(programData)
+            const sorted = Object.entries(programTypeData)
                 .sort((a, b) => b[1] - a[1]);
 
             const ctx = document.getElementById('programTypeChart').getContext('2d');
@@ -1415,20 +1552,24 @@
         }
 
         function createImpactChart() {
-            // Group data by year
             const yearData = {};
-            filteredData.forEach(d => {
-                const year = d.Year;
-                if (!year) return;
+            // Get data to use based on campaign filter
+            const useData = selectedFilters.campaign.length > 0 
+                ? allData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'))
+                : allData;
                 
+            useData.forEach(d => {
+                const year = d.Year;
                 if (!yearData[year]) {
                     yearData[year] = {
                         programs: 0,
-                        beneficiaries: 0
+                        beneficiaries: 0,
+                        branches: new Set()
                     };
                 }
                 yearData[year].programs++;
                 yearData[year].beneficiaries += getBeneficiaryCount(d);
+                yearData[year].branches.add(d.Branch);
             });
 
             const years = Object.keys(yearData).sort();
@@ -1625,10 +1766,6 @@
                             <label>Campaign Name</label>
                             <div class="value">${program['Campaign Name'] || 'N/A'}</div>
                         </div>
-                        <div class="detail-item">
-                            <label>Cause Based Day/Topic</label>
-                            <div class="value">${program['Caused Based Day / Topic'] || 'N/A'}</div>
-                        </div>
                     </div>
                 </div>
 
@@ -1715,7 +1852,72 @@
             }
         }
 
-        fetchData();
+        // Authentication Functions
+        function handleCredentialResponse(response) {
+            const data = parseJwt(response.credential);
+            const userEmail = data.email;
+            
+            // Show loading state
+            document.getElementById('auth-message').textContent = 'Verifying access...';
+            document.querySelector('.g_id_signin').style.display = 'none';
+            
+            // Verify the user's email with your Google Sheet
+            fetch(`${AUTH_SCRIPT_URL}?action=verifyUser&email=${encodeURIComponent(userEmail)}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // User is authorized
+                        document.getElementById('auth-container').style.display = 'none';
+                        document.getElementById('main-content').style.display = 'block';
+                        
+                        // Store user data in sessionStorage
+                        sessionStorage.setItem('userData', JSON.stringify(result.userData));
+                        
+                        // Initialize dashboard
+                        fetchData();
+                    } else {
+                        // User not authorized
+                        document.getElementById('auth-message').textContent = result.message || 'Access denied. Your email is not authorized.';
+                        document.querySelector('.g_id_signin').style.display = 'inline-block';
+                        google.accounts.id.disableAutoSelect();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('auth-message').textContent = 'An error occurred. Please try again.';
+                    document.querySelector('.g_id_signin').style.display = 'inline-block';
+                });
+        }
+
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(atob(base64));
+        }
+
+        function signOut() {
+            google.accounts.id.disableAutoSelect();
+            sessionStorage.removeItem('userData');
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            document.querySelector('.g_id_signin').style.display = 'inline-block';
+            document.getElementById('auth-message').textContent = '';
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = sessionStorage.getItem('userData');
+            if (userData) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                fetchData();
+            } else {
+                document.getElementById('auth-container').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'none';
+            }
+        });
+
+        // Original fetchData function will be called after successful authentication
     </script>
 </body>
 </html>
