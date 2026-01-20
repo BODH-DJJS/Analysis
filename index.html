@@ -1358,13 +1358,16 @@
 
         function createBranchChart() {
             const branchData = {};
-            // Get data to use based on year and campaign filters
-            let useData = selectedFilters.year.length === 0 ? allData : filteredData;
-            
-            // If campaign filter is applied, filter the data
-            if (selectedFilters.campaign.length > 0) {
-                useData = useData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
-            }
+            // Get data to use based on all current filters
+            let useData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
             
             useData.forEach(d => {
                 branchData[d.Branch] = (branchData[d.Branch] || 0) + 1;
@@ -1413,15 +1416,16 @@
 
         function createActivityChart() {
             const activityData = {};
-            // Get data to use based on year and campaign filters
-            let useData = filteredData;
-            if (selectedFilters.year.length === 0) {
-                useData = allData;
-                // Still apply campaign filter if any is selected
-                if (selectedFilters.campaign.length > 0) {
-                    useData = allData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
-                }
-            }
+            // Get data to use based on all current filters
+            let useData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
             
             activityFields.forEach(field => {
                 activityData[field] = useData.filter(d => d[field]).length;
