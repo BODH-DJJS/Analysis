@@ -887,7 +887,7 @@
 
     <script>
         // Authentication Configuration
-        const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaP4CXwnAQsRpKa20kHx5rXp8Ku5rtYI_fquVXxixBD7wYUjS2IvfThZnbzY0EHLpKGw/exec';
+        const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLPdoyqsKYo1TOJQAYgLhjXpMAY9agMy1DLCAX_mvoP-n-jfpo13Lw35gOq5dtMqy8EA/exec';
         const API_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
         
         let allData = [];
@@ -1299,13 +1299,14 @@
             const monthData = {};
             monthOrder.forEach(m => monthData[m] = 0);
             
-            // Get data to use based on year and campaign filters
-            let useData = selectedFilters.year.length === 0 ? allData : filteredData;
-            
-            // If campaign filter is applied, filter the data
-            if (selectedFilters.campaign.length > 0) {
-                useData = useData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
-            }
+            // Get data to use based on all current filters (except month to avoid circular filtering)
+            let useData = allData.filter(d => {
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
             
             useData.forEach(d => {
                 const normalizedMonth = normalizeMonth(d.Month);
@@ -1553,10 +1554,14 @@
 
         function createImpactChart() {
             const yearData = {};
-            // Get data to use based on campaign filter
-            const useData = selectedFilters.campaign.length > 0 
-                ? allData.filter(d => selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'))
-                : allData;
+            // Get data to use based on current filters (except year to show all years in impact chart)
+            let useData = allData.filter(d => {
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizeMonth(d.Month))) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
                 
             useData.forEach(d => {
                 const year = d.Year;
@@ -1921,5 +1926,3 @@
     </script>
 </body>
 </html>
-
-
