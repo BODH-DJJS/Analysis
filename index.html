@@ -1047,9 +1047,13 @@
                             <style>
                                 #${safeId}:checked + label span:first-child {
                                     background: #667eea;
+                                    position: relative;
                                 }
                                 #${safeId}:checked + label span:first-child span {
                                     opacity: 1;
+                                    display: flex !important;
+                                    position: relative;
+                                    z-index: 1;
                                 }
                             </style>
                         </div>`;
