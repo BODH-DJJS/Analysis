@@ -1378,12 +1378,12 @@
             charts = {};
 
             const chartsHTML = `
-                <div class="chart-container"><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
-                <div class="chart-container"><div class="chart-wrapper"><canvas id="branchChart"></canvas></div></div>
-                <div class="chart-container"><div class="chart-wrapper"><canvas id="activityChart"></canvas></div></div>
-                <div class="chart-container"><div class="chart-wrapper"><canvas id="stateChart"></canvas></div></div>
-                <div class="chart-container"><div class="chart-wrapper"><canvas id="programTypeChart"></canvas></div></div>
-                <div class="chart-container"><div class="chart-wrapper"><canvas id="impactChart"></canvas></div></div>
+                <div class="chart-container"><h2>📅 Monthly Program Trends</h2><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
+                <div class="chart-container"><h2>🏢 Top Branches by Programs</h2><div class="chart-wrapper"><canvas id="branchChart"></canvas></div></div>
+                <div class="chart-container"><h2>🎯 Activity Distribution</h2><div class="chart-wrapper"><canvas id="activityChart"></canvas></div></div>
+                <div class="chart-container"><h2>🗺️ State-wise Distribution</h2><div class="chart-wrapper"><canvas id="stateChart"></canvas></div></div>
+                <div class="chart-container"><h2>📊 Program Type Analysis</h2><div class="chart-wrapper"><canvas id="programTypeChart"></canvas></div></div>
+                <div class="chart-container"><h2>📈 Program Impact Over Years</h2><div class="chart-wrapper"><canvas id="impactChart"></canvas></div></div>
             `;
             document.getElementById('chartsGrid').innerHTML = chartsHTML;
 
