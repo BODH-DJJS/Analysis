@@ -321,6 +321,8 @@
             top: 100%;
             left: 0;
             right: 0;
+            max-height: 400px;
+            overflow-y: auto;
             background: white;
             border: 2px solid #667eea;
             border-radius: 8px;
@@ -976,29 +978,25 @@
             const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
             const dropdown = container.querySelector('.select-dropdown');
             
-            // Add "All" option first
+            // Create HTML with sticky 'All' option and scrollable options container
             let html = `
-                <div class="select-option all-option">
+                <div class="select-option all-option" style="position: sticky; top: 0; background: white; z-index: 10; border-bottom: 1px solid #eee; padding: 8px 15px; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                     <input type="checkbox" id="${filterType}_all" data-filter-type="${filterType}" class="all-checkbox">
-                    <label for="${filterType}_all">All</label>
+                    <label for="${filterType}_all" style="font-weight: 600; cursor: pointer;">All</label>
                 </div>
-            `;
-            
-            // Add individual options
-            html += options.map(opt => `
-                <div class="select-option">
-                    <input type="checkbox" id="${filterType}_${opt}" value="${opt}" data-filter-type="${filterType}" class="item-checkbox">
-                    <label for="${filterType}_${opt}">${opt}</label>
+                <div class="select-options-container" style="max-height: 300px; overflow-y: auto;">
+                    ${options.map(opt => `
+                        <div class="select-option" style="padding: 8px 15px;">
+                            <input type="checkbox" id="${filterType}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                                   value="${opt}" data-filter-type="${filterType}" class="item-checkbox">
+                            <label for="${filterType}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" style="cursor: pointer;">${opt}</label>
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('');
-            
-            // Add action buttons
-            html += `
-                <div class="filter-actions">
-                    <button class="filter-btn clear" data-filter-type="${filterType}">Clear</button>
-                    <button class="filter-btn apply" data-filter-type="${filterType}">Apply</button>
-                </div>
-            `;
+                <div class="filter-actions" style="position: sticky; bottom: 0; background: white; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: space-between;">
+                    <button class="filter-btn clear" data-filter-type="${filterType}" style="padding: 5px 15px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer;">Clear</button>
+                    <button class="filter-btn apply" data-filter-type="${filterType}" style="padding: 5px 15px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Apply</button>
+                </div>`;
             
             dropdown.innerHTML = html;
 
@@ -1023,28 +1021,8 @@
             const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
             const dropdown = container.querySelector('.select-dropdown');
             
-            // "All" checkbox logic
-            const allCheckbox = dropdown.querySelector('.all-checkbox');
-            allCheckbox.addEventListener('change', (e) => {
-                const itemCheckboxes = dropdown.querySelectorAll('.item-checkbox');
-                itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
-            });
-            
-            // Individual checkbox logic
-            dropdown.querySelectorAll('.item-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
-                    updateAllCheckbox(filterType);
-                });
-            });
-            
-            // Clear button
-            dropdown.querySelector('.filter-btn.clear').addEventListener('click', () => {
-                dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-                allCheckbox.checked = false;
-            });
-            
-            // Apply button
-            dropdown.querySelector('.filter-btn.apply').addEventListener('click', () => {
+            // Function to apply the current filter selection
+            const applyCurrentSelection = () => {
                 const checkedBoxes = dropdown.querySelectorAll('.item-checkbox:checked');
                 const selected = Array.from(checkedBoxes).map(cb => cb.value);
                 selectedFilters[filterType] = selected;
@@ -1057,10 +1035,42 @@
                 
                 applyFilters();
                 
-                // Close dropdown
-                dropdown.classList.remove('show');
-                container.querySelector('.select-arrow').classList.remove('rotated');
-                container.querySelector('.select-display').classList.remove('active');
+                // Close dropdown after a short delay to show visual feedback
+                setTimeout(() => {
+                    dropdown.classList.remove('show');
+                    container.querySelector('.select-arrow').classList.remove('rotated');
+                    container.querySelector('.select-display').classList.remove('active');
+                }, 300);
+            };
+            
+            // "All" checkbox logic
+            const allCheckbox = dropdown.querySelector('.all-checkbox');
+            allCheckbox.addEventListener('change', (e) => {
+                const itemCheckboxes = dropdown.querySelectorAll('.item-checkbox');
+                itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
+                applyCurrentSelection(); // Auto-apply when "All" is toggled
+            });
+            
+            // Individual checkbox logic
+            dropdown.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    updateAllCheckbox(filterType);
+                    applyCurrentSelection(); // Auto-apply when any item is toggled
+                });
+            });
+            
+            // Clear button - update to use the apply function
+            dropdown.querySelector('.filter-btn.clear').addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                allCheckbox.checked = false;
+                applyCurrentSelection();
+            });
+            
+            // Apply button - kept for consistency but now just calls the apply function
+            dropdown.querySelector('.filter-btn.apply').addEventListener('click', (e) => {
+                e.stopPropagation();
+                applyCurrentSelection();
             });
         }
 
@@ -1932,6 +1942,3 @@
     </script>
 </body>
 </html>
-
-
-
