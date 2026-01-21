@@ -980,21 +980,35 @@
             
             // Create HTML with sticky header containing All and Apply button
             let html = `
-                <div class="select-option all-option" style="position: sticky; top: 0; background: white; z-index: 10; border-bottom: 1px solid #eee; padding: 8px 15px; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center;">
-                        <input type="checkbox" id="${filterType}_all" data-filter-type="${filterType}" class="all-checkbox">
-                        <label for="${filterType}_all" style="font-weight: 600; cursor: pointer; margin-right: 10px;">All</label>
+                <div class="select-option all-option" style="position: sticky; top: 0; background: white; z-index: 10; border-bottom: 1px solid #eee; padding: 0; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 15px;">
+                        <div style="display: flex; align-items: center; width: 100%;">
+                            <input type="checkbox" id="${filterType}_all" data-filter-type="${filterType}" class="all-checkbox" style="margin-right: 10px;">
+                            <label for="${filterType}_all" style="font-weight: 600; cursor: pointer; margin: 0; width: 100%; padding: 5px 0;">All</label>
+                        </div>
+                        <button class="filter-btn apply" data-filter-type="${filterType}" style="padding: 3px 12px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; margin-left: 10px;">Apply</button>
                     </div>
-                    <button class="filter-btn apply" data-filter-type="${filterType}" style="padding: 3px 12px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em;">Apply</button>
                 </div>
                 <div class="select-options-container" style="max-height: 300px; overflow-y: auto;">
-                    ${options.map(opt => `
-                        <div class="select-option" style="padding: 8px 15px;">
-                            <input type="checkbox" id="${filterType}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" 
-                                   value="${opt}" data-filter-type="${filterType}" class="item-checkbox">
-                            <label for="${filterType}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}" style="cursor: pointer;">${opt}</label>
-                        </div>
-                    `).join('')}
+                    ${options.map(opt => {
+                        const safeId = `${filterType}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                        return `
+                        <div style="position: relative; border-bottom: 1px solid #f0f0f0;">
+                            <input type="checkbox" id="${safeId}" 
+                                   value="${opt}" data-filter-type="${filterType}" class="item-checkbox" 
+                                   style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+                            <label for="${safeId}" 
+                                   style="display: block; padding: 10px 15px 10px 40px; margin: 0; cursor: pointer; 
+                                          position: relative; transition: all 0.2s ease;
+                                          user-select: none;">
+                                <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+                                            width: 18px; height: 18px; border: 2px solid #667eea; border-radius: 4px;
+                                            display: inline-block; vertical-align: middle;
+                                            transition: all 0.2s ease;"></span>
+                                <span style="display: inline-block; vertical-align: middle;">${opt}</span>
+                            </label>
+                        </div>`;
+                    }).join('')}
                 </div>
                 <div class="filter-actions" style="position: sticky; bottom: 0; background: white; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: flex-end;">
                     <button class="filter-btn clear" data-filter-type="${filterType}" style="padding: 5px 15px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; margin-right: 10px;">Clear All</button>
