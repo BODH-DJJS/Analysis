@@ -1205,12 +1205,60 @@
                 }
             }
             
-            // Ensure the checkboxes reflect the current selection
-            const checkboxes = container.querySelectorAll('.select-dropdown .item-checkbox');
-            checkboxes.forEach(checkbox => {
-                const value = checkbox.getAttribute('data-value');
-                checkbox.checked = selected.includes(value);
+            // Update the checkboxes and their visual state
+            const dropdown = container.querySelector('.select-dropdown');
+            if (!dropdown) return;
+            
+            // Update all item checkboxes
+            const itemCheckboxes = dropdown.querySelectorAll('.item-checkbox');
+            itemCheckboxes.forEach(checkbox => {
+                const value = checkbox.value;
+                const isChecked = selected.includes(value);
+                checkbox.checked = isChecked;
+                
+                // Update the visual checkmark
+                const label = checkbox.nextElementSibling;
+                if (label && label.matches('label')) {
+                    const checkmark = label.querySelector('span:first-child span');
+                    if (checkmark) {
+                        checkmark.style.opacity = isChecked ? '1' : '0';
+                    }
+                    const checkmarkBox = label.querySelector('span:first-child');
+                    if (checkmarkBox) {
+                        checkmarkBox.style.background = isChecked ? '#667eea' : 'transparent';
+                        checkmarkBox.style.borderColor = isChecked ? '#667eea' : '#667eea';
+                    }
+                }
             });
+            
+            // Update the 'All' checkbox state
+            const allCheckbox = dropdown.querySelector('.all-checkbox');
+            if (allCheckbox) {
+                allCheckbox.checked = selected.length === itemCheckboxes.length;
+                allCheckbox.indeterminate = selected.length > 0 && selected.length < itemCheckboxes.length;
+                
+                // Update the visual checkmark for 'All' checkbox
+                const allLabel = allCheckbox.nextElementSibling;
+                if (allLabel && allLabel.matches('label')) {
+                    const allCheckmark = allLabel.parentElement.querySelector('span:first-child');
+                    if (allCheckmark) {
+                        const checkmarkIcon = allCheckmark.querySelector('span');
+                        if (allCheckbox.checked) {
+                            allCheckmark.style.background = '#667eea';
+                            allCheckmark.style.borderColor = '#667eea';
+                            if (checkmarkIcon) checkmarkIcon.style.opacity = '1';
+                        } else if (allCheckbox.indeterminate) {
+                            allCheckmark.style.background = '#f0f0f0';
+                            allCheckmark.style.borderColor = '#667eea';
+                            if (checkmarkIcon) checkmarkIcon.style.opacity = '0';
+                        } else {
+                            allCheckmark.style.background = 'transparent';
+                            allCheckmark.style.borderColor = '#667eea';
+                            if (checkmarkIcon) checkmarkIcon.style.opacity = '0';
+                        }
+                    }
+                }
+            }
         }
 
         function setupFilterListeners() {
