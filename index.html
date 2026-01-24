@@ -1174,40 +1174,43 @@
 
         function updateSelectedDisplay(filterType) {
             const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
+            if (!container) return; // Skip if container not found
+            
             const display = container.querySelector('.select-text');
-            const selected = selectedFilters[filterType];
+            if (!display) return; // Skip if display element not found
+            
+            const selected = selectedFilters[filterType] || [];
+            const labels = {
+                state: 'All States',
+                branch: 'All Branches',
+                year: 'All Years',
+                month: 'All Months',
+                programType: 'All Types',
+                campaign: 'All Campaigns'
+            };
             
             if (selected.length === 0) {
-                const labels = {
-                    state: 'All States',
-                    branch: 'All Branches',
-                    year: 'All Years',
-                    month: 'All Months',
-                    programType: 'All Types',
-                    campaign: 'All Campaigns'
-                };
                 display.innerHTML = labels[filterType];
             } else if (selected.length === 1) {
-                display.innerHTML = selected[0];
+                display.innerHTML = selected[0].toString();
             } else {
                 // Get total count of options
                 const dropdown = container.querySelector('.select-dropdown');
-                const totalOptions = dropdown.querySelectorAll('.item-checkbox').length;
+                const totalOptions = dropdown ? dropdown.querySelectorAll('.item-checkbox').length : 0;
                 
-                if (selected.length === totalOptions) {
-                    const labels = {
-                        state: 'All States',
-                        branch: 'All Branches',
-                        year: 'All Years',
-                        month: 'All Months',
-                        programType: 'All Types',
-                        campaign: 'All Campaigns'
-                    };
+                if (totalOptions > 0 && selected.length === totalOptions) {
                     display.innerHTML = labels[filterType];
                 } else {
-                    display.innerHTML = `${selected[0]} <span class="selected-count">+${selected.length - 1}</span>`;
+                    display.innerHTML = `${selected[0].toString()} <span class="selected-count">+${selected.length - 1}</span>`;
                 }
             }
+            
+            // Ensure the checkboxes reflect the current selection
+            const checkboxes = container.querySelectorAll('.select-dropdown .item-checkbox');
+            checkboxes.forEach(checkbox => {
+                const value = checkbox.getAttribute('data-value');
+                checkbox.checked = selected.includes(value);
+            });
         }
 
         function setupFilterListeners() {
@@ -1263,6 +1266,11 @@
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+
+            // Update all filter displays
+            ['state', 'branch', 'year', 'month', 'programType', 'campaign'].forEach(filterType => {
+                updateSelectedDisplay(filterType);
             });
 
             updateDashboard();
