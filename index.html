@@ -479,6 +479,20 @@
             }
         }
 
+        /* ── Campaign 3-column inline row ── */
+        .camp-inline-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        @media (max-width: 1100px) {
+            .camp-inline-row { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .camp-inline-row { grid-template-columns: 1fr; }
+        }
+
         .chart-container {
             background: white;
             padding: 25px;
@@ -765,6 +779,7 @@
             width: 1px;
             height: 1px;
         }
+
     </style>
 </head>
 <body>
@@ -803,7 +818,7 @@
                 <a href="https://forms.gle/iMASFyacmctiFjqaA" target="_blank" class="quick-link-btn">
                     📝 Add New Report
                 </a>
-                <a href="https://drive.google.com/drive/u/4/folders/1Me1F2m0hpZurlT9_U8DsB0dnrhAJqb0L" target="_blank" class="quick-link-btn secondary">
+                <a href="https://drive.google.com/drive/folders/1Me1F2m0hpZurlT9_U8DsB0dnrhAJqb0L" target="_blank" class="quick-link-btn secondary">
                     🎯 Campaign Materials
                 </a>
                 <span class="campaign-tag">🔥 Quit Karo 2.0 | Apr-Jun '26</span>
@@ -1407,9 +1422,52 @@
             document.getElementById('statsGrid').innerHTML = statsHTML;
         }
 
+        const CAMP_COLORS = [
+            '#667eea','#f5576c','#43e97b','#4facfe',
+            '#f093fb','#fa8231','#a29bfe','#00cec9',
+            '#fd79a8','#6c5ce7','#00b894','#e17055'
+        ];
+        let campCharts = {};
+
+        function destroyCampCharts() {
+            Object.values(campCharts).forEach(c => { try { c.destroy(); } catch(e){} });
+            campCharts = {};
+        }
+
         function updateCharts() {
             Object.values(charts).forEach(chart => chart.destroy());
             charts = {};
+            destroyCampCharts();
+
+            // Build campaign stats from filteredData
+            const campData = filteredData.filter(d => d['Campaign Name']);
+            const campaigns = [...new Set(campData.map(d => d['Campaign Name']).filter(Boolean))].sort();
+            const campStats = {};
+            campaigns.forEach(c => { campStats[c] = { programs: 0, beneficiaries: 0 }; });
+            campData.forEach(d => {
+                const c = d['Campaign Name'];
+                if (!c || !campStats[c]) return;
+                campStats[c].programs++;
+                campStats[c].beneficiaries += getBeneficiaryCount(d);
+            });
+            const allStates = [...new Set(campData.map(d => d.State).filter(Boolean))].sort();
+
+            // Conditionally add the 3-column campaign row
+            const campRowHTML = campaigns.length > 0 ? `
+                <div class="camp-inline-row">
+                    <div class="chart-container">
+                        <h2>📊 Per Campaign — Programs Conducted</h2>
+                        <div class="chart-wrapper"><canvas id="campBarPrograms"></canvas></div>
+                    </div>
+                    <div class="chart-container">
+                        <h2>👥 Per Campaign — Beneficiaries Reached</h2>
+                        <div class="chart-wrapper"><canvas id="campBarBenef"></canvas></div>
+                    </div>
+                    <div class="chart-container">
+                        <h2>🗺️ Per Campaign — State-wise Reach</h2>
+                        <div class="chart-wrapper"><canvas id="campStackedState"></canvas></div>
+                    </div>
+                </div>` : '';
 
             const chartsHTML = `
                 <div class="chart-container"><h2>📅 Monthly Program Trends</h2><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
@@ -1418,6 +1476,7 @@
                 <div class="chart-container"><h2>🗺️ State-wise Distribution</h2><div class="chart-wrapper"><canvas id="stateChart"></canvas></div></div>
                 <div class="chart-container"><h2>📊 Program Type Analysis</h2><div class="chart-wrapper"><canvas id="programTypeChart"></canvas></div></div>
                 <div class="chart-container"><h2>📈 Program Impact Over Years</h2><div class="chart-wrapper"><canvas id="impactChart"></canvas></div></div>
+                ${campRowHTML}
             `;
             document.getElementById('chartsGrid').innerHTML = chartsHTML;
 
@@ -1427,6 +1486,71 @@
             createStateChart();
             createProgramTypeChart();
             createImpactChart();
+
+            if (campaigns.length > 0) {
+                // Camp chart 1: Programs per campaign
+                campCharts.prog = new Chart(document.getElementById('campBarPrograms').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: campaigns,
+                        datasets: [{
+                            label: 'Programs',
+                            data: campaigns.map(c => campStats[c].programs),
+                            backgroundColor: campaigns.map((_,i) => CAMP_COLORS[i % CAMP_COLORS.length] + 'cc'),
+                            borderColor:     campaigns.map((_,i) => CAMP_COLORS[i % CAMP_COLORS.length]),
+                            borderWidth: 2, borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } }
+                    }
+                });
+
+                // Camp chart 2: Beneficiaries per campaign
+                campCharts.benef = new Chart(document.getElementById('campBarBenef').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: campaigns,
+                        datasets: [{
+                            label: 'Beneficiaries',
+                            data: campaigns.map(c => campStats[c].beneficiaries),
+                            backgroundColor: campaigns.map((_,i) => CAMP_COLORS[(i+3) % CAMP_COLORS.length] + 'cc'),
+                            borderColor:     campaigns.map((_,i) => CAMP_COLORS[(i+3) % CAMP_COLORS.length]),
+                            borderWidth: 2, borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } }
+                    }
+                });
+
+                // Camp chart 3: State-wise stacked bar
+                const stateDatasets = campaigns.map((c, i) => {
+                    const stateCounts = {};
+                    allStates.forEach(s => stateCounts[s] = 0);
+                    campData.filter(d => d['Campaign Name'] === c).forEach(d => { if(d.State) stateCounts[d.State]++; });
+                    return {
+                        label: c,
+                        data: allStates.map(s => stateCounts[s]),
+                        backgroundColor: CAMP_COLORS[i % CAMP_COLORS.length] + 'bb',
+                        borderColor: CAMP_COLORS[i % CAMP_COLORS.length],
+                        borderWidth: 1
+                    };
+                });
+                campCharts.state = new Chart(document.getElementById('campStackedState').getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: allStates, datasets: stateDatasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } },
+                        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                    }
+                });
+            }
         }
 
         function createMonthlyChart() {
@@ -2064,7 +2188,6 @@
             }
         });
 
-        // Original fetchData function will be called after successful authentication
     </script>
 </body>
 </html>
