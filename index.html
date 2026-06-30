@@ -938,7 +938,23 @@
         // Authentication Configuration
         const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaP4CXwnAQsRpKa20kHx5rXp8Ku5rtYI_fquVXxixBD7wYUjS2IvfThZnbzY0EHLpKGw/exec';
         const API_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
-        
+
+        // Opens the program's "Raw" folder directly. Opens a tab immediately (so the
+        // popup blocker allows it), asks Apps Script to resolve month -> date -> Raw,
+        // then redirects. Falls back to the month folder if Raw can't be located.
+        function openRawFolder(monthUrl, dateStr) {
+            const w = window.open('about:blank', '_blank');
+            try { w.document.write('<p style="font-family:sans-serif;padding:24px;color:#555">Opening folder…</p>'); } catch (e) {}
+            const u = API_URL + (API_URL.indexOf('?') > -1 ? '&' : '?') + 'action=raw'
+                    + '&link=' + encodeURIComponent(monthUrl || '')
+                    + '&date=' + encodeURIComponent(dateStr || '');
+            fetch(u)
+                .then(r => r.json())
+                .then(j => { const dest = (j && j.url) ? j.url : monthUrl;
+                             if (w) w.location.href = dest; else window.open(dest, '_blank'); })
+                .catch(() => { if (w) w.location.href = monthUrl; else window.open(monthUrl, '_blank'); });
+        }
+
         let allData = [];
         let filteredData = [];
         let charts = {};
@@ -1998,12 +2014,12 @@
                 // Defensive key lookup so it works whatever key the API sends.
                 const folderLink = d['Month wise Folder link'] || d['Folder Link']
                     || d.folderLink || d['MonthFolderLink'] || d['Folder'] || '';
+                const rowDate = String(d['Full Date'] || d.Date || '');
                 const editCell = folderLink
-                    ? `<a href="${folderLink}" target="_blank" rel="noopener"
-                          class="view-details-btn"
-                          style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-                                 text-decoration: none; display: inline-block;"
-                          title="Open this program's Drive folder to add/upload photos">✏️ Edit / Upload</a>`
+                    ? `<button class="view-details-btn"
+                          style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"
+                          title="Open this program's Raw folder to upload photos"
+                          onclick='openRawFolder(${JSON.stringify(folderLink)}, ${JSON.stringify(rowDate)})'>✏️ Edit / Upload</button>`
                     : `<span style="color:#bbb; font-size:0.85em;">No folder</span>`;
                 return `
                     <tr>
