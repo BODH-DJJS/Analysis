@@ -913,6 +913,7 @@
                         <th>Beneficiaries</th>
                         <th>Program Type</th>
                         <th>Action</th>
+                        <th>Edit / Upload</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -1993,6 +1994,17 @@
             const recentData = sortedData.slice(0, 20);
 
             tableBody.innerHTML = recentData.map((d, index) => {
+                // Per-row Drive folder link (column AC "Month wise Folder link").
+                // Defensive key lookup so it works whatever key the API sends.
+                const folderLink = d['Month wise Folder link'] || d['Folder Link']
+                    || d.folderLink || d['MonthFolderLink'] || d['Folder'] || '';
+                const editCell = folderLink
+                    ? `<a href="${folderLink}" target="_blank" rel="noopener"
+                          class="view-details-btn"
+                          style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+                                 text-decoration: none; display: inline-block;"
+                          title="Open this program's Drive folder to add/upload photos">✏️ Edit / Upload</a>`
+                    : `<span style="color:#bbb; font-size:0.85em;">No folder</span>`;
                 return `
                     <tr>
                         <td style="white-space: nowrap;">${formatDate(d['Full Date'] || d.Date)}</td>
@@ -2002,6 +2014,7 @@
                         <td>${getBeneficiaryCount(d).toLocaleString()}</td>
                         <td>${d['Type of Program'] || 'N/A'}</td>
                         <td><button class="view-details-btn" onclick="showDetails(${sortedData.indexOf(d)})">View Details</button></td>
+                        <td>${editCell}</td>
                     </tr>
                 `;
             }).join('');
