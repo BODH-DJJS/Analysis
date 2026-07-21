@@ -855,7 +855,7 @@
                     </div>
                 </div>
                 <div class="filter-group">
-                    <label>Year</label>
+                    <label>Year (Apr–Mar)</label>
                     <div class="custom-select" data-filter="year">
                         <div class="select-display">
                             <span class="select-text">All Years</span>
@@ -994,6 +994,23 @@
             return normalized || month;
         }
 
+        // Year cycle runs April -> March. April 2025 .. March 2026 => "2025-26"
+        const monthOrderAprMar = ['April', 'May', 'June', 'July', 'August', 'September',
+                                  'October', 'November', 'December', 'January', 'February', 'March'];
+        const calendarMonthIndex = {
+            'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5, 'June': 6,
+            'July': 7, 'August': 8, 'September': 9, 'October': 10, 'November': 11, 'December': 12
+        };
+
+        function getYearCycle(record) {
+            const year = parseInt(record.Year, 10);
+            if (!year) return '';
+            const m = calendarMonthIndex[normalizeMonth(record.Month)];
+            // Jan/Feb/Mar belong to the cycle that started the previous April
+            const startYear = (m && m <= 3) ? year - 1 : year;
+            return `${startYear}-${String((startYear + 1) % 100).padStart(2, '0')}`;
+        }
+
         async function fetchData() {
             try {
                 const response = await fetch(API_URL);
@@ -1003,7 +1020,8 @@
                 // Normalize month values in the data
                 allData = allData.map(record => ({
                     ...record,
-                    Month: normalizeMonth(record.Month)
+                    Month: normalizeMonth(record.Month),
+                    YearCycle: getYearCycle(record)
                 }));
                 
                 filteredData = [...allData];
@@ -1022,9 +1040,9 @@
 
         function populateFilters() {
             const states = [...new Set(allData.map(d => d.State).filter(Boolean))].sort();
-            const years = [...new Set(allData.map(d => d.Year).filter(Boolean))].sort((a, b) => b - a);
-            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
-                           'July', 'August', 'September', 'October', 'November', 'December'];
+            const years = [...new Set(allData.map(d => d.YearCycle).filter(Boolean))]
+                            .sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
+            const months = monthOrderAprMar;
             const programTypes = [...new Set(allData.map(d => d['Type of Program']).filter(Boolean))].sort();
             const campaigns = [...new Set(allData.map(d => d['Campaign Name'] || 'Not Specified').filter(Boolean))].sort();
 
@@ -1351,7 +1369,7 @@
                 
                 return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
-                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
@@ -1580,8 +1598,7 @@
         }
 
         function createMonthlyChart() {
-            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 
-                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const monthOrder = monthOrderAprMar;
             const monthData = {};
             monthOrder.forEach(m => monthData[m] = 0);
             
@@ -1589,7 +1606,7 @@
             let useData = allData.filter(d => {
                 return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
-                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
             });
@@ -1649,7 +1666,7 @@
                 const normalizedMonth = normalizeMonth(d.Month);
                 return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
-                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
@@ -1707,7 +1724,7 @@
                 const normalizedMonth = normalizeMonth(d.Month);
                 return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
-                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
@@ -1751,7 +1768,7 @@
                 const normalizedMonth = normalizeMonth(d.Month);
                 return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
-                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
@@ -1807,7 +1824,7 @@
                 const normalizedMonth = normalizeMonth(d.Month);
                 return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
                        (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
-                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(String(d.Year))) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
                        (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
                        (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
@@ -1856,7 +1873,8 @@
             });
                 
             useData.forEach(d => {
-                const year = d.Year;
+                const year = d.YearCycle;
+                if (!year) return;
                 if (!yearData[year]) {
                     yearData[year] = {
                         programs: 0,
@@ -1869,7 +1887,7 @@
                 yearData[year].branches.add(d.Branch);
             });
 
-            const years = Object.keys(yearData).sort();
+            const years = Object.keys(yearData).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
             const programCounts = years.map(y => yearData[y].programs);
             const beneficiaryCounts = years.map(y => yearData[y].beneficiaries);
 
