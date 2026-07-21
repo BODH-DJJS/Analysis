@@ -89,13 +89,12 @@
 }
 
 .header-logo {
-    width: 280px;
-    height: 180px;
+    width: 240px;
+    height: 150px;
     object-fit: contain;
+    flex-shrink: 0;
     filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 4px 10px rgba(0,0,0,0.3));
-    position: absolute;
-    left: 160px;
-    top: calc(50% - 90px);
+    position: relative;
     z-index: 2;
     transition: transform 0.3s ease, filter 0.3s ease;
 }
@@ -106,7 +105,7 @@
 }
 
 .header-content {
-    margin-left: 100px;
+    margin-left: 0;
     text-align: center;
     z-index: 2;
     position: relative;
