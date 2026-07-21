@@ -89,18 +89,21 @@
 }
 
 .header-logo {
-    width: 240px;
-    height: 150px;
+    width: 280px;
+    height: 180px;
     object-fit: contain;
-    flex-shrink: 0;
+    /* anchored to the left edge of the centred title block */
+    position: absolute;
+    right: calc(100% + 15px);
+    top: 50%;
+    transform: translateY(-50%);
     filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 4px 10px rgba(0,0,0,0.3));
-    position: relative;
     z-index: 2;
     transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .header-logo:hover {
-    transform: scale(1.05);
+    transform: translateY(-50%) scale(1.05);
     filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)) drop-shadow(0 6px 15px rgba(0,0,0,0.4));
 }
 
@@ -133,9 +136,13 @@
     .header-logo {
         width: 100px;
         height: 105px;
-        position: relative;
-        left: 0;
-        top: 0;
+        position: static;
+        transform: none;
+        display: block;
+        margin: 0 auto 10px auto;
+    }
+    .header-logo:hover {
+        transform: scale(1.05);
     }
     .header-content {
         margin-left: 0;
@@ -813,8 +820,8 @@
         <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_banner.jpg" alt="BODH Banner" class="header-bg-image" onerror="this.style.display='none'">
         <div class="header-overlay"></div>
     </div>
-    <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_logo.png" alt="BODH Logo" class="header-logo" onerror="this.style.display='none'">
     <div class="header-content">
+        <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_logo.png" alt="BODH Logo" class="header-logo" onerror="this.style.display='none'">
         <h1>DJJS BODH Data Analysis Dashboard 📊</h1>
         <p>Comprehensive Branch Activities Analysis [2006 – Current]</p>
     </div>
