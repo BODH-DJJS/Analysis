@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BODH POC Team Leader Registration</title>
+    <meta name="description" content="Register as a BODH POC Team Leader. Submit your details for the Bodh programme by DJJS." />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --primary-dark: #3730a3;
+            --accent: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.3);
+            --surface: rgba(255, 255, 255, 0.06);
+            --surface-hover: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.1);
+            --border-focus: rgba(79, 70, 229, 0.6);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-label: #cbd5e1;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-pattern {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .bg-pattern::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(79,70,229,0.15) 0%, transparent 70%);
+            top: -200px; right: -100px;
+            border-radius: 50%;
+            animation: floatOrb 20s ease-in-out infinite;
+        }
+        .bg-pattern::after {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+            bottom: -150px; left: -100px;
+            border-radius: 50%;
+            animation: floatOrb 25s ease-in-out infinite reverse;
+        }
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(60px, -40px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.95); }
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* Header */
+        .form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .form-header .logo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3); }
+            50% { box-shadow: 0 8px 48px rgba(79, 70, 229, 0.5); }
+        }
+        .form-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 2rem;
+        }
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+        .step-dot {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .step-dot.active {
+            background: var(--primary);
+            border-color: var(--primary-light);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+        }
+        .step-dot.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+        .step-connector {
+            width: 60px; height: 2px;
+            background: var(--border);
+            transition: background 0.4s ease;
+        }
+        .step-connector.active {
+            background: linear-gradient(90deg, var(--success), var(--primary));
+        }
+
+        /* Form card */
+        .form-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sections */
+        .form-section {
+            display: none;
+            animation: fadeSlideIn 0.5s ease forwards;
+        }
+        .form-section.active {
+            display: block;
+        }
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-title .icon {
+            font-size: 1.2rem;
+        }
+        .section-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form fields */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .field-group {
+            position: relative;
+        }
+        .field-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-label);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .field-group label .required {
+            color: var(--error);
+            margin-left: 2px;
+        }
+        .field-group input,
+        .field-group textarea,
+        .field-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .field-group input::placeholder,
+        .field-group textarea::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+        .field-group input:hover,
+        .field-group textarea:hover,
+        .field-group select:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--surface-hover);
+        }
+        .field-group input:focus,
+        .field-group textarea:focus,
+        .field-group select:focus {
+            border-color: var(--border-focus);
+            background: var(--surface-hover);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        .field-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .field-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8.825L1.175 4 2.238 2.938 6 6.7 9.763 2.937 10.825 4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 2.2rem;
+        }
+        .field-group .field-hint {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            opacity: 0.7;
+        }
+        .field-group .field-error {
+            font-size: 0.72rem;
+            color: var(--error);
+            margin-top: 0.3rem;
+            display: none;
+        }
+        .field-group.has-error input,
+        .field-group.has-error textarea,
+        .field-group.has-error select {
+            border-color: var(--error);
+        }
+        .field-group.has-error .field-error {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 1rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+            padding: 0.9rem 2.5rem;
+            font-size: 0.95rem;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Status messages */
+        .status-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .status-overlay.show {
+            display: flex;
+        }
+        .status-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: scaleIn 0.4s ease;
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .status-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .status-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .status-card .btn {
+            margin-top: 1.5rem;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 48px; height: 48px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .page-wrapper { padding: 1.5rem 1rem 3rem; }
+            .form-card { padding: 1.5rem; }
+            .form-grid { grid-template-columns: 1fr; }
+            .form-header h1 { font-size: 1.4rem; }
+            .btn-row { flex-direction: column-reverse; }
+            .btn { width: 100%; justify-content: center; }
+            .step-connector { width: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="page-wrapper">
+        <!-- Header -->
+        <div class="form-header">
+            <div class="logo-badge">B</div>
+            <h1>BODH POC Team Leader Registration</h1>
+            <p>We are gathering details to finalize the Bodh POC Team Leaders. Please fill in your information below.</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-bar">
+            <div class="step-dot active" id="dot-1">1</div>
+            <div class="step-connector" id="conn-1"></div>
+            <div class="step-dot" id="dot-2">2</div>
+            <div class="step-connector" id="conn-2"></div>
+            <div class="step-dot" id="dot-3">3</div>
+            <div class="step-connector" id="conn-3"></div>
+            <div class="step-dot" id="dot-4">4</div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <form id="bodhForm" novalidate>
+
+                <!-- Section 1: Basic Details -->
+                <div class="form-section active" id="section-1">
+                    <div class="section-title"><span class="icon">👤</span> Basic Details</div>
+                    <div class="section-subtitle">Enter your personal information</div>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" name="fullName" placeholder="e.g., Ramesh Kumar" required />
+                            <div class="field-error">Please enter your full name</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Primary Contact <span class="required">*</span></label>
+                            <input type="tel" name="contact" placeholder="e.g., 9876543210" pattern="[0-9]{10}" required />
+                            <div class="field-hint">10-digit mobile number</div>
+                            <div class="field-error">Please enter a valid 10-digit number</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Email ID <span class="required">*</span></label>
+                            <input type="email" name="email" placeholder="e.g., r.tilak@email.com" required />
+                            <div class="field-error">Please enter a valid email address</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Age <span class="required">*</span></label>
+                            <input type="number" name="age" placeholder="e.g., 36" min="10" max="100" required />
+                            <div class="field-error">Please enter your age</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Date of Birth <span class="required">*</span></label>
+                            <input type="date" name="dob" required />
+                            <div class="field-hint">e.g., 14-Aug-1990</div>
+                            <div class="field-error">Please select your date of birth</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <span></span>
+                        <button type="button" class="btn btn-primary" onclick="nextSection(1)">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Section 2: Branch Details -->
+                <div class="form-section" id="section-2">
+                    <div class="section-title"><span class="icon">🏢</span> Branch Details</div>
+                    <div class="section-subtitle">Your branch and location information</div>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>State <span class="required">*</span></label>
+                            <input type="text" name="state" placeholder="e.g., Maharashtra" required />
+                            <div class="field-error">Please enter your state</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Branch Name <span class="required">*</span></label>
+                            <input type="text" name="branchName" placeholder="e.g., Mira Road Branch" required />
+                            <div class="field-error">Please enter your branch name</div>
+                        </div>
+                        <div class="field-group full-width">
+                            <label>Branch AR &amp; Number <span class="required">*</span></label>
+                            <input type="text" name="branchAr" placeholder="e.g., Ramesh Gupta - 9123456780" required />
+                            <div class="field-hint">Name and contact number of Branch AR</div>
+                            <div class="field-error">Please enter Branch AR details</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="prevSection(2)">← Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextSection(2)">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Section 3: Qualification & Profession -->
+                <div class="form-section" id="section-3">
+                    <div class="section-title"><span class="icon">🎓</span> Qualification &amp; Profession</div>
+                    <div class="section-subtitle">Your educational and professional background</div>
+                    <div class="form-grid">
+                        <div class="field-group">
+                            <label>Highest Education <span class="required">*</span></label>
+                            <input type="text" name="education" placeholder="e.g., B.Com / MBA" required />
+                            <div class="field-error">Please enter your education</div>
+                        </div>
+                        <div class="field-group">
+                            <label>Current Occupation <span class="required">*</span></label>
+                            <input type="text" name="occupation" placeholder="e.g., Corporate Professional" required />
+                            <div class="field-error">Please enter your occupation</div>
+                        </div>
+                        <div class="field-group full-width">
+                            <label>Occupation Description <span class="required">*</span></label>
+                            <textarea name="occupationDesc" placeholder="e.g., Data analyst, full stack developer..." rows="2" required></textarea>
+                            <div class="field-error">Please describe your occupation</div>
+                        </div>
+                        <div class="field-group full-width">
+                            <label>Languages Known <span class="required">*</span></label>
+                            <input type="text" name="languages" placeholder="e.g., English, Hindi, Marathi" required />
+                            <div class="field-error">Please enter languages you know</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="prevSection(3)">← Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextSection(3)">Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Section 4: Experience & Commitment -->
+                <div class="form-section" id="section-4">
+                    <div class="section-title"><span class="icon">⏱️</span> Experience &amp; Commitment</div>
+                    <div class="section-subtitle">Your responsibilities and availability</div>
+                    <div class="form-grid">
+                        <div class="field-group full-width">
+                            <label>Current Branch Responsibilities <span class="required">*</span></label>
+                            <textarea name="responsibilities" placeholder="e.g., Managing weekly youth meetings, coordinating events..." rows="3" required></textarea>
+                            <div class="field-error">Please describe your responsibilities</div>
+                        </div>
+                        <div class="field-group full-width">
+                            <label>Available Time Commitment <span class="required">*</span></label>
+                            <input type="text" name="timeCommit" placeholder="e.g., 4-5 hours per week" required />
+                            <div class="field-hint">Hours you can dedicate per week</div>
+                            <div class="field-error">Please enter your time commitment</div>
+                        </div>
+                    </div>
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="prevSection(4)">← Back</button>
+                        <button type="submit" class="btn btn-submit" id="submitBtn">✓ Submit Application</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Status Overlays -->
+    <div class="status-overlay" id="loadingOverlay">
+        <div class="status-card">
+            <div class="spinner"></div>
+            <h3>Submitting your application...</h3>
+            <p>Please wait while we save your details.</p>
+        </div>
+    </div>
+
+    <div class="status-overlay" id="successOverlay">
+        <div class="status-card">
+            <div class="status-icon">🎉</div>
+            <h3 style="color: var(--success);">Application Submitted!</h3>
+            <p>Thank you for registering as a BODH POC Team Leader. Your details have been saved successfully.</p>
+            <button class="btn btn-primary" onclick="resetForm()">Submit Another Response</button>
+        </div>
+    </div>
+
+    <div class="status-overlay" id="errorOverlay">
+        <div class="status-card">
+            <div class="status-icon">⚠️</div>
+            <h3 style="color: var(--error);">Submission Failed</h3>
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+            <button class="btn btn-primary" onclick="hideOverlay('errorOverlay')">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURATION – Replace with your deployed Apps Script URL
+        // ============================================================
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
+
+        // ============================================================
+        // Multi-step navigation
+        // ============================================================
+        let currentSection = 1;
+        const totalSections = 4;
+
+        function updateProgress() {
+            for (let i = 1; i <= totalSections; i++) {
+                const dot = document.getElementById(`dot-${i}`);
+                const conn = document.getElementById(`conn-${i}`);
+                dot.classList.remove('active', 'completed');
+                if (conn) conn.classList.remove('active');
+
+                if (i < currentSection) {
+                    dot.classList.add('completed');
+                    dot.textContent = '✓';
+                    if (conn) conn.classList.add('active');
+                } else if (i === currentSection) {
+                    dot.classList.add('active');
+                    dot.textContent = i;
+                } else {
+                    dot.textContent = i;
+                }
+            }
+        }
+
+        function showSection(num) {
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`section-${num}`).classList.add('active');
+            currentSection = num;
+            updateProgress();
+            // Scroll to top of form
+            document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function validateSection(sectionNum) {
+            const section = document.getElementById(`section-${sectionNum}`);
+            const inputs = section.querySelectorAll('input[required], textarea[required], select[required]');
+            let valid = true;
+
+            inputs.forEach(input => {
+                const group = input.closest('.field-group');
+                group.classList.remove('has-error');
+
+                if (!input.value.trim()) {
+                    group.classList.add('has-error');
+                    valid = false;
+                } else if (input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                    group.classList.add('has-error');
+                    valid = false;
+                } else if (input.name === 'contact' && !/^\d{10}$/.test(input.value.trim())) {
+                    group.classList.add('has-error');
+                    valid = false;
+                }
+            });
+
+            return valid;
+        }
+
+        function nextSection(from) {
+            if (!validateSection(from)) return;
+            if (from < totalSections) showSection(from + 1);
+        }
+
+        function prevSection(from) {
+            if (from > 1) showSection(from - 1);
+        }
+
+        // Clear errors on input
+        document.querySelectorAll('input, textarea, select').forEach(el => {
+            el.addEventListener('input', () => {
+                el.closest('.field-group').classList.remove('has-error');
+            });
+        });
+
+        // ============================================================
+        // Form submission
+        // ============================================================
+        function showOverlay(id) {
+            document.getElementById(id).classList.add('show');
+        }
+        function hideOverlay(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.getElementById('bodhForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateSection(currentSection)) return;
+
+            const formData = Object.fromEntries(new FormData(e.target));
+            showOverlay('loadingOverlay');
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                hideOverlay('loadingOverlay');
+                showOverlay('successOverlay');
+            } catch (err) {
+                hideOverlay('loadingOverlay');
+                document.getElementById('errorMessage').textContent =
+                    'Network error. Please check your connection and try again.';
+                showOverlay('errorOverlay');
+                console.error('Submission error:', err);
+            }
+        });
+
+        function resetForm() {
+            hideOverlay('successOverlay');
+            document.getElementById('bodhForm').reset();
+            showSection(1);
+        }
+    </script>
+</body>
+</html>
