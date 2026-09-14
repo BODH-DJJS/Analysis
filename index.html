@@ -896,7 +896,7 @@
                 <a href="https://forms.gle/iMASFyacmctiFjqaA" target="_blank" class="quick-link-btn">
                     📝 Add New Report
                 </a>
-                <a href="https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec" target="_blank" class="quick-link-btn" style="background: linear-gradient(135deg, #FF6B35 0%, #1a1a5e 100%);">
+                <a id="testReportBtn" href="https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec" target="_blank" class="quick-link-btn" style="background: linear-gradient(135deg, #FF6B35 0%, #1a1a5e 100%);">
                     🚀 Test New Report
                 </a>
                 <a href="https://drive.google.com/drive/u/1/folders/1xthor3slQXW0KEXo_qd0XyTNRzzd3c6v" target="_blank" class="quick-link-btn secondary">
@@ -2435,6 +2435,14 @@
             const data = parseJwt(response.credential);
             const userEmail = data.email;
             
+            // Append email to form link
+            const btn = document.getElementById('testReportBtn');
+            if(btn) {
+                const url = new URL(btn.href);
+                url.searchParams.set('email', userEmail);
+                btn.href = url.toString();
+            }
+
             // Show loading state
             document.getElementById('auth-message').textContent = 'Verifying access...';
             document.querySelector('.g_id_signin').style.display = 'none';
@@ -2498,6 +2506,14 @@
             const userData = sessionStorage.getItem('userData');
             const wl = sessionStorage.getItem('isWhitelisted');
             if (userData) {
+                const userEmail = JSON.parse(userData).email;
+                const btn = document.getElementById('testReportBtn');
+                if(btn && userEmail) {
+                    const url = new URL(btn.href);
+                    url.searchParams.set('email', userEmail);
+                    btn.href = url.toString();
+                }
+
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
                 if (wl === 'true') {
