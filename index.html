@@ -948,7 +948,7 @@
         // Fix B: Pre-warm the BODH Reporting Form Apps Script silently
         // This pings the form's server so it's already "awake" by the time user clicks "Add New Report"
         // Replace BODH_FORM_URL below with your published BODH Reporting Form Apps Script URL
-        const BODH_FORM_URL = 'YOUR_BODH_REPORTING_FORM_URL_HERE';
+        const BODH_FORM_URL = 'https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec';
         if (BODH_FORM_URL && !BODH_FORM_URL.includes('YOUR_BODH')) {
           window.addEventListener('load', function() {
             setTimeout(function() {
