@@ -795,6 +795,62 @@
             height: 1px;
         }
 
+        /* ===== Tab Navigation ===== */
+        .tab-nav { display:flex; background:linear-gradient(135deg,#1e1b4b,#312e81); padding:0 20px; gap:4px; border-bottom:2px solid rgba(255,255,255,0.1); }
+        .tab-btn { padding:14px 28px; background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:14px; font-weight:600; cursor:pointer; transition:all .3s; position:relative; font-family:inherit; display:flex; align-items:center; gap:8px; }
+        .tab-btn:hover { color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.05); }
+        .tab-btn.active { color:#fff; background:rgba(255,255,255,0.1); }
+        .tab-btn.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:3px; background:linear-gradient(90deg,#818cf8,#06b6d4); border-radius:3px 3px 0 0; }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+
+        /* ===== Registration Form ===== */
+        .reg-wrap { max-width:780px; margin:2rem auto; padding:0 1.5rem 3rem; }
+        .reg-hdr { text-align:center; margin-bottom:1.8rem; }
+        .reg-hdr .rbadge { display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; background:linear-gradient(135deg,#4f46e5,#06b6d4); border-radius:13px; font-size:1.4rem; font-weight:800; color:#fff; margin-bottom:.8rem; box-shadow:0 6px 20px rgba(79,70,229,.3); }
+        .reg-hdr h2 { font-size:1.4rem; color:#1e293b; margin-bottom:.3rem; }
+        .reg-hdr p { color:#64748b; font-size:.88rem; }
+        .reg-prog { display:flex; align-items:center; justify-content:center; margin-bottom:1.4rem; }
+        .rdot { width:32px; height:32px; border-radius:50%; background:#f1f5f9; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:600; color:#94a3b8; transition:all .3s; }
+        .rdot.active { background:#4f46e5; border-color:#818cf8; color:#fff; box-shadow:0 0 14px rgba(79,70,229,.3); }
+        .rdot.done { background:#10b981; border-color:#10b981; color:#fff; }
+        .rconn { width:45px; height:2px; background:#e2e8f0; transition:background .3s; }
+        .rconn.active { background:linear-gradient(90deg,#10b981,#4f46e5); }
+        .rcard { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1.8rem; box-shadow:0 4px 20px rgba(0,0,0,.05); }
+        .rsec { display:none; animation:rFade .4s ease; }
+        .rsec.active { display:block; }
+        @keyframes rFade { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .rsec-title { font-size:1.05rem; font-weight:600; color:#1e293b; margin-bottom:.2rem; display:flex; align-items:center; gap:.4rem; }
+        .rsec-sub { font-size:.8rem; color:#94a3b8; margin-bottom:1.1rem; }
+        .rgrid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .rgrid .fw { grid-column:1/-1; }
+        .rfl label { display:block; font-size:.72rem; font-weight:600; color:#475569; margin-bottom:.3rem; text-transform:uppercase; letter-spacing:.5px; }
+        .rfl label .rq { color:#ef4444; margin-left:2px; }
+        .rfl input,.rfl textarea,.rfl select { width:100%; padding:.65rem .85rem; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; color:#1e293b; font-family:inherit; font-size:.86rem; transition:all .2s; outline:none; }
+        .rfl input:focus,.rfl textarea:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.1); background:#fff; }
+        .rfl textarea { resize:vertical; min-height:65px; }
+        .rfl .rh { font-size:.68rem; color:#94a3b8; margin-top:.2rem; }
+        .rfl .re { font-size:.68rem; color:#ef4444; margin-top:.2rem; display:none; }
+        .rfl.has-error input,.rfl.has-error textarea { border-color:#ef4444; }
+        .rfl.has-error .re { display:block; }
+        .rbtn-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; gap:1rem; }
+        .rb { display:inline-flex; align-items:center; gap:.4rem; padding:.65rem 1.4rem; border:none; border-radius:8px; font-family:inherit; font-size:.86rem; font-weight:600; cursor:pointer; transition:all .25s; }
+        .rb-back { background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; }
+        .rb-back:hover { background:#e2e8f0; color:#334155; }
+        .rb-next { background:linear-gradient(135deg,#4f46e5,#3730a3); color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25); }
+        .rb-next:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(79,70,229,.35); }
+        .rb-submit { background:linear-gradient(135deg,#10b981,#059669); color:#fff; box-shadow:0 4px 12px rgba(16,185,129,.25); padding:.75rem 2rem; }
+        .rb-submit:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(16,185,129,.35); }
+        .rov { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); z-index:100; align-items:center; justify-content:center; }
+        .rov.show { display:flex; }
+        .rsc { background:#fff; border-radius:14px; padding:2rem; text-align:center; max-width:370px; width:90%; box-shadow:0 20px 50px rgba(0,0,0,.15); animation:rPop .3s ease; }
+        @keyframes rPop { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+        .rsc .ri { font-size:2.6rem; margin-bottom:.6rem; }
+        .rsc h3 { font-size:1.05rem; margin-bottom:.3rem; }
+        .rsc p { color:#64748b; font-size:.85rem; line-height:1.5; }
+        .rspinner { width:38px; height:38px; border:3px solid #e2e8f0; border-top-color:#4f46e5; border-radius:50%; animation:rSpin .7s linear infinite; margin:0 auto .7rem; }
+        @keyframes rSpin { to{transform:rotate(360deg)} }
+        @media(max-width:640px) { .rgrid{grid-template-columns:1fr} .rbtn-row{flex-direction:column-reverse} .rb{width:100%;justify-content:center} .tab-btn{padding:10px 14px;font-size:12px} }
     </style>
 </head>
 <body>
@@ -802,7 +858,7 @@
     <div id="auth-container" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;">
         <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%;">
             <h2>Sign In Required</h2>
-            <p>Please sign in with your Google account to access the dashboard</p>
+            <p>Please sign in with your Google account to continue</p>
             <div id="g_id_onload"
                  data-client_id="1069170739830-r8k6nc60f28d70cnv5cvfpvgj1cqlp6n.apps.googleusercontent.com"
                  data-callback="handleCredentialResponse"
@@ -815,6 +871,13 @@
 
     <div class="container" id="main-content" style="display: none;">
         <button onclick="signOut()" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; z-index: 1000;">Sign Out</button>
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('dashboard')" id="tab-dashboard">📊 Analysis Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('register')" id="tab-register">📝 Volunteer Form</button>
+        </div>
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="content-dashboard">
         <div class="header">
     <div class="header-background">
         <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_banner.jpg" alt="BODH Banner" class="header-bg-image" onerror="this.style.display='none'">
@@ -833,10 +896,13 @@
                 <a href="https://forms.gle/iMASFyacmctiFjqaA" target="_blank" class="quick-link-btn">
                     📝 Add New Report
                 </a>
-                <a href="https://drive.google.com/drive/u/1/folders/1xthor3slQXW0KEXo_qd0XyTNRzzd3c6v" target="_blank" class="quick-link-btn secondary">
-                    🎯 Campaign Materials
+                <a id="testReportBtn" href="https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec" target="_blank" class="quick-link-btn" style="background: linear-gradient(135deg, #FF6B35 0%, #1a1a5e 100%);">
+                    🚀 Test New Report
                 </a>
-                <span class="campaign-tag">🔥 Ek Yudh Apne Viruddh | Jul-Aug '26</span>
+                <a href="https://drive.google.com/drive/u/1/folders/1hT_0ln9rzEJqINtBPpillHmaoqecZwVn" target="_blank" class="quick-link-btn secondary">
+                    🎯 Campaign Materials (Unplugging)
+                </a>
+                <span class="campaign-tag">🔥 Unplugging | Sep-Dec '26</span>
             </div>
 
             <div class="filters" id="filters">
@@ -938,6 +1004,183 @@
                 </div>
             </div>
         </div>
+        </div><!-- end content-dashboard -->
+
+        <!-- Volunteer Form Tab -->
+        <div class="tab-content" id="content-register">
+            <div class="reg-wrap">
+                <div class="reg-hdr">
+                    <div class="rbadge">B</div>
+                    <h2>BODH Volunteer Management System (BVMS)</h2>
+                    <p>We are gathering details to finalize the Bodh POC Team Leaders. Please fill in your information below.</p>
+                </div>
+                <div class="reg-prog">
+                    <div class="rdot active" id="rD1">1</div><div class="rconn" id="rC1"></div>
+                    <div class="rdot" id="rD2">2</div><div class="rconn" id="rC2"></div>
+                    <div class="rdot" id="rD3">3</div><div class="rconn" id="rC3"></div>
+                    <div class="rdot" id="rD4">4</div>
+                </div>
+                <div class="rcard">
+                    <form id="regForm" novalidate>
+                        <div class="rsec active" id="rS1">
+                            <div class="rsec-title">👤 Basic Details</div>
+                            <div class="rsec-sub">Enter your personal information</div>
+                            <div class="rgrid">
+                                <div class="rfl"><label>Brother / Sister <span class="rq">*</span></label>
+                                    <select name="genderRole" id="genderRole" required onchange="updateBodhRoles()">
+                                        <option value="" disabled selected>Select</option>
+                                        <option value="Brother">Brother</option>
+                                        <option value="Sister">Sister</option>
+                                    </select>
+                                    <div class="re">Please select an option</div>
+                                </div>
+                                <div class="rfl"><label>Role in BODH Team (To be added manually)</label>
+                                    <select name="bodhRole" id="bodhRole" disabled style="background:#e2e8f0; cursor:not-allowed;">
+                                        <option value="" disabled selected>Select Role</option>
+                                    </select>
+                                    <div class="re">Please select your role</div>
+                                </div>
+                                <div class="rfl"><label>Full Name <span class="rq">*</span></label><input type="text" name="fullName" placeholder="e.g., Ramesh Kumar" required /><div class="re">Please enter your full name</div></div>
+                                <div class="rfl"><label>Primary Contact <span class="rq">*</span></label><input type="tel" name="contact" placeholder="e.g., 9876543210" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter a valid 10-digit number</div></div>
+                                <div class="rfl"><label>Email ID <span class="rq">*</span></label><input type="email" name="email" placeholder="e.g., r.tilak@email.com" required /><div class="re">Enter a valid email address</div></div>
+                                <div class="rfl"><label>Age <span class="rq">*</span></label><input type="number" name="age" placeholder="e.g., 36" min="10" max="100" required /><div class="re">Please enter your age</div></div>
+                                <div class="rfl"><label>Date of Birth <span class="rq">*</span></label><input type="date" name="dob" required /><div class="rh">e.g., 14-Aug-1990</div><div class="re">Select your date of birth</div></div>
+                                <div class="rfl"><label>Gyan Diksha Date <span class="rq">*</span></label><input type="date" name="gyanDikshaDate" required /><div class="rh">Date of Gyan Diksha</div><div class="re">Select Gyan Diksha Date</div></div>
+                            </div>
+                            <div class="rbtn-row"><span></span><button type="button" class="rb rb-next" onclick="rNext(1)">Continue →</button></div>
+                        </div>
+                        <div class="rsec" id="rS2">
+                            <div class="rsec-title">🏢 Branch Details</div>
+                            <div class="rsec-sub">Your branch and location information</div>
+                            <div class="rgrid">
+                                <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" required><option value="" disabled selected>Select State</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu & Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></select><div class="re">Please select your state</div></div>
+                                <div class="rfl"><label>Branch Name <span class="rq">*</span></label><input type="text" name="branchName" placeholder="e.g., Mira Road Branch" required /><div class="re">Please enter your branch name</div></div>
+                                <div class="rfl"><label>Branch AR Name <span class="rq">*</span></label><input type="text" name="branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch AR name</div></div>
+                                <div class="rfl"><label>Branch AR Number <span class="rq">*</span></label><input type="tel" name="branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+
+                            </div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(2)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(2)">Continue →</button></div>
+                        </div>
+                        <div class="rsec" id="rS3">
+                            <div class="rsec-title">🎓 Qualification &amp; Profession</div>
+                            <div class="rsec-sub">Your educational and professional background</div>
+                            <div class="rgrid">
+                                <div class="rfl"><label>Highest Education <span class="rq">*</span></label>
+                                    <select name="education" required>
+                                        <option value="" disabled selected>Select Education</option>
+                                        <option>High School (10th)</option>
+                                        <option>Senior Secondary (12th)</option>
+                                        <option>Diploma</option>
+                                        <option>Graduate</option>
+                                        <option>Post Graduate</option>
+                                        <option>Doctorate</option>
+                                    </select>
+                                    <div class="re">Select your education</div>
+                                </div>
+                                <div class="rfl"><label>Current Occupation <span class="rq">*</span></label>
+                                    <select name="occupation" required>
+                                        <option value="" disabled selected>Select Occupation</option>
+                                        <option>Student</option>
+                                        <option>Private Sector Employee</option>
+                                        <option>Government Employee</option>
+                                        <option>Self-employed / Business</option>
+                                        <option>Homemaker</option>
+                                        <option>Retired</option>
+                                        <option>Other</option>
+                                    </select>
+                                    <div class="re">Select your occupation</div>
+                                </div>
+                                <div class="rfl"><label>Profession <span class="rq">*</span></label>
+                                    <select name="profession" required>
+                                        <option value="" disabled selected>Select Profession</option>
+                                        <option>Data Analyst / Scientist</option>
+                                        <option>Software Engineer / Developer</option>
+                                        <option>Teacher / Professor</option>
+                                        <option>Doctor / Medical Professional</option>
+                                        <option>Engineer</option>
+                                        <option>CA / Finance / Accounting</option>
+                                        <option>Lawyer / Legal</option>
+                                        <option>Marketing / Sales</option>
+                                        <option>HR / Admin</option>
+                                        <option>Design / Creative</option>
+                                        <option>Other</option>
+                                    </select>
+                                    <div class="re">Select your profession</div>
+                                </div>
+                                <div class="rfl"><label>Years of Experience <span class="rq">*</span></label>
+                                    <input type="number" name="experience" placeholder="e.g., 5" min="0" required />
+                                    <div class="re">Enter years of experience</div>
+                                </div>
+                                <div class="rfl fw"><label>Company / Organization Name <span class="rq">*</span></label>
+                                    <input type="text" name="companyName" placeholder="e.g., TCS" required />
+                                    <div class="re">Enter company name</div>
+                                </div>
+                                <div class="rfl fw"><label>Languages Known <span class="rq">*</span></label>
+                                    <div class="chk-list" id="languagesGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.8rem; text-align: left;">
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="English" style="width:auto; margin:0;"> English</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Hindi" style="width:auto; margin:0;"> Hindi</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Bengali" style="width:auto; margin:0;"> Bengali</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Marathi" style="width:auto; margin:0;"> Marathi</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Telugu" style="width:auto; margin:0;"> Telugu</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Tamil" style="width:auto; margin:0;"> Tamil</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Gujarati" style="width:auto; margin:0;"> Gujarati</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Urdu" style="width:auto; margin:0;"> Urdu</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Kannada" style="width:auto; margin:0;"> Kannada</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Odia" style="width:auto; margin:0;"> Odia</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Malayalam" style="width:auto; margin:0;"> Malayalam</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Punjabi" style="width:auto; margin:0;"> Punjabi</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Assamese" style="width:auto; margin:0;"> Assamese</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Maithili" style="width:auto; margin:0;"> Maithili</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Santali" style="width:auto; margin:0;"> Santali</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Kashmiri" style="width:auto; margin:0;"> Kashmiri</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Sanskrit" style="width:auto; margin:0;"> Sanskrit</label>
+                                    </div>
+                                    <input type="hidden" name="languages_req" id="languagesReq" required />
+                                    <div class="re">Select at least one language</div>
+                                </div>
+                            </div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(3)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(3)">Continue →</button></div>
+                        </div>
+                        <div class="rsec" id="rS4">
+                            <div class="rsec-title">⏱️ Experience &amp; Commitment</div>
+                            <div class="rsec-sub">Your responsibilities and availability</div>
+                            <div class="rgrid">
+                                <div class="rfl fw"><label>Current Branch Responsibilities <span class="rq">*</span></label>
+                                    <div style="display:flex; gap: 8px;">
+                                        <input type="text" id="respInput" placeholder="e.g., Managing weekly youth meetings..." style="flex:1; min-width:0;" onkeypress="if(event.key === 'Enter') { event.preventDefault(); addResp(); }" />
+                                        <button type="button" style="padding: 0.7rem 1.2rem; background:#e2e8f0; color:#334155; border:none; cursor:pointer; border-radius:8px; font-weight:600; font-size:0.85rem; white-space:nowrap; flex-shrink:0;" onclick="addResp()">Add Line</button>
+                                    </div>
+                                    <ul id="respList" style="margin-top:8px; font-size:0.85rem; color:#475569; padding-left:20px;"></ul>
+                                    <input type="hidden" name="responsibilities" id="respHidden" required />
+                                    <div class="re">Add at least one responsibility</div>
+                                </div>
+                                <div class="rfl"><label>Time Commitment <span class="rq">*</span></label>
+                                    <select name="timeCommitValue" required>
+                                        <option value="" disabled selected>Hours</option>
+                                        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10+</option>
+                                    </select>
+                                    <div class="re">Select hours</div>
+                                </div>
+                                <div class="rfl"><label>Frequency <span class="rq">*</span></label>
+                                    <select name="timeCommitPeriod" required>
+                                        <option value="" disabled selected>Per Period</option>
+                                        <option>per day</option>
+                                        <option>per week</option>
+                                        <option>per month</option>
+                                    </select>
+                                    <div class="re">Select frequency</div>
+                                </div>
+                            </div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(4)">← Back</button><button type="submit" class="rb rb-submit">✓ Submit Application</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Status Overlays -->
+            <div class="rov" id="regLoading"><div class="rsc"><div class="rspinner"></div><h3>Submitting your application...</h3><p>Please wait while we save your details.</p></div></div>
+            <div class="rov" id="regSuccess"><div class="rsc"><div class="ri">🎉</div><h3 style="color:#10b981">Application Submitted!</h3><p>Thank you for registering. Your details have been saved successfully.</p><button class="rb rb-next" onclick="regReset()" style="margin-top:1rem">Submit Another Response</button></div></div>
+            <div class="rov" id="regError"><div class="rsc"><div class="ri">⚠️</div><h3 style="color:#ef4444">Submission Failed</h3><p id="regErrMsg">Something went wrong. Please try again.</p><button class="rb rb-next" onclick="document.getElementById('regError').classList.remove('show')" style="margin-top:1rem">Try Again</button></div></div>
+        </div><!-- end content-register -->
     </div>
 
     <script>
@@ -945,17 +1188,12 @@
         const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaP4CXwnAQsRpKa20kHx5rXp8Ku5rtYI_fquVXxixBD7wYUjS2IvfThZnbzY0EHLpKGw/exec';
         const API_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
 
-        // Fix B: Pre-warm the BODH Reporting Form Apps Script silently
-        // This pings the form's server so it's already "awake" by the time user clicks "Add New Report"
-        // Replace BODH_FORM_URL below with your published BODH Reporting Form Apps Script URL
-        const BODH_FORM_URL = 'https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec';
-        if (BODH_FORM_URL && !BODH_FORM_URL.includes('YOUR_BODH')) {
-          window.addEventListener('load', function() {
-            setTimeout(function() {
-              fetch(BODH_FORM_URL + '?ping=1', { mode: 'no-cors' }).catch(function(){});
-            }, 2000); // Wait 2s after dashboard loads, then silently warm the form
-          });
-        }
+        // Fix B: Pre-warm the BODH Reporting Form silently so it loads faster when user clicks "Add New Report"
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            fetch('https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec?ping=1', { mode: 'no-cors' }).catch(function(){});
+          }, 2000);
+        });
 
         // Opens the program's "Raw" folder directly. Opens a tab immediately (so the
         // popup blocker allows it), asks Apps Script to resolve month -> date -> Raw,
@@ -2198,10 +2436,20 @@
         }
 
         // Authentication Functions
+        let isWhitelisted = false;
+
         function handleCredentialResponse(response) {
             const data = parseJwt(response.credential);
             const userEmail = data.email;
             
+            // Append email to form link
+            const btn = document.getElementById('testReportBtn');
+            if(btn) {
+                const url = new URL(btn.href);
+                url.searchParams.set('email', userEmail);
+                btn.href = url.toString();
+            }
+
             // Show loading state
             document.getElementById('auth-message').textContent = 'Verifying access...';
             document.querySelector('.g_id_signin').style.display = 'none';
@@ -2210,21 +2458,30 @@
             fetch(`${AUTH_SCRIPT_URL}?action=verifyUser&email=${encodeURIComponent(userEmail)}`)
                 .then(response => response.json())
                 .then(result => {
+                    // Hide auth overlay for ALL signed-in users
+                    document.getElementById('auth-container').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+
                     if (result.success) {
-                        // User is authorized
-                        document.getElementById('auth-container').style.display = 'none';
-                        document.getElementById('main-content').style.display = 'block';
-                        
-                        // Store user data in sessionStorage
+                        // Whitelisted user → show BOTH tabs (Dashboard + Form)
+                        isWhitelisted = true;
                         sessionStorage.setItem('userData', JSON.stringify(result.userData));
-                        
-                        // Initialize dashboard
+                        sessionStorage.setItem('isWhitelisted', 'true');
+                        document.getElementById('tab-dashboard').style.display = 'flex';
+                        document.getElementById('content-dashboard').classList.add('active');
+                        document.getElementById('content-register').classList.remove('active');
+                        document.getElementById('tab-dashboard').classList.add('active');
+                        document.getElementById('tab-register').classList.remove('active');
                         fetchData();
                     } else {
-                        // User not authorized
-                        document.getElementById('auth-message').textContent = result.message || 'Access denied. Your email is not authorized.';
-                        document.querySelector('.g_id_signin').style.display = 'inline-block';
-                        google.accounts.id.disableAutoSelect();
+                        // Non-whitelisted user → show ONLY Form tab
+                        isWhitelisted = false;
+                        sessionStorage.setItem('isWhitelisted', 'false');
+                        sessionStorage.setItem('userData', JSON.stringify({ email: userEmail }));
+                        document.getElementById('tab-dashboard').style.display = 'none';
+                        document.getElementById('content-dashboard').classList.remove('active');
+                        document.getElementById('content-register').classList.add('active');
+                        document.getElementById('tab-register').classList.add('active');
                     }
                 })
                 .catch(error => {
@@ -2243,6 +2500,8 @@
         function signOut() {
             google.accounts.id.disableAutoSelect();
             sessionStorage.removeItem('userData');
+            sessionStorage.removeItem('isWhitelisted');
+            isWhitelisted = false;
             document.getElementById('auth-container').style.display = 'flex';
             document.getElementById('main-content').style.display = 'none';
             document.querySelector('.g_id_signin').style.display = 'inline-block';
@@ -2252,15 +2511,208 @@
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', function() {
             const userData = sessionStorage.getItem('userData');
+            const wl = sessionStorage.getItem('isWhitelisted');
             if (userData) {
+                const userEmail = JSON.parse(userData).email;
+                const btn = document.getElementById('testReportBtn');
+                if(btn && userEmail) {
+                    const url = new URL(btn.href);
+                    url.searchParams.set('email', userEmail);
+                    btn.href = url.toString();
+                }
+
                 document.getElementById('auth-container').style.display = 'none';
                 document.getElementById('main-content').style.display = 'block';
-                fetchData();
+                if (wl === 'true') {
+                    isWhitelisted = true;
+                    document.getElementById('tab-dashboard').style.display = 'flex';
+                    document.getElementById('content-dashboard').classList.add('active');
+                    document.getElementById('content-register').classList.remove('active');
+                    document.getElementById('tab-dashboard').classList.add('active');
+                    document.getElementById('tab-register').classList.remove('active');
+                    fetchData();
+                } else {
+                    isWhitelisted = false;
+                    document.getElementById('tab-dashboard').style.display = 'none';
+                    document.getElementById('content-dashboard').classList.remove('active');
+                    document.getElementById('content-register').classList.add('active');
+                    document.getElementById('tab-register').classList.add('active');
+                }
             } else {
                 document.getElementById('auth-container').style.display = 'flex';
                 document.getElementById('main-content').style.display = 'none';
             }
         });
+
+        // ============================================================
+        // Tab Switching
+        // ============================================================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // ============================================================
+        // Registration Form Logic
+        // ============================================================
+        const REG_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
+        let rCur = 1;
+        const rTotal = 4;
+
+        function updateBodhRoles() {
+            const type = document.getElementById('genderRole').value;
+            const roleSelect = document.getElementById('bodhRole');
+            roleSelect.innerHTML = '<option value="" disabled selected>Select Role</option>';
+            
+            let roles = [];
+            if (type === 'Brother') {
+                roles = [
+                    "BBTL", "B.B. HO Heads [TR]", "B.B. Zonal Heads", "B.B. State Heads", 
+                    "B.B. Branch Heads", "B.B. Branch Designer", "B.B. HO SPOC Writer", 
+                    "B.B. HO SPOC Proof Reader", "B.B. HO SPOC Designer", "B.B. HO SPOC Editor", 
+                    "B.B. HO SPOC Researcher", "B.B. HO SPOC Data Mgmt"
+                ];
+            } else if (type === 'Sister') {
+                roles = [
+                    "BSTL", "B.S. HO Heads", "B.S. Zonal Heads", "B.S. State Heads", 
+                    "B.S. Branch Heads", "B.S. Branch Designer", "B.S. HO SPOC Writer", 
+                    "B.S. HO SPOC Proof Reader", "B.S. HO SPOC Designer", "B.S. HO SPOC Editor", 
+                    "B.S. HO SPOC Researcher", "B.S. HO SPOC Data Mgmt"
+                ];
+            }
+            
+            roles.forEach(role => {
+                const opt = document.createElement('option');
+                opt.value = role;
+                opt.textContent = role;
+                roleSelect.appendChild(opt);
+            });
+        }
+
+        function rUpdateProg() {
+            for (let i = 1; i <= rTotal; i++) {
+                const dot = document.getElementById('rD' + i);
+                const conn = document.getElementById('rC' + i);
+                dot.classList.remove('active', 'done');
+                if (conn) conn.classList.remove('active');
+                if (i < rCur) { dot.classList.add('done'); dot.textContent = '✓'; if (conn) conn.classList.add('active'); }
+                else if (i === rCur) { dot.classList.add('active'); dot.textContent = i; }
+                else { dot.textContent = i; }
+            }
+        }
+
+        function rShowSec(n) {
+            document.querySelectorAll('.rsec').forEach(s => s.classList.remove('active'));
+            document.getElementById('rS' + n).classList.add('active');
+            rCur = n;
+            rUpdateProg();
+        }
+
+        function rValidate(n) {
+            const sec = document.getElementById('rS' + n);
+            const inputs = sec.querySelectorAll('input[required], textarea[required], select[required]');
+            let ok = true;
+            
+            // Custom check for languages
+            if (n === 3) {
+                const langGroup = document.getElementById('languagesGroup');
+                const checkedLangs = langGroup.querySelectorAll('input[type="checkbox"]:checked');
+                const langReq = document.getElementById('languagesReq');
+                if (checkedLangs.length === 0) {
+                    langReq.value = '';
+                } else {
+                    langReq.value = 'selected';
+                }
+            }
+
+            inputs.forEach(inp => {
+                const g = inp.closest('.rfl');
+                g.classList.remove('has-error');
+                if (!inp.value || !inp.value.trim()) { g.classList.add('has-error'); ok = false; }
+                else if (inp.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value)) { g.classList.add('has-error'); ok = false; }
+                else if ((inp.name === 'contact' || inp.name === 'branchArNumber') && !/^\d{10}$/.test(inp.value.trim())) { g.classList.add('has-error'); ok = false; }
+            });
+            return ok;
+        }
+
+        function rNext(f) { if (rValidate(f) && f < rTotal) rShowSec(f + 1); }
+        function rPrev(f) { if (f > 1) rShowSec(f - 1); }
+
+        // Clear errors on input
+        document.querySelectorAll('#regForm input, #regForm textarea').forEach(el => {
+            el.addEventListener('input', () => el.closest('.rfl').classList.remove('has-error'));
+        });
+
+        // Dynamic Responsibilities List
+        function addResp() {
+            const inp = document.getElementById('respInput');
+            const val = inp.value.trim();
+            if (val) {
+                const list = document.getElementById('respList');
+                const li = document.createElement('li');
+                li.textContent = val + " ";
+                const rmBtn = document.createElement('span');
+                rmBtn.textContent = ' 🗑️';
+                rmBtn.style.cursor = 'pointer';
+                rmBtn.style.fontSize = '0.7rem';
+                rmBtn.onclick = function() {
+                    li.remove();
+                    updateRespHidden();
+                };
+                li.appendChild(rmBtn);
+                list.appendChild(li);
+                inp.value = '';
+                updateRespHidden();
+            }
+        }
+        function updateRespHidden() {
+            const list = document.getElementById('respList');
+            const items = Array.from(list.children).map(li => li.textContent.replace('  🗑️', ''));
+            const hidden = document.getElementById('respHidden');
+            hidden.value = items.join(' | ');
+            if (items.length > 0) hidden.closest('.rfl').classList.remove('has-error');
+        }
+
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Catch any un-added responsibilities
+            addResp();
+
+            if (!rValidate(rCur)) return;
+            
+            const formData = new FormData(e.target);
+            const fd = Object.fromEntries(formData);
+            
+            // Handle multiple checkboxes for languages
+            fd.languages = formData.getAll('languages').join(', ');
+
+            document.getElementById('regLoading').classList.add('show');
+            try {
+                await fetch(REG_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fd),
+                });
+                document.getElementById('regLoading').classList.remove('show');
+                document.getElementById('regSuccess').classList.add('show');
+            } catch (err) {
+                document.getElementById('regLoading').classList.remove('show');
+                document.getElementById('regErrMsg').textContent = 'Network error. Please check your connection.';
+                document.getElementById('regError').classList.add('show');
+                console.error(err);
+            }
+        });
+
+        function regReset() {
+            document.getElementById('regSuccess').classList.remove('show');
+            document.getElementById('regForm').reset();
+            document.getElementById('respList').innerHTML = '';
+            document.getElementById('respHidden').value = '';
+            rShowSec(1);
+        }
 
     </script>
 </body>
