@@ -1,309 +1,2719 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aarogya – Register &amp; Join</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>Deployment Analytics Dashboard</title>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CRHR1L6540"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-    body {
-      font-family: 'Poppins', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      background: #1a2f4e;
-      overflow: hidden;
-      position: relative;
+  gtag('config', 'G-CRHR1L6540');
+</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 10px;
+            }
+        }
+
+        .header {
+    position: relative;
+    color: white;
+    padding: 30px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    min-height: 150px;
+    overflow: hidden;
+}
+
+.header-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+.header-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.header-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+}
+
+.header-logo {
+    width: 280px;
+    height: 180px;
+    object-fit: contain;
+    /* anchored to the left edge of the centred title block */
+    position: absolute;
+    right: calc(100% + 15px);
+    top: 50%;
+    transform: translateY(-50%);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+    z-index: 2;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.header-logo:hover {
+    transform: translateY(-50%) scale(1.05);
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)) drop-shadow(0 6px 15px rgba(0,0,0,0.4));
+}
+
+.header-content {
+    margin-left: 0;
+    text-align: center;
+    z-index: 2;
+    position: relative;
+}
+
+.header h1 {
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.header p {
+    font-size: 1em;
+    opacity: 0.95;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 25px 15px;
+        flex-direction: column;
+        text-align: center;
+        min-height: 140px;
     }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 90% 70% at 15% 25%, rgba(16,185,129,0.30) 0%, transparent 60%),
-        radial-gradient(ellipse 80% 60% at 85% 75%, rgba(59,130,246,0.25) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 50% 50%, rgba(14,165,233,0.12) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
+    .header-logo {
+        width: 100px;
+        height: 105px;
+        position: static;
+        transform: none;
+        display: block;
+        margin: 0 auto 10px auto;
     }
-
-    /* ---- FLOATING BUBBLES ---- */
-    .bubbles {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      overflow: hidden;
+    .header-logo:hover {
+        transform: scale(1.05);
     }
-
-    .bubble {
-      position: absolute;
-      bottom: -120px;
-      border-radius: 50%;
-      opacity: 0;
-      animation: rise linear infinite;
-      background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.22), transparent 70%);
-      border: 1px solid rgba(255,255,255,0.10);
+    .header-content {
+        margin-left: 0;
+        text-align: center;
     }
-
-    .bubble:nth-child(1)  { width:40px;  height:40px;  left:8%;   animation-duration:14s; animation-delay:0s;   }
-    .bubble:nth-child(2)  { width:20px;  height:20px;  left:16%;  animation-duration:10s; animation-delay:2s;   }
-    .bubble:nth-child(3)  { width:55px;  height:55px;  left:25%;  animation-duration:17s; animation-delay:5s;   }
-    .bubble:nth-child(4)  { width:30px;  height:30px;  left:35%;  animation-duration:12s; animation-delay:1s;   }
-    .bubble:nth-child(5)  { width:15px;  height:15px;  left:50%;  animation-duration:9s;  animation-delay:3.5s; }
-    .bubble:nth-child(6)  { width:60px;  height:60px;  left:60%;  animation-duration:18s; animation-delay:0.5s; }
-    .bubble:nth-child(7)  { width:25px;  height:25px;  left:70%;  animation-duration:11s; animation-delay:4s;   }
-    .bubble:nth-child(8)  { width:45px;  height:45px;  left:78%;  animation-duration:15s; animation-delay:2.5s; }
-    .bubble:nth-child(9)  { width:18px;  height:18px;  left:88%;  animation-duration:8s;  animation-delay:6s;   }
-    .bubble:nth-child(10) { width:35px;  height:35px;  left:5%;   animation-duration:13s; animation-delay:7s;   }
-    .bubble:nth-child(11) { width:50px;  height:50px;  left:43%;  animation-duration:16s; animation-delay:1.5s; }
-    .bubble:nth-child(12) { width:22px;  height:22px;  left:93%;  animation-duration:11s; animation-delay:8s;   }
-
-    @keyframes rise {
-      0%   { bottom: -120px; opacity: 0;   transform: translateX(0)   scale(0.8); }
-      10%  { opacity: 0.55; }
-      90%  { opacity: 0.25; }
-      100% { bottom: 110vh;  opacity: 0;   transform: translateX(40px) scale(1.1); }
+    .header h1 {
+        font-size: 1.6em;
     }
-
-    /* ---- CARD ---- */
-    .card {
-      position: relative;
-      z-index: 10;
-      background: rgba(255,255,255,0.06);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255,255,255,0.13);
-      border-radius: 24px;
-      padding: 44px 40px;
-      width: 100%;
-      max-width: 440px;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
-      animation: cardIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    .header p {
+        font-size: 0.9em;
     }
+}
 
-    @keyframes cardIn {
-      from { opacity:0; transform: translateY(30px) scale(0.97); }
-      to   { opacity:1; transform: translateY(0)    scale(1);    }
-    }
+        .filters-container {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
 
-    /* ---- HEADER ---- */
-    .logo-wrap { text-align: center; margin-bottom: 28px; }
+        .quick-actions {
+            padding: 20px 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
 
-    .logo-icon {
-      width: 62px; height: 62px;
-      background: linear-gradient(135deg, #10b981, #0ea5e9);
-      border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      margin-bottom: 12px;
-      box-shadow: 0 0 32px rgba(16,185,129,0.4);
-    }
-    .logo-icon svg { width: 30px; height: 30px; fill: white; }
+        @media (max-width: 768px) {
+            .quick-actions {
+                padding: 15px;
+                gap: 10px;
+                justify-content: center;
+            }
+        }
 
-    .logo-wrap h1 { color: #fff; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
-    .logo-wrap p  { color: rgba(255,255,255,0.45); font-size: 13px; font-weight: 300; margin-top: 4px; }
+        .action-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.95em;
+        }
 
-    /* ---- FORM ---- */
-    .form-group { margin-bottom: 18px; }
+        @media (max-width: 768px) {
+            .action-label {
+                width: 100%;
+                text-align: center;
+                font-size: 0.85em;
+            }
+        }
 
-    label { display:block; color: rgba(255,255,255,0.7); font-size:13px; font-weight:500; margin-bottom:8px; letter-spacing:0.3px; }
+        .quick-link-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            border: none;
+            cursor: pointer;
+        }
 
-    .input-wrap { position: relative; }
-    .input-wrap .icon {
-      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-      width: 18px; height: 18px; opacity: 0.4; pointer-events: none;
-    }
+        @media (max-width: 768px) {
+            .quick-link-btn {
+                padding: 10px 15px;
+                font-size: 0.85em;
+                flex: 1;
+                justify-content: center;
+                min-width: 140px;
+            }
+        }
 
-    input[type="text"], input[type="tel"] {
-      width: 100%;
-      padding: 13px 15px 13px 42px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 15px;
-      font-family: 'Poppins', sans-serif;
-      transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
-    }
-    input::placeholder { color: rgba(255,255,255,0.28); }
-    input:focus {
-      outline: none;
-      border-color: #10b981;
-      background: rgba(16,185,129,0.08);
-      box-shadow: 0 0 0 3px rgba(16,185,129,0.18);
-    }
+        .quick-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
 
-    .error-msg { color: #f87171; font-size: 12px; margin-top: 6px; display: none; font-weight: 500; }
+        .quick-link-btn.secondary {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.2);
+        }
 
-    /* ---- BUTTON ---- */
-    .btn-submit {
-      width: 100%; padding: 15px;
-      background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
-      color: white; border: none; border-radius: 12px;
-      font-size: 16px; font-weight: 600; font-family: 'Poppins', sans-serif;
-      cursor: pointer; margin-top: 8px; letter-spacing: 0.4px;
-      transition: opacity 0.3s, transform 0.15s, box-shadow 0.3s;
-      box-shadow: 0 6px 20px rgba(16,185,129,0.35);
-      position: relative; overflow: hidden;
-    }
-    .btn-submit::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-      opacity: 0; transition: opacity 0.3s;
-    }
-    .btn-submit:hover::after  { opacity: 1; }
-    .btn-submit:hover         { box-shadow: 0 8px 28px rgba(16,185,129,0.5); }
-    .btn-submit:active        { transform: scale(0.98); }
-    .btn-submit:disabled      { background: rgba(255,255,255,0.15); box-shadow: none; cursor: not-allowed; }
+        .quick-link-btn.secondary:hover {
+            box-shadow: 0 6px 20px rgba(67, 233, 123, 0.3);
+        }
 
-    /* ---- SUCCESS ---- */
-    .success-screen { display:none; text-align:center; animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+        .campaign-tag {
+            background: #fff3cd;
+            color: #856404;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
 
-    .check-circle {
-      width: 72px; height: 72px;
-      background: linear-gradient(135deg, #10b981, #0ea5e9);
-      border-radius: 50%;
-      display: inline-flex; align-items: center; justify-content: center;
-      margin-bottom: 20px;
-      box-shadow: 0 0 40px rgba(16,185,129,0.45);
-      animation: pop 0.5s cubic-bezier(0.22,1,0.36,1) 0.1s both;
-    }
-    @keyframes pop {
-      from { transform: scale(0.5); opacity: 0; }
-      to   { transform: scale(1);   opacity: 1; }
-    }
-    .check-circle svg { width:36px; height:36px; stroke:white; fill:none; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; }
+        @media (max-width: 768px) {
+            .campaign-tag {
+                width: 100%;
+                text-align: center;
+                font-size: 0.75em;
+            }
+        }
 
-    .success-screen h2  { color:#fff; font-size:22px; font-weight:700; margin-bottom:10px; }
-    .success-screen p   { color:rgba(255,255,255,0.6); font-size:14px; line-height:1.6; margin-bottom:28px; }
+        .filters {
+            padding: 20px 30px 30px 30px;
+            background: #f8f9fa;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
 
-    .btn-meet {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 30px;
-      background: linear-gradient(135deg, #1a73e8, #0ea5e9);
-      color: white; text-decoration: none; border-radius: 12px;
-      font-weight: 600; font-size: 15px;
-      box-shadow: 0 6px 20px rgba(26,115,232,0.4);
-      transition: box-shadow 0.3s, transform 0.2s;
-    }
-    .btn-meet:hover { box-shadow: 0 10px 30px rgba(26,115,232,0.55); transform: translateY(-2px); }
-    .btn-meet svg   { width:20px; height:20px; fill:white; }
+        @media (max-width: 768px) {
+            .filters {
+                padding: 15px;
+                gap: 15px;
+            }
+        }
 
-    .footer-note { text-align:center; margin-top:20px; color:rgba(255,255,255,0.22); font-size:11px; }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 160px;
+            margin-right: 10px;
+        }
 
-    @media (max-width: 480px) { .card { padding: 32px 24px; } }
-  </style>
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 0.9em;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background: white;
+            cursor: pointer;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .custom-select {
+            position: relative;
+        }
+
+        .select-display {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .select-display:hover {
+            border-color: #667eea;
+        }
+
+        .select-display.active {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .select-arrow {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+
+        .select-arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            margin-top: 5px;
+            max-height: 350px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .select-dropdown.show {
+            display: block;
+        }
+
+        .select-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .select-option:hover {
+            background: #f8f9fa;
+        }
+
+        .select-option.all-option {
+            border-bottom: 2px solid #e9ecef;
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .select-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .select-option label {
+            cursor: pointer;
+            flex: 1;
+            user-select: none;
+        }
+
+        .filter-actions {
+            padding: 10px 15px;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            background: #f8f9fa;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+
+        .filter-btn.clear {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .filter-btn.clear:hover {
+            background: #f8f9fa;
+        }
+
+        .selected-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .filter-hint {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px 15px;
+            }
+        }
+
+        /* ── Campaign 3-column inline row ── */
+        .camp-inline-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        @media (max-width: 1100px) {
+            .camp-inline-row { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .camp-inline-row { grid-template-columns: 1fr; }
+        }
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .chart-container h2 {
+            margin-bottom: 20px;
+            color: #495057;
+            font-size: 1.3em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.5em;
+            color: #667eea;
+        }
+
+        .error {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #dc3545;
+        }
+
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 20px 15px;
+            }
+            .table-container h2 {
+                font-size: 1.2em;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 800px;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: 0.85em;
+            }
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .activity-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .badge-lecture { background: #e3f2fd; color: #1976d2; }
+        .badge-skit { background: #f3e5f5; color: #7b1fa2; }
+        .badge-meditation { background: #e8f5e9; color: #388e3c; }
+        .badge-rally { background: #fff3e0; color: #f57c00; }
+
+        .view-details-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .view-details-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                max-height: 85vh;
+            }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        .detail-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .detail-item label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .detail-item .value {
+            color: #212529;
+            font-size: 1.1em;
+        }
+
+        .activities-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .activity-chip {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .activity-chip.active {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        /* Custom checkbox styling */
+        .select-options-container input[type="checkbox"]:checked + label:before {
+            content: '✓';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1;
+        }
+        
+        /* Hover effect for options */
+        .select-options-container > div:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Hide the default checkbox */
+        .select-options-container input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+        }
+
+        /* ===== Tab Navigation ===== */
+        .tab-nav { display:flex; background:linear-gradient(135deg,#1e1b4b,#312e81); padding:0 20px; gap:4px; border-bottom:2px solid rgba(255,255,255,0.1); }
+        .tab-btn { padding:14px 28px; background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:14px; font-weight:600; cursor:pointer; transition:all .3s; position:relative; font-family:inherit; display:flex; align-items:center; gap:8px; }
+        .tab-btn:hover { color:rgba(255,255,255,0.9); background:rgba(255,255,255,0.05); }
+        .tab-btn.active { color:#fff; background:rgba(255,255,255,0.1); }
+        .tab-btn.active::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:3px; background:linear-gradient(90deg,#818cf8,#06b6d4); border-radius:3px 3px 0 0; }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+
+        /* ===== Registration Form ===== */
+        .reg-wrap { max-width:780px; margin:2rem auto; padding:0 1.5rem 3rem; }
+        .reg-hdr { text-align:center; margin-bottom:1.8rem; }
+        .reg-hdr .rbadge { display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; background:linear-gradient(135deg,#4f46e5,#06b6d4); border-radius:13px; font-size:1.4rem; font-weight:800; color:#fff; margin-bottom:.8rem; box-shadow:0 6px 20px rgba(79,70,229,.3); }
+        .reg-hdr h2 { font-size:1.4rem; color:#1e293b; margin-bottom:.3rem; }
+        .reg-hdr p { color:#64748b; font-size:.88rem; }
+        .reg-prog { display:flex; align-items:center; justify-content:center; margin-bottom:1.4rem; }
+        .rdot { width:32px; height:32px; border-radius:50%; background:#f1f5f9; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:600; color:#94a3b8; transition:all .3s; }
+        .rdot.active { background:#4f46e5; border-color:#818cf8; color:#fff; box-shadow:0 0 14px rgba(79,70,229,.3); }
+        .rdot.done { background:#10b981; border-color:#10b981; color:#fff; }
+        .rconn { width:45px; height:2px; background:#e2e8f0; transition:background .3s; }
+        .rconn.active { background:linear-gradient(90deg,#10b981,#4f46e5); }
+        .rcard { background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:1.8rem; box-shadow:0 4px 20px rgba(0,0,0,.05); }
+        .rsec { display:none; animation:rFade .4s ease; }
+        .rsec.active { display:block; }
+        @keyframes rFade { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .rsec-title { font-size:1.05rem; font-weight:600; color:#1e293b; margin-bottom:.2rem; display:flex; align-items:center; gap:.4rem; }
+        .rsec-sub { font-size:.8rem; color:#94a3b8; margin-bottom:1.1rem; }
+        .rgrid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .rgrid .fw { grid-column:1/-1; }
+        .rfl label { display:block; font-size:.72rem; font-weight:600; color:#475569; margin-bottom:.3rem; text-transform:uppercase; letter-spacing:.5px; }
+        .rfl label .rq { color:#ef4444; margin-left:2px; }
+        .rfl input,.rfl textarea,.rfl select { width:100%; padding:.65rem .85rem; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; color:#1e293b; font-family:inherit; font-size:.86rem; transition:all .2s; outline:none; }
+        .rfl input:focus,.rfl textarea:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.1); background:#fff; }
+        .rfl textarea { resize:vertical; min-height:65px; }
+        .rfl .rh { font-size:.68rem; color:#94a3b8; margin-top:.2rem; }
+        .rfl .re { font-size:.68rem; color:#ef4444; margin-top:.2rem; display:none; }
+        .rfl.has-error input,.rfl.has-error textarea { border-color:#ef4444; }
+        .rfl.has-error .re { display:block; }
+        .rbtn-row { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; gap:1rem; }
+        .rb { display:inline-flex; align-items:center; gap:.4rem; padding:.65rem 1.4rem; border:none; border-radius:8px; font-family:inherit; font-size:.86rem; font-weight:600; cursor:pointer; transition:all .25s; }
+        .rb-back { background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; }
+        .rb-back:hover { background:#e2e8f0; color:#334155; }
+        .rb-next { background:linear-gradient(135deg,#4f46e5,#3730a3); color:#fff; box-shadow:0 4px 12px rgba(79,70,229,.25); }
+        .rb-next:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(79,70,229,.35); }
+        .rb-submit { background:linear-gradient(135deg,#10b981,#059669); color:#fff; box-shadow:0 4px 12px rgba(16,185,129,.25); padding:.75rem 2rem; }
+        .rb-submit:hover { transform:translateY(-1px); box-shadow:0 6px 16px rgba(16,185,129,.35); }
+        .rov { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,.5); backdrop-filter:blur(4px); z-index:100; align-items:center; justify-content:center; }
+        .rov.show { display:flex; }
+        .rsc { background:#fff; border-radius:14px; padding:2rem; text-align:center; max-width:370px; width:90%; box-shadow:0 20px 50px rgba(0,0,0,.15); animation:rPop .3s ease; }
+        @keyframes rPop { from{opacity:0;transform:scale(.9)} to{opacity:1;transform:scale(1)} }
+        .rsc .ri { font-size:2.6rem; margin-bottom:.6rem; }
+        .rsc h3 { font-size:1.05rem; margin-bottom:.3rem; }
+        .rsc p { color:#64748b; font-size:.85rem; line-height:1.5; }
+        .rspinner { width:38px; height:38px; border:3px solid #e2e8f0; border-top-color:#4f46e5; border-radius:50%; animation:rSpin .7s linear infinite; margin:0 auto .7rem; }
+        @keyframes rSpin { to{transform:rotate(360deg)} }
+        @media(max-width:640px) { .rgrid{grid-template-columns:1fr} .rbtn-row{flex-direction:column-reverse} .rb{width:100%;justify-content:center} .tab-btn{padding:10px 14px;font-size:12px} }
+    </style>
 </head>
 <body>
-
-<div class="bubbles">
-  <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-  <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-  <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-  <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-</div>
-
-<div class="card">
-
-  <!-- FORM SECTION -->
-  <div id="formSection">
-    <div class="logo-wrap">
-      <h1>Aarogya</h1>
-      <p>Register to join the wellness session</p>
+    <!-- Auth Container -->
+    <div id="auth-container" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%;">
+            <h2>Sign In Required</h2>
+            <p>Please sign in with your Google account to continue</p>
+            <div id="g_id_onload"
+                 data-client_id="1069170739830-r8k6nc60f28d70cnv5cvfpvgj1cqlp6n.apps.googleusercontent.com"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left"></div>
+            <p id="auth-message" style="margin-top: 15px; color: #dc3545;"></p>
+        </div>
     </div>
 
-    <form id="registrationForm">
-
-      <div class="form-group">
-        <label for="name">Full Name</label>
-        <div class="input-wrap">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-          <input type="text" id="name" name="Name" required placeholder="Enter your full name" />
+    <div class="container" id="main-content" style="display: none;">
+        <button onclick="signOut()" style="position: absolute; top: 20px; right: 20px; padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; z-index: 1000;">Sign Out</button>
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('dashboard')" id="tab-dashboard">📊 Analysis Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('register')" id="tab-register">📝 Volunteer Form</button>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label for="phone">WhatsApp Number</label>
-        <div class="input-wrap">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-          </svg>
-          <input type="tel" id="phone" name="Phone" required maxlength="10" placeholder="10-digit mobile number"
-            oninput="this.value = this.value.replace(/[^0-9]/g,'').slice(0,10)" />
-        </div>
-        <div class="error-msg" id="phoneError">⚠ Please enter exactly 10 digits.</div>
-      </div>
-
-      <div class="form-group">
-        <label for="city">City</label>
-        <div class="input-wrap">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
-          <input type="text" id="city" name="City" required placeholder="Enter your city" />
-        </div>
-      </div>
-
-      <button type="submit" class="btn-submit" id="submitBtn">Register &amp; Get Meeting Link</button>
-    </form>
-
-    <p class="footer-note">Your information is secure and will not be shared.</p>
-  </div>
-
-  <!-- SUCCESS SECTION -->
-  <div class="success-screen" id="successScreen">
-    <div class="check-circle">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="content-dashboard">
+        <div class="header">
+    <div class="header-background">
+        <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_banner.jpg" alt="BODH Banner" class="header-bg-image" onerror="this.style.display='none'">
+        <div class="header-overlay"></div>
     </div>
-    <h2>You're All Set! 🙏</h2>
-    <p>
-      Thank you for registering with Aarogya.<br/>
-      Click the button below to join the Google Meet session.<br/>
-      We look forward to seeing you!
-    </p>
-    <a class="btn-meet" href="https://meet.google.com/enq-oxhu-tmv" target="_blank">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
-      </svg>
-      Join Google Meet
-    </a>
-    <p class="footer-note" style="margin-top:20px;">meet.google.com/enq-oxhu-tmv</p>
-  </div>
-
+    <div class="header-content">
+        <img src="https://raw.githubusercontent.com/bodh-djjs/Analysis/main/BODH_logo.png" alt="BODH Logo" class="header-logo" onerror="this.style.display='none'">
+        <h1>DJJS BODH Data Analysis Dashboard 📊</h1>
+        <p>Comprehensive Branch Activities Analysis [2006 – Current]</p>
+    </div>
 </div>
 
-<script>
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxzMFs0OtGCIClE13m6TvsBZwJGu-b987xdZOyZeQB0nKPnNdCrNfrdc5I3iYY2Iir/exec';
+        <div class="filters-container">
+            <div class="quick-actions">
+                <span class="action-label">⚡ Quick Actions:</span>
+                <a href="https://forms.gle/iMASFyacmctiFjqaA" target="_blank" class="quick-link-btn">
+                    📝 Add New Report
+                </a>
+                <a id="testReportBtn" href="https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec" target="_blank" class="quick-link-btn" style="background: linear-gradient(135deg, #FF6B35 0%, #1a1a5e 100%);">
+                    🚀 Test New Report
+                </a>
+                <a href="https://drive.google.com/drive/u/1/folders/1hT_0ln9rzEJqINtBPpillHmaoqecZwVn" target="_blank" class="quick-link-btn secondary">
+                    🎯 Campaign Materials (Unplugging)
+                </a>
+                <span class="campaign-tag">🔥 Unplugging | Sep-Dec '26</span>
+            </div>
 
-  const form       = document.getElementById('registrationForm');
-  const submitBtn  = document.getElementById('submitBtn');
-  const formSec    = document.getElementById('formSection');
-  const successSec = document.getElementById('successScreen');
-  const phoneErr   = document.getElementById('phoneError');
+            <div class="filters" id="filters">
+                <div class="filter-group">
+                    <label>State</label>
+                    <div class="custom-select" data-filter="state">
+                        <div class="select-display">
+                            <span class="select-text">All States</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Branch</label>
+                    <div class="custom-select" data-filter="branch">
+                        <div class="select-display">
+                            <span class="select-text">All Branches</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Year (Apr–Mar)</label>
+                    <div class="custom-select" data-filter="year">
+                        <div class="select-display">
+                            <span class="select-text">All Years</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Month</label>
+                    <div class="custom-select" data-filter="month">
+                        <div class="select-display">
+                            <span class="select-text">All Months</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Program Type</label>
+                    <div class="custom-select" data-filter="programType">
+                        <div class="select-display">
+                            <span class="select-text">All Types</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Campaign</label>
+                    <div class="custom-select" data-filter="campaign">
+                        <div class="select-display">
+                            <span class="select-text">All Campaigns</span>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const phone = document.getElementById('phone').value;
-    if (phone.length !== 10) { phoneErr.style.display = 'block'; return; }
-    phoneErr.style.display = 'none';
+        <div class="stats-grid" id="statsGrid"></div>
 
-    submitBtn.disabled  = true;
-    submitBtn.innerText = 'Submitting\u2026';
+        <div class="charts-grid" id="chartsGrid"></div>
 
-    try {
-      await fetch(SCRIPT_URL, { method: 'POST', body: new FormData(form), mode: 'no-cors' });
-    } catch (_) {}
+        <div class="table-container">
+            <h2 style="margin-bottom: 20px; color: #495057;">📋 Recent Programs</h2>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>State</th>
+                        <th>Branch</th>
+                        <th>Venue/Address</th>
+                        <th>Beneficiaries</th>
+                        <th>Program Type</th>
+                        <th>Action</th>
+                        <th>Edit / Upload</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
 
-    formSec.style.display    = 'none';
-    successSec.style.display = 'block';
-  });
-</script>
+        <!-- Modal for Activity Details -->
+        <div id="activityModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🎯 Program Details</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Content will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+        </div><!-- end content-dashboard -->
+
+        <!-- Volunteer Form Tab -->
+        <div class="tab-content" id="content-register">
+            <div class="reg-wrap">
+                <div class="reg-hdr">
+                    <div class="rbadge">B</div>
+                    <h2>BODH Volunteer Management System (BVMS)</h2>
+                    <p>We are gathering details to finalize the Bodh POC Team Leaders. Please fill in your information below.</p>
+                </div>
+                <div class="reg-prog">
+                    <div class="rdot active" id="rD1">1</div><div class="rconn" id="rC1"></div>
+                    <div class="rdot" id="rD2">2</div><div class="rconn" id="rC2"></div>
+                    <div class="rdot" id="rD3">3</div><div class="rconn" id="rC3"></div>
+                    <div class="rdot" id="rD4">4</div>
+                </div>
+                <div class="rcard">
+                    <form id="regForm" novalidate>
+                        <div class="rsec active" id="rS1">
+                            <div class="rsec-title">👤 Basic Details</div>
+                            <div class="rsec-sub">Enter your personal information</div>
+                            <div class="rgrid">
+                                <div class="rfl"><label>Brother / Sister <span class="rq">*</span></label>
+                                    <select name="genderRole" id="genderRole" required onchange="updateBodhRoles()">
+                                        <option value="" disabled selected>Select</option>
+                                        <option value="Brother">Brother</option>
+                                        <option value="Sister">Sister</option>
+                                    </select>
+                                    <div class="re">Please select an option</div>
+                                </div>
+                                <div class="rfl"><label>Role in BODH Team (To be added manually)</label>
+                                    <select name="bodhRole" id="bodhRole" disabled style="background:#e2e8f0; cursor:not-allowed;">
+                                        <option value="" disabled selected>Select Role</option>
+                                    </select>
+                                    <div class="re">Please select your role</div>
+                                </div>
+                                <div class="rfl"><label>Full Name <span class="rq">*</span></label><input type="text" name="fullName" placeholder="e.g., Ramesh Kumar" required /><div class="re">Please enter your full name</div></div>
+                                <div class="rfl"><label>Primary Contact <span class="rq">*</span></label><input type="tel" name="contact" placeholder="e.g., 9876543210" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter a valid 10-digit number</div></div>
+                                <div class="rfl"><label>Email ID <span class="rq">*</span></label><input type="email" name="email" placeholder="e.g., r.tilak@email.com" required /><div class="re">Enter a valid email address</div></div>
+                                <div class="rfl"><label>Age <span class="rq">*</span></label><input type="number" name="age" placeholder="e.g., 36" min="10" max="100" required /><div class="re">Please enter your age</div></div>
+                                <div class="rfl"><label>Date of Birth <span class="rq">*</span></label><input type="date" name="dob" required /><div class="rh">e.g., 14-Aug-1990</div><div class="re">Select your date of birth</div></div>
+                                <div class="rfl"><label>Gyan Diksha Date <span class="rq">*</span></label><input type="date" name="gyanDikshaDate" required /><div class="rh">Date of Gyan Diksha</div><div class="re">Select Gyan Diksha Date</div></div>
+                            </div>
+                            <div class="rbtn-row"><span></span><button type="button" class="rb rb-next" onclick="rNext(1)">Continue →</button></div>
+                        </div>
+                        <div class="rsec" id="rS2">
+                            <div class="rsec-title">🏢 Branch Details</div>
+                            <div class="rsec-sub">Your branch and location information</div>
+                            <div class="rgrid">
+                                <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" required><option value="" disabled selected>Select State</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu & Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></select><div class="re">Please select your state</div></div>
+                                <div class="rfl"><label>Branch Name <span class="rq">*</span></label><input type="text" name="branchName" placeholder="e.g., Mira Road Branch" required /><div class="re">Please enter your branch name</div></div>
+                                <div class="rfl"><label>Branch AR Name <span class="rq">*</span></label><input type="text" name="branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch AR name</div></div>
+                                <div class="rfl"><label>Branch AR Number <span class="rq">*</span></label><input type="tel" name="branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+
+                            </div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(2)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(2)">Continue →</button></div>
+                        </div>
+                        <div class="rsec" id="rS3">
+                            <div class="rsec-title">🎓 Qualification &amp; Profession</div>
+                            <div class="rsec-sub">Your educational and professional background</div>
+                            <div class="rgrid">
+                                <div class="rfl"><label>Highest Education <span class="rq">*</span></label>
+                                    <select name="education" required>
+                                        <option value="" disabled selected>Select Education</option>
+                                        <option>High School (10th)</option>
+                                        <option>Senior Secondary (12th)</option>
+                                        <option>Diploma</option>
+                                        <option>Graduate</option>
+                                        <option>Post Graduate</option>
+                                        <option>Doctorate</option>
+                                    </select>
+                                    <div class="re">Select your education</div>
+                                </div>
+                                <div class="rfl"><label>Current Occupation <span class="rq">*</span></label>
+                                    <select name="occupation" required>
+                                        <option value="" disabled selected>Select Occupation</option>
+                                        <option>Student</option>
+                                        <option>Private Sector Employee</option>
+                                        <option>Government Employee</option>
+                                        <option>Self-employed / Business</option>
+                                        <option>Homemaker</option>
+                                        <option>Retired</option>
+                                        <option>Other</option>
+                                    </select>
+                                    <div class="re">Select your occupation</div>
+                                </div>
+                                <div class="rfl"><label>Profession <span class="rq">*</span></label>
+                                    <select name="profession" required>
+                                        <option value="" disabled selected>Select Profession</option>
+                                        <option>Data Analyst / Scientist</option>
+                                        <option>Software Engineer / Developer</option>
+                                        <option>Teacher / Professor</option>
+                                        <option>Doctor / Medical Professional</option>
+                                        <option>Engineer</option>
+                                        <option>CA / Finance / Accounting</option>
+                                        <option>Lawyer / Legal</option>
+                                        <option>Marketing / Sales</option>
+                                        <option>HR / Admin</option>
+                                        <option>Design / Creative</option>
+                                        <option>Other</option>
+                                    </select>
+                                    <div class="re">Select your profession</div>
+                                </div>
+                                <div class="rfl"><label>Years of Experience <span class="rq">*</span></label>
+                                    <input type="number" name="experience" placeholder="e.g., 5" min="0" required />
+                                    <div class="re">Enter years of experience</div>
+                                </div>
+                                <div class="rfl fw"><label>Company / Organization Name <span class="rq">*</span></label>
+                                    <input type="text" name="companyName" placeholder="e.g., TCS" required />
+                                    <div class="re">Enter company name</div>
+                                </div>
+                                <div class="rfl fw"><label>Languages Known <span class="rq">*</span></label>
+                                    <div class="chk-list" id="languagesGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.8rem; text-align: left;">
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="English" style="width:auto; margin:0;"> English</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Hindi" style="width:auto; margin:0;"> Hindi</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Bengali" style="width:auto; margin:0;"> Bengali</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Marathi" style="width:auto; margin:0;"> Marathi</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Telugu" style="width:auto; margin:0;"> Telugu</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Tamil" style="width:auto; margin:0;"> Tamil</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Gujarati" style="width:auto; margin:0;"> Gujarati</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Urdu" style="width:auto; margin:0;"> Urdu</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Kannada" style="width:auto; margin:0;"> Kannada</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Odia" style="width:auto; margin:0;"> Odia</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Malayalam" style="width:auto; margin:0;"> Malayalam</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Punjabi" style="width:auto; margin:0;"> Punjabi</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Assamese" style="width:auto; margin:0;"> Assamese</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Maithili" style="width:auto; margin:0;"> Maithili</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Santali" style="width:auto; margin:0;"> Santali</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Kashmiri" style="width:auto; margin:0;"> Kashmiri</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="languages" value="Sanskrit" style="width:auto; margin:0;"> Sanskrit</label>
+                                    </div>
+                                    <input type="hidden" name="languages_req" id="languagesReq" required />
+                                    <div class="re">Select at least one language</div>
+                                </div>
+                            </div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(3)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(3)">Continue →</button></div>
+                        </div>
+                        <div class="rsec" id="rS4">
+                            <div class="rsec-title">⏱️ Experience &amp; Commitment</div>
+                            <div class="rsec-sub">Your responsibilities and availability</div>
+                            <div class="rgrid">
+                                <div class="rfl fw"><label>Current Branch Responsibilities <span class="rq">*</span></label>
+                                    <div style="display:flex; gap: 8px;">
+                                        <input type="text" id="respInput" placeholder="e.g., Managing weekly youth meetings..." style="flex:1; min-width:0;" onkeypress="if(event.key === 'Enter') { event.preventDefault(); addResp(); }" />
+                                        <button type="button" style="padding: 0.7rem 1.2rem; background:#e2e8f0; color:#334155; border:none; cursor:pointer; border-radius:8px; font-weight:600; font-size:0.85rem; white-space:nowrap; flex-shrink:0;" onclick="addResp()">Add Line</button>
+                                    </div>
+                                    <ul id="respList" style="margin-top:8px; font-size:0.85rem; color:#475569; padding-left:20px;"></ul>
+                                    <input type="hidden" name="responsibilities" id="respHidden" required />
+                                    <div class="re">Add at least one responsibility</div>
+                                </div>
+                                <div class="rfl"><label>Time Commitment <span class="rq">*</span></label>
+                                    <select name="timeCommitValue" required>
+                                        <option value="" disabled selected>Hours</option>
+                                        <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10+</option>
+                                    </select>
+                                    <div class="re">Select hours</div>
+                                </div>
+                                <div class="rfl"><label>Frequency <span class="rq">*</span></label>
+                                    <select name="timeCommitPeriod" required>
+                                        <option value="" disabled selected>Per Period</option>
+                                        <option>per day</option>
+                                        <option>per week</option>
+                                        <option>per month</option>
+                                    </select>
+                                    <div class="re">Select frequency</div>
+                                </div>
+                            </div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(4)">← Back</button><button type="submit" class="rb rb-submit">✓ Submit Application</button></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- Status Overlays -->
+            <div class="rov" id="regLoading"><div class="rsc"><div class="rspinner"></div><h3>Submitting your application...</h3><p>Please wait while we save your details.</p></div></div>
+            <div class="rov" id="regSuccess"><div class="rsc"><div class="ri">🎉</div><h3 style="color:#10b981">Application Submitted!</h3><p>Thank you for registering. Your details have been saved successfully.</p><button class="rb rb-next" onclick="regReset()" style="margin-top:1rem">Submit Another Response</button></div></div>
+            <div class="rov" id="regError"><div class="rsc"><div class="ri">⚠️</div><h3 style="color:#ef4444">Submission Failed</h3><p id="regErrMsg">Something went wrong. Please try again.</p><button class="rb rb-next" onclick="document.getElementById('regError').classList.remove('show')" style="margin-top:1rem">Try Again</button></div></div>
+        </div><!-- end content-register -->
+    </div>
+
+    <script>
+        // Authentication Configuration
+        const AUTH_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaP4CXwnAQsRpKa20kHx5rXp8Ku5rtYI_fquVXxixBD7wYUjS2IvfThZnbzY0EHLpKGw/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
+
+        // Fix B: Pre-warm the BODH Reporting Form silently so it loads faster when user clicks "Add New Report"
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            fetch('https://script.google.com/macros/s/AKfycbymbJHqrex8Dx4ruKovkjtMclvJJq3aHZJ9G_asVSPwwNNSFBxeFnzQOKQx5cb-k0c3nQ/exec?ping=1', { mode: 'no-cors' }).catch(function(){});
+          }, 2000);
+        });
+
+        // Opens the program's "Raw" folder directly. Opens a tab immediately (so the
+        // popup blocker allows it), asks Apps Script to resolve month -> date -> Raw,
+        // then redirects. Falls back to the month folder if Raw can't be located.
+        function openRawFolder(monthUrl, dateStr) {
+            const w = window.open('about:blank', '_blank');
+            try { w.document.write('<p style="font-family:sans-serif;padding:24px;color:#555">Opening folder…</p>'); } catch (e) {}
+            const u = API_URL + (API_URL.indexOf('?') > -1 ? '&' : '?') + 'action=raw'
+                    + '&link=' + encodeURIComponent(monthUrl || '')
+                    + '&date=' + encodeURIComponent(dateStr || '');
+            fetch(u)
+                .then(r => r.json())
+                .then(j => { const dest = (j && j.url) ? j.url : monthUrl;
+                             if (w) w.location.href = dest; else window.open(dest, '_blank'); })
+                .catch(() => { if (w) w.location.href = monthUrl; else window.open(monthUrl, '_blank'); });
+        }
+
+        let allData = [];
+        let filteredData = [];
+        let charts = {};
+        let selectedFilters = {
+            state: [],
+            branch: [],
+            year: [],
+            month: [],
+            programType: [],
+            campaign: []
+        };
+
+        const activityFields = ['Lecture', 'Skit', 'Motivational Songs', 'Choreography', 'Demo', 
+                                'Video Screening', 'Meditation Session', 'Discussion/ Meeting / Conference',
+                                'Exhibition', 'Om Chanting', 'Counseling', 'Rally / Road Show', 
+                                'Drawing  / Craft', 'Signature Campaign', 'TOT', 'Survey'];
+
+        // Month mapping for standardization
+        const monthMap = {
+            'jan': 'January', 'january': 'January',
+            'feb': 'February', 'february': 'February',
+            'mar': 'March', 'march': 'March',
+            'apr': 'April', 'april': 'April',
+            'may': 'May',
+            'jun': 'June', 'june': 'June',
+            'jul': 'July', 'july': 'July',
+            'aug': 'August', 'august': 'August',
+            'sep': 'September', 'sept': 'September', 'september': 'September',
+            'oct': 'October', 'october': 'October',
+            'nov': 'November', 'november': 'November',
+            'dec': 'December', 'december': 'December'
+        };
+
+        function normalizeMonth(month) {
+            if (!month) return '';
+            const normalized = monthMap[month.toLowerCase().trim()];
+            return normalized || month;
+        }
+
+        // Year cycle runs April -> March. April 2025 .. March 2026 => "2025-26"
+        const monthOrderAprMar = ['April', 'May', 'June', 'July', 'August', 'September',
+                                  'October', 'November', 'December', 'January', 'February', 'March'];
+        const calendarMonthIndex = {
+            'January': 1, 'February': 2, 'March': 3, 'April': 4, 'May': 5, 'June': 6,
+            'July': 7, 'August': 8, 'September': 9, 'October': 10, 'November': 11, 'December': 12
+        };
+
+        function getYearCycle(record) {
+            const year = parseInt(record.Year, 10);
+            if (!year) return '';
+            const m = calendarMonthIndex[normalizeMonth(record.Month)];
+            // Jan/Feb/Mar belong to the cycle that started the previous April
+            const startYear = (m && m <= 3) ? year - 1 : year;
+            return `${startYear}-${String((startYear + 1) % 100).padStart(2, '0')}`;
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                allData = result.data;
+                
+                // Normalize month values in the data
+                allData = allData.map(record => ({
+                    ...record,
+                    Month: normalizeMonth(record.Month),
+                    YearCycle: getYearCycle(record)
+                }));
+                
+                filteredData = [...allData];
+                initializeDashboard();
+            } catch (error) {
+                document.querySelector('.container').innerHTML = 
+                    '<div class="error">Error loading data. Please try again later.</div>';
+            }
+        }
+
+        function initializeDashboard() {
+            populateFilters();
+            setupFilterListeners();
+            updateDashboard();
+        }
+
+        function populateFilters() {
+            const states = [...new Set(allData.map(d => d.State).filter(Boolean))].sort();
+            const years = [...new Set(allData.map(d => d.YearCycle).filter(Boolean))]
+                            .sort((a, b) => parseInt(b, 10) - parseInt(a, 10));
+            const months = monthOrderAprMar;
+            const programTypes = [...new Set(allData.map(d => d['Type of Program']).filter(Boolean))].sort();
+            const campaigns = [...new Set(allData.map(d => d['Campaign Name'] || 'Not Specified').filter(Boolean))].sort();
+
+            createCustomSelect('state', states);
+            createCustomSelect('year', years);
+            createCustomSelect('month', months);
+            createCustomSelect('programType', programTypes);
+            createCustomSelect('campaign', campaigns);
+            
+            updateBranchOptions();
+        }
+
+        function createCustomSelect(filterType, options) {
+            const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
+            const dropdown = container.querySelector('.select-dropdown');
+            
+            // Create HTML with sticky header containing All checkbox
+            let html = `
+                <div class="select-option all-option" style="position: sticky; top: 0; background: white; z-index: 10; border-bottom: 1px solid #eee; padding: 0; margin: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 15px;">
+                        <div style="display: flex; align-items: center; flex-grow: 1;">
+                            <input type="checkbox" id="${filterType}_all" data-filter-type="${filterType}" class="all-checkbox" style="margin-right: 10px;">
+                            <label for="${filterType}_all" style="font-weight: 600; cursor: pointer; margin: 0; width: 100%; padding: 5px 0;">All</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="select-options-container" style="max-height: 300px; overflow-y: auto;">
+                    ${options.map(opt => {
+                        const safeId = `${filterType}_${opt.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                        return `
+                        <div style="position: relative; border-bottom: 1px solid #f0f0f0;">
+                            <input type="checkbox" id="${safeId}" 
+                                   value="${opt}" data-filter-type="${filterType}" class="item-checkbox" 
+                                   style="position: absolute; opacity: 0; width: 1px; height: 1px;">
+                            <label for="${safeId}" 
+                                   style="display: block; padding: 10px 15px 10px 40px; margin: 0; cursor: pointer; 
+                                          position: relative; transition: all 0.2s ease;
+                                          user-select: none;">
+                                <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+                                            width: 18px; height: 18px; border: 2px solid #667eea; border-radius: 4px;
+                                            display: flex; align-items: center; justify-content: center;
+                                            transition: all 0.2s ease; font-size: 14px; font-weight: bold;
+                                            color: white;">
+                                    <span style="opacity: 0; transition: opacity 0.2s ease;">✓</span>
+                                </span>
+                                <span style="display: inline-block; vertical-align: middle;">${opt}</span>
+                            </label>
+                            <style>
+                                #${safeId}:checked + label span:first-child {
+                                    background: #667eea;
+                                }
+                                #${safeId}:checked + label span:first-child span {
+                                    opacity: 1;
+                                }
+                            </style>
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div class="filter-actions" style="position: sticky; bottom: 0; background: white; padding: 10px; border-top: 1px solid #eee; display: flex; justify-content: flex-end;">
+                    <button class="filter-btn clear" data-filter-type="${filterType}" style="padding: 5px 15px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 4px; cursor: pointer; margin-right: 10px;">Clear All</button>
+                </div>`;
+            
+            dropdown.innerHTML = html;
+
+            // Set all checkboxes checked by default if no selection
+            if (selectedFilters[filterType].length === 0) {
+                dropdown.querySelector('.all-checkbox').checked = true;
+                dropdown.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = true);
+            } else {
+                // Restore previous selections
+                selectedFilters[filterType].forEach(val => {
+                    const checkbox = dropdown.querySelector(`input[value="${val}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateAllCheckbox(filterType);
+            }
+
+            // Add event listeners
+            setupDropdownListeners(filterType);
+        }
+
+        // Global click handler to close dropdown when clicking outside
+        document.addEventListener('click', function closeDropdownOnClickOutside(e) {
+            const dropdowns = document.querySelectorAll('.select-dropdown.show');
+            dropdowns.forEach(dropdown => {
+                const container = dropdown.closest('.custom-select');
+                const filterType = container.dataset.filter;
+                
+                // If click is outside the dropdown and not on the select display
+                if (!dropdown.contains(e.target) && !container.querySelector('.select-display').contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    container.querySelector('.select-arrow').classList.remove('rotated');
+                    container.querySelector('.select-display').classList.remove('active');
+                }
+            });
+        });
+
+        function setupDropdownListeners(filterType) {
+            const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
+            const dropdown = container.querySelector('.select-dropdown');
+            const selectDisplay = container.querySelector('.select-display');
+            // Function to apply the current filter selection
+            const applyCurrentSelection = () => {
+                const checkedBoxes = dropdown.querySelectorAll('.item-checkbox:checked');
+                const selected = Array.from(checkedBoxes).map(cb => cb.value);
+                
+                // Update selected filters
+                selectedFilters[filterType] = selected;
+                
+                // If this is the state filter, update branch options
+                if (filterType === 'state') {
+                    updateBranchOptions();
+                }
+                
+                applyFilters();
+            };
+            
+            // "All" checkbox logic
+            const allCheckbox = dropdown.querySelector('.all-checkbox');
+            allCheckbox.addEventListener('change', (e) => {
+                const itemCheckboxes = dropdown.querySelectorAll('.item-checkbox');
+                itemCheckboxes.forEach(cb => cb.checked = e.target.checked);
+                applyCurrentSelection();
+            });
+            
+            // Individual checkbox logic
+            dropdown.querySelectorAll('.item-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation(); // Prevent event from bubbling up to document
+                    updateAllCheckbox(filterType);
+                    applyCurrentSelection();
+                });
+                
+                // Prevent label click from closing dropdown
+                const label = checkbox.nextElementSibling;
+                if (label && label.tagName === 'LABEL') {
+                    label.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                }
+            });
+            
+            // Clear button
+            dropdown.querySelector('.filter-btn.clear').addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+                allCheckbox.checked = false;
+                applyCurrentSelection();
+            });
+            
+            // Auto-close dropdown when clicking outside or after selection
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    container.querySelector('.select-arrow').classList.remove('rotated');
+                    selectDisplay.classList.remove('active');
+                }
+            });
+        }
+
+        function updateAllCheckbox(filterType) {
+            const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
+            const dropdown = container.querySelector('.select-dropdown');
+            const allCheckbox = dropdown.querySelector('.all-checkbox');
+            const itemCheckboxes = dropdown.querySelectorAll('.item-checkbox');
+            const checkedCount = dropdown.querySelectorAll('.item-checkbox:checked').length;
+            
+            allCheckbox.checked = checkedCount === itemCheckboxes.length;
+            allCheckbox.indeterminate = checkedCount > 0 && checkedCount < itemCheckboxes.length;
+        }
+
+        function updateBranchOptions() {
+            const selectedStates = selectedFilters.state;
+            
+            let branchData = allData;
+            if (selectedStates.length > 0) {
+                branchData = allData.filter(d => selectedStates.includes(d.State));
+            }
+            
+            const branches = [...new Set(branchData.map(d => d.Branch).filter(Boolean))].sort();
+            
+            // Clear invalid branch selections
+            selectedFilters.branch = selectedFilters.branch.filter(b => branches.includes(b));
+            
+            createCustomSelect('branch', branches);
+            updateSelectedDisplay('branch');
+        }
+
+        function updateSelectedDisplay(filterType) {
+            const container = document.querySelector(`.custom-select[data-filter="${filterType}"]`);
+            if (!container) return; // Skip if container not found
+            
+            const display = container.querySelector('.select-text');
+            if (!display) return; // Skip if display element not found
+            
+            const selected = selectedFilters[filterType] || [];
+            const labels = {
+                state: 'All States',
+                branch: 'All Branches',
+                year: 'All Years',
+                month: 'All Months',
+                programType: 'All Types',
+                campaign: 'All Campaigns'
+            };
+            
+            if (selected.length === 0) {
+                display.innerHTML = labels[filterType];
+            } else if (selected.length === 1) {
+                display.innerHTML = selected[0].toString();
+            } else {
+                // Get total count of options
+                const dropdown = container.querySelector('.select-dropdown');
+                const totalOptions = dropdown ? dropdown.querySelectorAll('.item-checkbox').length : 0;
+                
+                if (totalOptions > 0 && selected.length === totalOptions) {
+                    display.innerHTML = labels[filterType];
+                } else {
+                    display.innerHTML = `${selected[0].toString()} <span class="selected-count">+${selected.length - 1}</span>`;
+                }
+            }
+            
+            // Update the checkboxes and their visual state
+            const dropdown = container.querySelector('.select-dropdown');
+            if (!dropdown) return;
+            
+            // Update all item checkboxes
+            const itemCheckboxes = dropdown.querySelectorAll('.item-checkbox');
+            itemCheckboxes.forEach(checkbox => {
+                const value = checkbox.value;
+                const isChecked = selected.includes(value);
+                checkbox.checked = isChecked;
+                
+                // Update the visual checkmark
+                const label = checkbox.nextElementSibling;
+                if (label && label.matches('label')) {
+                    const checkmark = label.querySelector('span:first-child span');
+                    if (checkmark) {
+                        checkmark.style.opacity = isChecked ? '1' : '0';
+                    }
+                    const checkmarkBox = label.querySelector('span:first-child');
+                    if (checkmarkBox) {
+                        checkmarkBox.style.background = isChecked ? '#667eea' : 'transparent';
+                        checkmarkBox.style.borderColor = isChecked ? '#667eea' : '#667eea';
+                    }
+                }
+            });
+            
+            // Update the 'All' checkbox state
+            const allCheckbox = dropdown.querySelector('.all-checkbox');
+            if (allCheckbox) {
+                allCheckbox.checked = selected.length === itemCheckboxes.length;
+                allCheckbox.indeterminate = selected.length > 0 && selected.length < itemCheckboxes.length;
+                
+                // Update the visual checkmark for 'All' checkbox
+                const allLabel = allCheckbox.nextElementSibling;
+                if (allLabel && allLabel.matches('label')) {
+                    const allCheckmark = allLabel.parentElement.querySelector('span:first-child');
+                    if (allCheckmark) {
+                        const checkmarkIcon = allCheckmark.querySelector('span');
+                        if (allCheckbox.checked) {
+                            allCheckmark.style.background = '#667eea';
+                            allCheckmark.style.borderColor = '#667eea';
+                            if (checkmarkIcon) checkmarkIcon.style.opacity = '1';
+                        } else if (allCheckbox.indeterminate) {
+                            allCheckmark.style.background = '#f0f0f0';
+                            allCheckmark.style.borderColor = '#667eea';
+                            if (checkmarkIcon) checkmarkIcon.style.opacity = '0';
+                        } else {
+                            allCheckmark.style.background = 'transparent';
+                            allCheckmark.style.borderColor = '#667eea';
+                            if (checkmarkIcon) checkmarkIcon.style.opacity = '0';
+                        }
+                    }
+                }
+            }
+        }
+
+        function setupFilterListeners() {
+            // Toggle dropdown on click
+            document.querySelectorAll('.custom-select').forEach(select => {
+                const display = select.querySelector('.select-display');
+                const dropdown = select.querySelector('.select-dropdown');
+                const arrow = select.querySelector('.select-arrow');
+                
+                display.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    
+                    const isCurrentlyOpen = dropdown.classList.contains('show');
+                    
+                    // Close all dropdowns first
+                    document.querySelectorAll('.select-dropdown').forEach(dd => dd.classList.remove('show'));
+                    document.querySelectorAll('.select-arrow').forEach(arr => arr.classList.remove('rotated'));
+                    document.querySelectorAll('.select-display').forEach(disp => disp.classList.remove('active'));
+                    
+                    // If it wasn't open, open it now
+                    if (!isCurrentlyOpen) {
+                        dropdown.classList.add('show');
+                        arrow.classList.add('rotated');
+                        display.classList.add('active');
+                    }
+                });
+            });
+            
+            // Prevent dropdown from closing when clicking inside it
+            document.querySelectorAll('.select-dropdown').forEach(dropdown => {
+                dropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.custom-select')) {
+                    document.querySelectorAll('.select-dropdown').forEach(dd => dd.classList.remove('show'));
+                    document.querySelectorAll('.select-arrow').forEach(arr => arr.classList.remove('rotated'));
+                    document.querySelectorAll('.select-display').forEach(disp => disp.classList.remove('active'));
+                }
+            });
+        }
+
+        function applyFilters() {
+            filteredData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+
+            // Update all filter displays
+            ['state', 'branch', 'year', 'month', 'programType', 'campaign'].forEach(filterType => {
+                updateSelectedDisplay(filterType);
+            });
+
+            updateDashboard();
+        }
+
+        function getSelectedValues(selectElement) {
+            // This function is no longer needed but kept for compatibility
+            return [];
+        }
+
+        function populateSelect(id, options) {
+            // This function is no longer needed but kept for compatibility
+        }
+
+        function updateDashboard() {
+            updateStats();
+            updateCharts();
+            updateTable();
+        }
+
+        function getBeneficiaryCount(record) {
+            // Use ONLY "Beneficiaries" field
+            const value = record['Beneficiaries'] || '0';
+            
+            // Handle various formats: numbers, strings, "NA", empty, etc.
+            if (!value || value === '' || value === null || value === undefined) return 0;
+            if (typeof value === 'string' && (value.toUpperCase() === 'NA' || value.toUpperCase() === 'N/A')) return 0;
+            
+            const parsed = parseInt(String(value).replace(/[^0-9]/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function getCategoryValue(record, category) {
+            // Try multiple variations of field names
+            const variations = [
+                category,           // e.g., "Men"
+                category + ' ',     // e.g., "Men "
+                category.trim(),    // trimmed version
+            ];
+            
+            let value = null;
+            for (let variant of variations) {
+                if (record[variant] !== undefined && record[variant] !== null && record[variant] !== '') {
+                    value = record[variant];
+                    break;
+                }
+            }
+            
+            // If still no value found, return 0
+            if (!value) return 0;
+            
+            // Handle various formats
+            if (typeof value === 'string' && (value.toUpperCase() === 'NA' || value.toUpperCase() === 'N/A')) return 0;
+            
+            // Remove any non-numeric characters except decimal point
+            const cleanValue = String(value).replace(/[^0-9.]/g, '');
+            const parsed = parseFloat(cleanValue);
+            
+            return isNaN(parsed) ? 0 : Math.round(parsed);
+        }
+
+        function updateStats() {
+            const totalPrograms = filteredData.length;
+            const totalBeneficiaries = filteredData.reduce((sum, d) => sum + getBeneficiaryCount(d), 0);
+            const uniqueBranches = new Set(filteredData.map(d => d.Branch)).size;
+            const uniqueStates = new Set(filteredData.map(d => d.State)).size;
+
+            const statsHTML = `
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h3>Total Programs</h3>
+                    <div class="value">${totalPrograms.toLocaleString()}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <h3>Total Beneficiaries</h3>
+                    <div class="value">${totalBeneficiaries.toLocaleString()}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h3>Active Branches</h3>
+                    <div class="value">${uniqueBranches}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <h3>States Covered</h3>
+                    <div class="value">${uniqueStates}</div>
+                </div>
+            `;
+            document.getElementById('statsGrid').innerHTML = statsHTML;
+        }
+
+        const CAMP_COLORS = [
+            '#667eea','#f5576c','#43e97b','#4facfe',
+            '#f093fb','#fa8231','#a29bfe','#00cec9',
+            '#fd79a8','#6c5ce7','#00b894','#e17055'
+        ];
+        let campCharts = {};
+
+        function destroyCampCharts() {
+            Object.values(campCharts).forEach(c => { try { c.destroy(); } catch(e){} });
+            campCharts = {};
+        }
+
+        function updateCharts() {
+            Object.values(charts).forEach(chart => chart.destroy());
+            charts = {};
+            destroyCampCharts();
+
+            // Build campaign stats from filteredData
+            const campData = filteredData.filter(d => d['Campaign Name']);
+            const campaigns = [...new Set(campData.map(d => d['Campaign Name']).filter(Boolean))].sort();
+            const campStats = {};
+            campaigns.forEach(c => { campStats[c] = { programs: 0, beneficiaries: 0 }; });
+            campData.forEach(d => {
+                const c = d['Campaign Name'];
+                if (!c || !campStats[c]) return;
+                campStats[c].programs++;
+                campStats[c].beneficiaries += getBeneficiaryCount(d);
+            });
+            const allStates = [...new Set(campData.map(d => d.State).filter(Boolean))].sort();
+
+            // Conditionally add the 3-column campaign row
+            const campRowHTML = campaigns.length > 0 ? `
+                <div class="camp-inline-row">
+                    <div class="chart-container">
+                        <h2>📊 Per Campaign — Programs Conducted</h2>
+                        <div class="chart-wrapper"><canvas id="campBarPrograms"></canvas></div>
+                    </div>
+                    <div class="chart-container">
+                        <h2>👥 Per Campaign — Beneficiaries Reached</h2>
+                        <div class="chart-wrapper"><canvas id="campBarBenef"></canvas></div>
+                    </div>
+                    <div class="chart-container">
+                        <h2>🗺️ Per Campaign — State-wise Reach</h2>
+                        <div class="chart-wrapper"><canvas id="campStackedState"></canvas></div>
+                    </div>
+                </div>` : '';
+
+            const chartsHTML = `
+                <div class="chart-container"><h2>📅 Monthly Program Trends</h2><div class="chart-wrapper"><canvas id="monthlyChart"></canvas></div></div>
+                <div class="chart-container"><h2>🏢 Top Branches by Programs</h2><div class="chart-wrapper"><canvas id="branchChart"></canvas></div></div>
+                <div class="chart-container"><h2>🎯 Activity Distribution</h2><div class="chart-wrapper"><canvas id="activityChart"></canvas></div></div>
+                <div class="chart-container"><h2>🗺️ State-wise Distribution</h2><div class="chart-wrapper"><canvas id="stateChart"></canvas></div></div>
+                <div class="chart-container"><h2>📊 Program Type Analysis</h2><div class="chart-wrapper"><canvas id="programTypeChart"></canvas></div></div>
+                <div class="chart-container"><h2>📈 Program Impact Over Years</h2><div class="chart-wrapper"><canvas id="impactChart"></canvas></div></div>
+                ${campRowHTML}
+            `;
+            document.getElementById('chartsGrid').innerHTML = chartsHTML;
+
+            createMonthlyChart();
+            createBranchChart();
+            createActivityChart();
+            createStateChart();
+            createProgramTypeChart();
+            createImpactChart();
+
+            if (campaigns.length > 0) {
+                // Camp chart 1: Programs per campaign
+                campCharts.prog = new Chart(document.getElementById('campBarPrograms').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: campaigns,
+                        datasets: [{
+                            label: 'Programs',
+                            data: campaigns.map(c => campStats[c].programs),
+                            backgroundColor: campaigns.map((_,i) => CAMP_COLORS[i % CAMP_COLORS.length] + 'cc'),
+                            borderColor:     campaigns.map((_,i) => CAMP_COLORS[i % CAMP_COLORS.length]),
+                            borderWidth: 2, borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } }
+                    }
+                });
+
+                // Camp chart 2: Beneficiaries per campaign
+                campCharts.benef = new Chart(document.getElementById('campBarBenef').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: campaigns,
+                        datasets: [{
+                            label: 'Beneficiaries',
+                            data: campaigns.map(c => campStats[c].beneficiaries),
+                            backgroundColor: campaigns.map((_,i) => CAMP_COLORS[(i+3) % CAMP_COLORS.length] + 'cc'),
+                            borderColor:     campaigns.map((_,i) => CAMP_COLORS[(i+3) % CAMP_COLORS.length]),
+                            borderWidth: 2, borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() } } }
+                    }
+                });
+
+                // Camp chart 3: State-wise stacked bar
+                const stateDatasets = campaigns.map((c, i) => {
+                    const stateCounts = {};
+                    allStates.forEach(s => stateCounts[s] = 0);
+                    campData.filter(d => d['Campaign Name'] === c).forEach(d => { if(d.State) stateCounts[d.State]++; });
+                    return {
+                        label: c,
+                        data: allStates.map(s => stateCounts[s]),
+                        backgroundColor: CAMP_COLORS[i % CAMP_COLORS.length] + 'bb',
+                        borderColor: CAMP_COLORS[i % CAMP_COLORS.length],
+                        borderWidth: 1
+                    };
+                });
+                campCharts.state = new Chart(document.getElementById('campStackedState').getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: allStates, datasets: stateDatasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } },
+                        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                    }
+                });
+            }
+        }
+
+        function createMonthlyChart() {
+            const monthOrder = monthOrderAprMar;
+            const monthData = {};
+            monthOrder.forEach(m => monthData[m] = 0);
+            
+            // Get data to use based on all current filters (except month to avoid circular filtering)
+            let useData = allData.filter(d => {
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+            
+            useData.forEach(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                if (normalizedMonth && monthData.hasOwnProperty(normalizedMonth)) {
+                    monthData[normalizedMonth]++;
+                }
+            });
+            
+            // Add a subtitle to indicate if showing all-time data and/or filtered by campaign
+            let subtitleText = '';
+            if (selectedFilters.year.length === 0) {
+                subtitleText = 'All-Time Data';
+            }
+            if (selectedFilters.campaign.length > 0) {
+                const campaignText = selectedFilters.campaign.join(', ');
+                subtitleText = subtitleText ? `${subtitleText} | Campaign: ${campaignText}` : `Campaign: ${campaignText}`;
+            }
+
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            charts.monthly = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthOrder,
+                    datasets: [{
+                        label: 'Programs',
+                        data: monthOrder.map(m => monthData[m]),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        subtitle: {
+                            display: !!subtitleText,
+                            text: subtitleText,
+                            font: { size: 12, style: 'italic' },
+                            padding: { bottom: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createBranchChart() {
+            const branchData = {};
+            // Get data to use based on all current filters
+            let useData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+            
+            useData.forEach(d => {
+                branchData[d.Branch] = (branchData[d.Branch] || 0) + 1;
+            });
+
+            const sorted = Object.entries(branchData)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const ctx = document.getElementById('branchChart').getContext('2d');
+            charts.branch = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Programs',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: '#667eea',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: { 
+                        legend: { display: false },
+                        subtitle: {
+                            display: selectedFilters.year.length === 0 || selectedFilters.campaign.length > 0,
+                            text: (() => {
+                                const parts = [];
+                                if (selectedFilters.year.length === 0) parts.push('All-Time Data');
+                                if (selectedFilters.campaign.length > 0) {
+                                    parts.push(`Campaign: ${selectedFilters.campaign.join(', ')}`);
+                                }
+                                return parts.join(' | ');
+                            })(),
+                            font: { size: 12, style: 'italic' },
+                            padding: { bottom: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createActivityChart() {
+            const activityData = {};
+            // Get data to use based on all current filters
+            let useData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+            
+            activityFields.forEach(field => {
+                activityData[field] = useData.filter(d => d[field]).length;
+            });
+
+            const sorted = Object.entries(activityData)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            charts.activity = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        function createStateChart() {
+            const stateData = {};
+            // Get data to use based on all current filters
+            let useData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+            
+            useData.forEach(d => {
+                stateData[d.State] = (stateData[d.State] || 0) + 1;
+            });
+
+            const sorted = Object.entries(stateData)
+                .sort((a, b) => b[1] - a[1]);
+
+            const ctx = document.getElementById('stateChart').getContext('2d');
+            charts.state = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        label: 'Programs',
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: 'rgba(245, 87, 108, 0.8)',
+                        borderColor: '#f5576c',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        subtitle: {
+                            display: selectedFilters.year.length === 0 || selectedFilters.campaign.length > 0,
+                            text: (() => {
+                                const parts = [];
+                                if (selectedFilters.year.length === 0) parts.push('All-Time Data');
+                                if (selectedFilters.campaign.length > 0) {
+                                    parts.push(`Campaign: ${selectedFilters.campaign.join(', ')}`);
+                                }
+                                return parts.join(' | ');
+                            })(),
+                            font: { size: 12, style: 'italic' },
+                            padding: { bottom: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createProgramTypeChart() {
+            const programTypeData = {};
+            // Get data to use based on all current filters
+            let useData = allData.filter(d => {
+                const normalizedMonth = normalizeMonth(d.Month);
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.year.length === 0 || selectedFilters.year.includes(d.YearCycle)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizedMonth)) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+            
+            useData.forEach(d => {
+                const type = d['Type of Program'] || 'Other';
+                programTypeData[type] = (programTypeData[type] || 0) + 1;
+            });
+
+            const sorted = Object.entries(programTypeData)
+                .sort((a, b) => b[1] - a[1]);
+
+            const ctx = document.getElementById('programTypeChart').getContext('2d');
+            charts.programType = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: sorted.map(s => s[0]),
+                    datasets: [{
+                        data: sorted.map(s => s[1]),
+                        backgroundColor: [
+                            '#667eea', '#f5576c', '#43e97b', '#4facfe',
+                            '#f093fb', '#38f9d7', '#764ba2', '#00f2fe'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        function createImpactChart() {
+            const yearData = {};
+            // Get data to use based on current filters (except year to show all years in impact chart)
+            let useData = allData.filter(d => {
+                return (selectedFilters.state.length === 0 || selectedFilters.state.includes(d.State)) &&
+                       (selectedFilters.branch.length === 0 || selectedFilters.branch.includes(d.Branch)) &&
+                       (selectedFilters.month.length === 0 || selectedFilters.month.includes(normalizeMonth(d.Month))) &&
+                       (selectedFilters.programType.length === 0 || selectedFilters.programType.includes(d['Type of Program'])) &&
+                       (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
+            });
+                
+            useData.forEach(d => {
+                const year = d.YearCycle;
+                if (!year) return;
+                if (!yearData[year]) {
+                    yearData[year] = {
+                        programs: 0,
+                        beneficiaries: 0,
+                        branches: new Set()
+                    };
+                }
+                yearData[year].programs++;
+                yearData[year].beneficiaries += getBeneficiaryCount(d);
+                yearData[year].branches.add(d.Branch);
+            });
+
+            const years = Object.keys(yearData).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+            const programCounts = years.map(y => yearData[y].programs);
+            const beneficiaryCounts = years.map(y => yearData[y].beneficiaries);
+
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            charts.impact = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        {
+                            label: 'Programs Conducted',
+                            data: programCounts,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            yAxisID: 'y',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        },
+                        {
+                            label: 'Beneficiaries Reached',
+                            data: beneficiaryCounts,
+                            borderColor: '#43e97b',
+                            backgroundColor: 'rgba(67, 233, 123, 0.1)',
+                            yAxisID: 'y1',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toLocaleString();
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Number of Programs',
+                                color: '#667eea',
+                                font: { weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Beneficiaries Reached',
+                                color: '#43e97b',
+                                font: { weight: 'bold' }
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            
+            try {
+                const date = new Date(dateStr);
+                const day = date.getDate();
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const month = months[date.getMonth()];
+                const year = date.getFullYear();
+                
+                // Pad day with leading zero if single digit for consistent width
+                const paddedDay = day < 10 ? `0${day}` : day;
+                return `${paddedDay}-${month}-${year}`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            try {
+                return new Date(dateStr);
+            } catch (e) {
+                return new Date(0);
+            }
+        }
+
+        function updateTable() {
+            const tableBody = document.getElementById('tableBody');
+            
+            // Sort data by date in descending order (newest first)
+            const sortedData = [...filteredData].sort((a, b) => {
+                const dateA = parseDate(a['Full Date'] || a.Date);
+                const dateB = parseDate(b['Full Date'] || b.Date);
+                return dateB - dateA; // Descending order
+            });
+            
+            const recentData = sortedData.slice(0, 20);
+
+            tableBody.innerHTML = recentData.map((d, index) => {
+                // Per-row Drive folder link (column AC "Month wise Folder link").
+                // Defensive key lookup so it works whatever key the API sends.
+                const folderLink = d['Month wise Folder link'] || d['Folder Link']
+                    || d.folderLink || d['MonthFolderLink'] || d['Folder'] || '';
+                const rowDate = String(d['Full Date'] || d.Date || '');
+                const editCell = folderLink
+                    ? `<button class="view-details-btn"
+                          style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"
+                          title="Open this program's Raw folder to upload photos"
+                          onclick='openRawFolder(${JSON.stringify(folderLink)}, ${JSON.stringify(rowDate)})'>✏️ Edit / Upload</button>`
+                    : `<span style="color:#bbb; font-size:0.85em;">No folder</span>`;
+                return `
+                    <tr>
+                        <td style="white-space: nowrap;">${formatDate(d['Full Date'] || d.Date)}</td>
+                        <td>${d.State || 'N/A'}</td>
+                        <td>${d.Branch || 'N/A'}</td>
+                        <td>${d.Venue || 'N/A'}</td>
+                        <td>${getBeneficiaryCount(d).toLocaleString()}</td>
+                        <td>${d['Type of Program'] || 'N/A'}</td>
+                        <td><button class="view-details-btn" onclick="showDetails(${sortedData.indexOf(d)})">View Details</button></td>
+                        <td>${editCell}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showDetails(dataIndex) {
+            const sortedData = [...filteredData].sort((a, b) => {
+                const dateA = parseDate(a['Full Date'] || a.Date);
+                const dateB = parseDate(b['Full Date'] || b.Date);
+                return dateB - dateA;
+            });
+            
+            const program = sortedData[dataIndex];
+            
+            // Get all activities
+            const conductedActivities = activityFields.filter(field => program[field]);
+            
+            // Get beneficiary breakdown
+            const beneficiaryCategories = ['Men', 'Women', 'Students', 'Teachers', 'Children'];
+            
+            const modalContent = `
+                <div class="detail-section">
+                    <h3>📅 Program Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Date</label>
+                            <div class="value">${formatDate(program['Full Date'] || program.Date)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>State</label>
+                            <div class="value">${program.State || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Branch</label>
+                            <div class="value">${program.Branch || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Program Type</label>
+                            <div class="value">${program['Type of Program'] || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Campaign Name</label>
+                            <div class="value">${program['Campaign Name'] || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📍 Venue Details</h3>
+                    <div class="detail-item">
+                        <label>Address/Venue</label>
+                        <div class="value">${program.Venue || 'N/A'}</div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>🎯 Activities Conducted</h3>
+                    <div class="activities-list">
+                        ${conductedActivities.length > 0 
+                            ? conductedActivities.map(activity => 
+                                `<div class="activity-chip active">${activity}</div>`
+                              ).join('')
+                            : '<div class="activity-chip">No activities recorded</div>'
+                        }
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>👥 Beneficiaries Breakdown</h3>
+                    <div class="detail-grid">
+                        ${beneficiaryCategories.map(category => {
+                            const value = getCategoryValue(program, category);
+                            return `
+                                <div class="detail-item">
+                                    <label>${category}</label>
+                                    <div class="value">${value > 0 ? value.toLocaleString() : 'Not recorded'}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                        <div class="detail-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-left: none;">
+                            <label style="color: white;">Total Beneficiaries</label>
+                            <div class="value" style="color: white; font-size: 1.5em; font-weight: bold;">
+                                ${getBeneficiaryCount(program).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                    ${beneficiaryCategories.every(cat => getCategoryValue(program, cat) === 0) ? 
+                        '<p style="color: #999; font-size: 0.9em; margin-top: 15px; text-align: center;">📝 Demographic breakdown not available for this program</p>' 
+                        : ''}
+                </div>
+
+                <div class="detail-section">
+                    <h3>📸 Documentation</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Photographs</label>
+                            <div class="value">${program.Photographs || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Videos</label>
+                            <div class="value">${program.Videos || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Press Coverage</label>
+                            <div class="value">${program['Press Coverage'] || 'N/A'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <label>Appreciation Letter</label>
+                            <div class="value">${program['Appreciation Letter'] || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalBody').innerHTML = modalContent;
+            document.getElementById('activityModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('activityModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('activityModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Authentication Functions
+        let isWhitelisted = false;
+
+        function handleCredentialResponse(response) {
+            const data = parseJwt(response.credential);
+            const userEmail = data.email;
+            
+            // Append email to form link
+            const btn = document.getElementById('testReportBtn');
+            if(btn) {
+                const url = new URL(btn.href);
+                url.searchParams.set('email', userEmail);
+                btn.href = url.toString();
+            }
+
+            // Show loading state
+            document.getElementById('auth-message').textContent = 'Verifying access...';
+            document.querySelector('.g_id_signin').style.display = 'none';
+            
+            // Verify the user's email with your Google Sheet
+            fetch(`${AUTH_SCRIPT_URL}?action=verifyUser&email=${encodeURIComponent(userEmail)}`)
+                .then(response => response.json())
+                .then(result => {
+                    // Hide auth overlay for ALL signed-in users
+                    document.getElementById('auth-container').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+
+                    if (result.success) {
+                        // Whitelisted user → show BOTH tabs (Dashboard + Form)
+                        isWhitelisted = true;
+                        sessionStorage.setItem('userData', JSON.stringify(result.userData));
+                        sessionStorage.setItem('isWhitelisted', 'true');
+                        document.getElementById('tab-dashboard').style.display = 'flex';
+                        document.getElementById('content-dashboard').classList.add('active');
+                        document.getElementById('content-register').classList.remove('active');
+                        document.getElementById('tab-dashboard').classList.add('active');
+                        document.getElementById('tab-register').classList.remove('active');
+                        fetchData();
+                    } else {
+                        // Non-whitelisted user → show ONLY Form tab
+                        isWhitelisted = false;
+                        sessionStorage.setItem('isWhitelisted', 'false');
+                        sessionStorage.setItem('userData', JSON.stringify({ email: userEmail }));
+                        document.getElementById('tab-dashboard').style.display = 'none';
+                        document.getElementById('content-dashboard').classList.remove('active');
+                        document.getElementById('content-register').classList.add('active');
+                        document.getElementById('tab-register').classList.add('active');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('auth-message').textContent = 'An error occurred. Please try again.';
+                    document.querySelector('.g_id_signin').style.display = 'inline-block';
+                });
+        }
+
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            return JSON.parse(atob(base64));
+        }
+
+        function signOut() {
+            google.accounts.id.disableAutoSelect();
+            sessionStorage.removeItem('userData');
+            sessionStorage.removeItem('isWhitelisted');
+            isWhitelisted = false;
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('main-content').style.display = 'none';
+            document.querySelector('.g_id_signin').style.display = 'inline-block';
+            document.getElementById('auth-message').textContent = '';
+        }
+
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = sessionStorage.getItem('userData');
+            const wl = sessionStorage.getItem('isWhitelisted');
+            if (userData) {
+                const userEmail = JSON.parse(userData).email;
+                const btn = document.getElementById('testReportBtn');
+                if(btn && userEmail) {
+                    const url = new URL(btn.href);
+                    url.searchParams.set('email', userEmail);
+                    btn.href = url.toString();
+                }
+
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                if (wl === 'true') {
+                    isWhitelisted = true;
+                    document.getElementById('tab-dashboard').style.display = 'flex';
+                    document.getElementById('content-dashboard').classList.add('active');
+                    document.getElementById('content-register').classList.remove('active');
+                    document.getElementById('tab-dashboard').classList.add('active');
+                    document.getElementById('tab-register').classList.remove('active');
+                    fetchData();
+                } else {
+                    isWhitelisted = false;
+                    document.getElementById('tab-dashboard').style.display = 'none';
+                    document.getElementById('content-dashboard').classList.remove('active');
+                    document.getElementById('content-register').classList.add('active');
+                    document.getElementById('tab-register').classList.add('active');
+                }
+            } else {
+                document.getElementById('auth-container').style.display = 'flex';
+                document.getElementById('main-content').style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // Tab Switching
+        // ============================================================
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('content-' + tabName).classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // ============================================================
+        // Registration Form Logic
+        // ============================================================
+        const REG_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
+        let rCur = 1;
+        const rTotal = 4;
+
+        function updateBodhRoles() {
+            const type = document.getElementById('genderRole').value;
+            const roleSelect = document.getElementById('bodhRole');
+            roleSelect.innerHTML = '<option value="" disabled selected>Select Role</option>';
+            
+            let roles = [];
+            if (type === 'Brother') {
+                roles = [
+                    "BBTL", "B.B. HO Heads [TR]", "B.B. Zonal Heads", "B.B. State Heads", 
+                    "B.B. Branch Heads", "B.B. Branch Designer", "B.B. HO SPOC Writer", 
+                    "B.B. HO SPOC Proof Reader", "B.B. HO SPOC Designer", "B.B. HO SPOC Editor", 
+                    "B.B. HO SPOC Researcher", "B.B. HO SPOC Data Mgmt"
+                ];
+            } else if (type === 'Sister') {
+                roles = [
+                    "BSTL", "B.S. HO Heads", "B.S. Zonal Heads", "B.S. State Heads", 
+                    "B.S. Branch Heads", "B.S. Branch Designer", "B.S. HO SPOC Writer", 
+                    "B.S. HO SPOC Proof Reader", "B.S. HO SPOC Designer", "B.S. HO SPOC Editor", 
+                    "B.S. HO SPOC Researcher", "B.S. HO SPOC Data Mgmt"
+                ];
+            }
+            
+            roles.forEach(role => {
+                const opt = document.createElement('option');
+                opt.value = role;
+                opt.textContent = role;
+                roleSelect.appendChild(opt);
+            });
+        }
+
+        function rUpdateProg() {
+            for (let i = 1; i <= rTotal; i++) {
+                const dot = document.getElementById('rD' + i);
+                const conn = document.getElementById('rC' + i);
+                dot.classList.remove('active', 'done');
+                if (conn) conn.classList.remove('active');
+                if (i < rCur) { dot.classList.add('done'); dot.textContent = '✓'; if (conn) conn.classList.add('active'); }
+                else if (i === rCur) { dot.classList.add('active'); dot.textContent = i; }
+                else { dot.textContent = i; }
+            }
+        }
+
+        function rShowSec(n) {
+            document.querySelectorAll('.rsec').forEach(s => s.classList.remove('active'));
+            document.getElementById('rS' + n).classList.add('active');
+            rCur = n;
+            rUpdateProg();
+        }
+
+        function rValidate(n) {
+            const sec = document.getElementById('rS' + n);
+            const inputs = sec.querySelectorAll('input[required], textarea[required], select[required]');
+            let ok = true;
+            
+            // Custom check for languages
+            if (n === 3) {
+                const langGroup = document.getElementById('languagesGroup');
+                const checkedLangs = langGroup.querySelectorAll('input[type="checkbox"]:checked');
+                const langReq = document.getElementById('languagesReq');
+                if (checkedLangs.length === 0) {
+                    langReq.value = '';
+                } else {
+                    langReq.value = 'selected';
+                }
+            }
+
+            inputs.forEach(inp => {
+                const g = inp.closest('.rfl');
+                g.classList.remove('has-error');
+                if (!inp.value || !inp.value.trim()) { g.classList.add('has-error'); ok = false; }
+                else if (inp.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value)) { g.classList.add('has-error'); ok = false; }
+                else if ((inp.name === 'contact' || inp.name === 'branchArNumber') && !/^\d{10}$/.test(inp.value.trim())) { g.classList.add('has-error'); ok = false; }
+            });
+            return ok;
+        }
+
+        function rNext(f) { if (rValidate(f) && f < rTotal) rShowSec(f + 1); }
+        function rPrev(f) { if (f > 1) rShowSec(f - 1); }
+
+        // Clear errors on input
+        document.querySelectorAll('#regForm input, #regForm textarea').forEach(el => {
+            el.addEventListener('input', () => el.closest('.rfl').classList.remove('has-error'));
+        });
+
+        // Dynamic Responsibilities List
+        function addResp() {
+            const inp = document.getElementById('respInput');
+            const val = inp.value.trim();
+            if (val) {
+                const list = document.getElementById('respList');
+                const li = document.createElement('li');
+                li.textContent = val + " ";
+                const rmBtn = document.createElement('span');
+                rmBtn.textContent = ' 🗑️';
+                rmBtn.style.cursor = 'pointer';
+                rmBtn.style.fontSize = '0.7rem';
+                rmBtn.onclick = function() {
+                    li.remove();
+                    updateRespHidden();
+                };
+                li.appendChild(rmBtn);
+                list.appendChild(li);
+                inp.value = '';
+                updateRespHidden();
+            }
+        }
+        function updateRespHidden() {
+            const list = document.getElementById('respList');
+            const items = Array.from(list.children).map(li => li.textContent.replace('  🗑️', ''));
+            const hidden = document.getElementById('respHidden');
+            hidden.value = items.join(' | ');
+            if (items.length > 0) hidden.closest('.rfl').classList.remove('has-error');
+        }
+
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Catch any un-added responsibilities
+            addResp();
+
+            if (!rValidate(rCur)) return;
+            
+            const formData = new FormData(e.target);
+            const fd = Object.fromEntries(formData);
+            
+            // Handle multiple checkboxes for languages
+            fd.languages = formData.getAll('languages').join(', ');
+
+            document.getElementById('regLoading').classList.add('show');
+            try {
+                await fetch(REG_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(fd),
+                });
+                document.getElementById('regLoading').classList.remove('show');
+                document.getElementById('regSuccess').classList.add('show');
+            } catch (err) {
+                document.getElementById('regLoading').classList.remove('show');
+                document.getElementById('regErrMsg').textContent = 'Network error. Please check your connection.';
+                document.getElementById('regError').classList.add('show');
+                console.error(err);
+            }
+        });
+
+        function regReset() {
+            document.getElementById('regSuccess').classList.remove('show');
+            document.getElementById('regForm').reset();
+            document.getElementById('respList').innerHTML = '';
+            document.getElementById('respHidden').value = '';
+            rShowSec(1);
+        }
+
+    </script>
 </body>
 </html>
