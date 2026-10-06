@@ -6,8 +6,21 @@ const RESPONSES_SHEET_NAME = 'POC Team Leaders';
 /**
  * Web app entry point for GET requests
  */
-function doGet() {
+function doGet(e) {
   try {
+    // ==========================================
+    // NEW ADDITION: Route to the HTML form if ?p=form
+    // ==========================================
+    if (e && e.parameter && e.parameter.p === 'form') {
+      var template = HtmlService.createTemplateFromFile('index');
+      template.userEmail = (e && e.parameter && e.parameter.email) ? e.parameter.email : '';
+      return template.evaluate()
+          .setTitle('BODH Event Reporting Form')
+          .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+          .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+    }
+    // ==========================================
+
     const data = getAnalyticsData();
     return ContentService
       .createTextOutput(JSON.stringify(data))
@@ -425,4 +438,122 @@ function getTotalBeneficiaries(data, columns) {
   }
   
   return result;
+}
+
+
+// ==========================================
+// NEW REPORT FORM BACKEND FUNCTIONS (APPENDED)
+// ==========================================
+var MAIN_DRIVE_FOLDER_ID = '1Z6PKvQbNXo2RJ7DGZsCaWgoO1nzZiPgw';
+var FORM_SHEET_ID = '1OvVqqDI5JwTMJA4svMKXUb2JuOMQUaPgH7Un-UMum14';
+var FORM_SHEET_TAB_NAME = 'BODH Responses';
+
+function getOrCreateFolder(parentFolder, folderName) {
+  var folders = parentFolder.getFoldersByName(folderName);
+  if (folders.hasNext()) return folders.next();
+  return parentFolder.createFolder(folderName);
+}
+
+function generateFolderStructure(formData) {
+  try {
+    var state = formData.state; var branch = formData.branch; var dateStr = formData.date;
+    if (!state || !branch || !dateStr) throw new Error('State, Branch, and Date are required.');
+
+    var d = new Date(dateStr + 'T00:00:00'); var year = d.getFullYear().toString();
+    var fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var shortMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    var monthName = fullMonths[d.getMonth()];
+    var day = d.getDate();
+    var dayStr = (day < 10 ? '0' : '') + day;
+    var formattedDateFolder = dayStr + '-' + shortMonths[d.getMonth()] + '-' + year;
+
+    var mainDrive = DriveApp.getFolderById(MAIN_DRIVE_FOLDER_ID);
+    var eventsFolder = getOrCreateFolder(mainDrive, '2 - Events Reports - Year Wise');
+    var stateFolder = getOrCreateFolder(eventsFolder, state);
+    var branchFolder = getOrCreateFolder(stateFolder, branch);
+    var yearFolder = getOrCreateFolder(branchFolder, year);
+    var monthFolder = getOrCreateFolder(yearFolder, monthName);
+    var dateFolder = getOrCreateFolder(monthFolder, formattedDateFolder);
+
+    var rawFolder = getOrCreateFolder(dateFolder, 'Raw');
+    getOrCreateFolder(dateFolder, 'Selected');
+    getOrCreateFolder(dateFolder, 'Selected (Edited)');
+
+    var docNames = ['Writing', 'Editing', 'Proofreading', 'Crosscheck'];
+    var existingFiles = dateFolder.getFilesByType(MimeType.GOOGLE_DOCS);
+    var foundDocs = {};
+    while (existingFiles.hasNext()) foundDocs[existingFiles.next().getName()] = true;
+    
+    for (var i = 0; i < docNames.length; i++) {
+      if (!foundDocs[docNames[i]]) {
+        var newDoc = DocumentApp.create(docNames[i]);
+        DriveApp.getFileById(newDoc.getId()).moveTo(dateFolder);
+      }
+    }
+    return { rawFolderUrl: rawFolder.getUrl(), dateFolderUrl: dateFolder.getUrl() };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function submitReport(formData) {
+  try {
+    var ss = SpreadsheetApp.openById(FORM_SHEET_ID);
+    var sheet = ss.getSheetByName(FORM_SHEET_TAB_NAME);
+    if (!sheet) throw new Error('Sheet tab "' + FORM_SHEET_TAB_NAME + '" not found.');
+
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+    var autoEmail = Session.getActiveUser().getEmail() || '';
+    if(!autoEmail) autoEmail = Session.getEffectiveUser().getEmail() || '';
+
+    var sParts = formData.timeFrom ? formData.timeFrom.split(':') : null;
+    var eParts = formData.timeTo ? formData.timeTo.split(':') : null;
+    var sTime = ''; var eTime = '';
+    if(sParts) { var h = parseInt(sParts[0],10); var ampm = h>=12?'pm':'am'; h = h%12; h = h?h:12; sTime = h+':'+sParts[1]+' '+ampm; }
+    if(eParts) { var h = parseInt(eParts[0],10); var ampm = h>=12?'pm':'am'; h = h%12; h = h?h:12; eTime = h+':'+eParts[1]+' '+ampm; }
+    var timeString = (sTime && eTime) ? (sTime + ' to ' + eTime) : (sTime || eTime);
+
+    var rowData = [];
+    for (var i = 0; i < headers.length; i++) {
+      var h = headers[i].toString().trim();
+      if (h === 'Timestamp') rowData.push(new Date());
+      else if (h === 'Email Address') rowData.push(autoEmail);
+      else if (h.indexOf('कार्यकारी टीम') > -1 || h.indexOf('Executing Team') > -1) rowData.push(formData.executingTeam || '');
+      else if (h === 'राज्य | State') rowData.push(formData.state || '');
+      else if (h.indexOf('शाखा | Branch') > -1) {
+        if (h.indexOf('(' + formData.state + ')') > -1) rowData.push(formData.branch || '');
+        else rowData.push('');
+      }
+      else if (h.indexOf('स्थान | Venue') > -1) rowData.push(formData.venue || '');
+      else if (h.indexOf('विषय / थीम') > -1) rowData.push(formData.theme || '');
+      else if (h.indexOf('दिनांक / Date') > -1) rowData.push(formData.date || '');
+      else if (h.indexOf('समय / Timings') > -1) rowData.push(timeString || '');
+      else if (h.indexOf('पुरुष / Male') > -1) rowData.push(formData.male || '');
+      else if (h.indexOf('महिलाएं / Female') > -1) rowData.push(formData.female || '');
+      else if (h.indexOf('बच्चे') > -1) rowData.push(formData.children || '');
+      else if (h.indexOf('आयोजक / Organizer') > -1) rowData.push(formData.organizer || '');
+      else if (h.indexOf('भागीदार / प्रायोजक') > -1) rowData.push(formData.partner || '');
+      else if (h.indexOf('अतिथि / वक्ता') > -1) rowData.push(''); 
+      else if (h === 'नाम | Name') rowData.push(formData.guestName || '');
+      else if (h.indexOf('पद / Designation') > -1) rowData.push(formData.guestDesignation || '');
+      else if (h.indexOf('सहयोगी संगठन') > -1) rowData.push(formData.guestOrg || '');
+      else if (h.indexOf('संचालित गतिविधियाँ') > -1) rowData.push(formData.activities || '');
+      else if (h.indexOf('कोई विशेष जानकारी') > -1) rowData.push(formData.observation || '');
+      else if (h.indexOf('फोटोज़') > -1) rowData.push(formData.photos || '');
+      else if (h.indexOf('वीडियो') > -1) rowData.push(formData.videos || '');
+      else if (h.indexOf('प्रैस विज्ञप्ति') > -1) rowData.push(formData.pressRelease || '');
+      else if (h.indexOf('प्रशंसा पत्र') > -1) rowData.push(formData.appreciation || '');
+      else if (h.indexOf('प्रचार माध्यम') > -1) rowData.push(formData.publicity || '');
+      else if (h.indexOf('ज्ञान दीक्षा') > -1) rowData.push(formData.initiatedCount || '');
+      else if (h.indexOf('फीडबैक') > -1) rowData.push(formData.feedback || '');
+      else if (h === 'Link') rowData.push(formData.folderLink || '');
+      else rowData.push('');
+    }
+    sheet.appendRow(rowData);
+    return { success: true };
+  } catch(e) {
+    return { error: e.message };
+  }
 }
