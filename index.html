@@ -1080,10 +1080,10 @@
                             <div class="rsec-title">🏢 Branch Details</div>
                             <div class="rsec-sub">Your branch and location information</div>
                             <div class="rgrid">
-                                <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" required><option value="" disabled selected>Select State</option><option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chandigarh</option><option>Chhattisgarh</option><option>Delhi</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jammu & Kashmir</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Ladakh</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Puducherry</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option></select><div class="re">Please select your state</div></div>
-                                <div class="rfl"><label>Branch Name <span class="rq">*</span></label><input type="text" name="branchName" placeholder="e.g., Mira Road Branch" required /><div class="re">Please enter your branch name</div></div>
-                                <div class="rfl"><label>Branch AR Name <span class="rq">*</span></label><input type="text" name="branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch AR name</div></div>
-                                <div class="rfl"><label>Branch AR Number <span class="rq">*</span></label><input type="tel" name="branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+                                <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" id="regState" required onchange="populateRegBranches()"><option value="" disabled selected>Select State</option></select><div class="re">Please select your state</div></div>
+                                <div class="rfl"><label>Branch Name <span class="rq">*</span></label><select name="branchName" id="regBranch" required><option value="" disabled selected>Select Branch</option></select><div class="re">Please select your branch</div></div>
+                                <div class="rfl"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="text" name="branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch Head name</div></div>
+                                <div class="rfl"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="tel" name="branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
 
                             </div>
                             <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(2)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(2)">Continue →</button></div>
@@ -2579,34 +2579,47 @@
         let rCur = 1;
         const rTotal = 4;
 
-        function updateBodhRoles() {
-            const type = document.getElementById('genderRole').value;
-            const roleSelect = document.getElementById('bodhRole');
-            roleSelect.innerHTML = '<option value="" disabled selected>Select Role</option>';
-            
-            let roles = [];
-            if (type === 'Brother') {
-                roles = [
-                    "BBTL", "B.B. HO Heads [TR]", "B.B. Zonal Heads", "B.B. State Heads", 
-                    "B.B. Branch Heads", "B.B. Branch Designer", "B.B. HO SPOC Writer", 
-                    "B.B. HO SPOC Proof Reader", "B.B. HO SPOC Designer", "B.B. HO SPOC Editor", 
-                    "B.B. HO SPOC Researcher", "B.B. HO SPOC Data Mgmt"
-                ];
-            } else if (type === 'Sister') {
-                roles = [
-                    "BSTL", "B.S. HO Heads", "B.S. Zonal Heads", "B.S. State Heads", 
-                    "B.S. Branch Heads", "B.S. Branch Designer", "B.S. HO SPOC Writer", 
-                    "B.S. HO SPOC Proof Reader", "B.S. HO SPOC Designer", "B.S. HO SPOC Editor", 
-                    "B.S. HO SPOC Researcher", "B.S. HO SPOC Data Mgmt"
-                ];
+        const REG_BRANCHES = {
+            "Assam (IN)": ["Dibrugarh"],
+            "Bihar (IN)": ["Patna", "Saharsa"],
+            "Chattisgarh (IN)": ["Raipur"],
+            "Delhi (IN)": ["Divya Dham Ashram", "Dwarka", "Karkardooma", "Patel Nagar", "Rohini"],
+            "Gujarat (IN)": ["Ahmedabad"],
+            "Haryana (IN)": ["Ambala", "Babain", "Bilaspur", "Faridabad", "Faridabad NIIT", "Gurgaon", "Hisar", "Jagadhari", "Karnal", "Kurukshetra", "Ladwa", "Panipat", "Pehowa", "Radaur", "Rohtak", "Sirsa", "Yamunanagar"],
+            "Himachal Pradesh (IN)": ["Shimla"],
+            "Jammu and Kashmir (IN)": ["Jammu"],
+            "Jharkhand (IN)": ["Ranchi"],
+            "Karnataka (IN)": ["Bengaluru", "Hubballi"],
+            "Madhya Pradesh (IN)": ["Bhopal", "Gwalior"],
+            "Maharashtra (IN)": ["Amravati", "Chakan", "Latur", "Mumbai", "Nagpur", "Pathardi", "Pune"],
+            "Orissa (IN)": ["Bhubaneswar", "Sambalpur"],
+            "Punjab (IN)": ["Abohar", "Amritsar", "Batala", "Bathinda", "Chandigarh", "DMK", "Dhilwan", "Ferozpur", "Gurdaspur", "Hoshiarpur", "Jalandhar", "Kapurthala", "Kotkapura", "Ludhiana", "Malout", "Moga", "Muktsar", "Nawanshahr", "Pathankot", "Patiala", "Tarn Taran"],
+            "Rajasthan (IN)": ["Bikaner", "Dungarpur", "Jaipur", "Jodhpur", "Kota"],
+            "Tamil Nadu (IN)": ["Chennai"],
+            "Telangana (IN)": ["Hyderabad"],
+            "Uttar Pradesh (IN)": ["Agra", "Aligarh", "Bareilly", "Ghaziabad", "Gorakhpur", "KGMU", "Kanpur", "Lucknow", "Meerut", "Saharanpur", "Varanasi"],
+            "Uttarakhand (IN)": ["Dehradun", "Haridwar", "Pithoragarh", "Roorkee"],
+            "Outside India": ["Athens", "Auckland", "Berbice", "Brisbane", "East Bank Demerara", "Fairfield", "Fresno", "Perth", "Scarborough"]
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const stateSel = document.getElementById('regState');
+            if (stateSel) {
+                Object.keys(REG_BRANCHES).sort().forEach(s => {
+                    const o = document.createElement('option'); o.value = s; o.textContent = s; stateSel.appendChild(o);
+                });
             }
-            
-            roles.forEach(role => {
-                const opt = document.createElement('option');
-                opt.value = role;
-                opt.textContent = role;
-                roleSelect.appendChild(opt);
-            });
+        });
+
+        function populateRegBranches() {
+            const state = document.getElementById('regState').value;
+            const sel = document.getElementById('regBranch');
+            sel.innerHTML = '<option value="" disabled selected>Select Branch</option>';
+            if (state && REG_BRANCHES[state]) {
+                REG_BRANCHES[state].forEach(b => {
+                    const o = document.createElement('option'); o.value = b; o.textContent = b; sel.appendChild(o);
+                });
+            }
         }
 
         function rUpdateProg() {
