@@ -1027,18 +1027,53 @@
                             <div class="rsec-sub">Enter your personal information</div>
                             <div class="rgrid">
                                 <div class="rfl"><label>Brother / Sister <span class="rq">*</span></label>
-                                    <select name="genderRole" id="genderRole" required onchange="updateBodhRoles()">
+                                    <select name="genderRole" id="genderRole" required>
                                         <option value="" disabled selected>Select</option>
                                         <option value="Brother">Brother</option>
                                         <option value="Sister">Sister</option>
                                     </select>
                                     <div class="re">Please select an option</div>
                                 </div>
-                                <div class="rfl"><label>Role in BODH Team (To be added manually)</label>
-                                    <select name="bodhRole" id="bodhRole" disabled style="background:#e2e8f0; cursor:not-allowed;">
+                                <div class="rfl"><label>What is your Role <span class="rq">*</span></label>
+                                    <select name="bodhRole" id="bodhRole" required>
                                         <option value="" disabled selected>Select Role</option>
+                                        <option value="BBBH">Branch Head (Brothers) - BBBH</option>
+                                        <option value="BSBH">Branch Head (Sisters) - BSBH</option>
+                                        <option value="BBBM">Branch Member (Brothers) - BBBM</option>
+                                        <option value="BSBM">Branch Member (Sisters) - BSBM</option>
                                     </select>
                                     <div class="re">Please select your role</div>
+                                </div>
+                                <div class="rfl fw"><label>Select Branch Level Sewa / Responsibility <span class="rq">*</span></label>
+                                    <div class="chk-list" id="branchSewaGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; text-align: left;">
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Public Relations" style="width:auto; margin:0;"> Public Relations</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Speaker" style="width:auto; margin:0;"> Speaker</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Photo/Video Editor (Branch)" style="width:auto; margin:0;"> Photo/Video Editor (Branch)</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Photography / Videography" style="width:auto; margin:0;"> Photography / Videography</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Data Management & Reporting" style="width:auto; margin:0;"> Data Management & Reporting</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" id="branchSewaOtherCheck" style="width:auto; margin:0;" onchange="document.getElementById('branchSewaOtherText').style.display = this.checked ? 'block' : 'none';"> Any Other</label>
+                                    </div>
+                                    <input type="text" id="branchSewaOtherText" placeholder="Please mention..." style="display:none; margin-top:0.8rem; width:100%; padding:0.75rem; border:1px solid #e2e8f0; border-radius:8px;" />
+                                </div>
+
+                                <div class="rfl fw"><label>Do you do any head office level Sewa? <span class="rq">*</span></label>
+                                    <select id="hoSewaYesNo" name="hoSewaYesNo" required onchange="document.getElementById('hoSewaGroupWrapper').style.display = (this.value === 'Yes') ? 'block' : 'none';">
+                                        <option value="" disabled selected>Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                    <div class="re">Please select an option</div>
+                                </div>
+
+                                <div class="rfl fw" id="hoSewaGroupWrapper" style="display:none;"><label>Select Head Office Level Sewa / Responsibility (Multiple allowed)</label>
+                                    <div class="chk-list" id="hoSewaGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; text-align: left;">
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="hoSewa" value="Photo/Video Editor" style="width:auto; margin:0;"> Photo/Video Editor</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="hoSewa" value="Writing/ Editing" style="width:auto; margin:0;"> Writing/ Editing</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="hoSewa" value="Thumbnail Designing" style="width:auto; margin:0;"> Thumbnail Designing</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="hoSewa" value="Proofreading" style="width:auto; margin:0;"> Proofreading</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="hoSewa" value="Data Management" style="width:auto; margin:0;"> Data Management</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="hoSewa" value="Software Development" style="width:auto; margin:0;"> Software Development</label>
+                                    </div>
                                 </div>
                                 <div class="rfl"><label>Full Name <span class="rq">*</span></label><input type="text" name="fullName" placeholder="e.g., Ramesh Kumar" required /><div class="re">Please enter your full name</div></div>
                                 <div class="rfl"><label>Primary Contact <span class="rq">*</span></label><input type="tel" name="contact" placeholder="e.g., 9876543210" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter a valid 10-digit number</div></div>
@@ -1145,15 +1180,6 @@
                             <div class="rsec-title">⏱️ Experience &amp; Commitment</div>
                             <div class="rsec-sub">Your responsibilities and availability</div>
                             <div class="rgrid">
-                                <div class="rfl fw"><label>Current Branch Responsibilities <span class="rq">*</span></label>
-                                    <div style="display:flex; gap: 8px;">
-                                        <input type="text" id="respInput" placeholder="e.g., Managing weekly youth meetings..." style="flex:1; min-width:0;" onkeypress="if(event.key === 'Enter') { event.preventDefault(); addResp(); }" />
-                                        <button type="button" style="padding: 0.7rem 1.2rem; background:#e2e8f0; color:#334155; border:none; cursor:pointer; border-radius:8px; font-weight:600; font-size:0.85rem; white-space:nowrap; flex-shrink:0;" onclick="addResp()">Add Line</button>
-                                    </div>
-                                    <ul id="respList" style="margin-top:8px; font-size:0.85rem; color:#475569; padding-left:20px;"></ul>
-                                    <input type="hidden" name="responsibilities" id="respHidden" required />
-                                    <div class="re">Add at least one responsibility</div>
-                                </div>
                                 <div class="rfl"><label>Time Commitment <span class="rq">*</span></label>
                                     <select name="timeCommitValue" required>
                                         <option value="" disabled selected>Hours</option>
@@ -2645,41 +2671,8 @@
             el.addEventListener('input', () => el.closest('.rfl').classList.remove('has-error'));
         });
 
-        // Dynamic Responsibilities List
-        function addResp() {
-            const inp = document.getElementById('respInput');
-            const val = inp.value.trim();
-            if (val) {
-                const list = document.getElementById('respList');
-                const li = document.createElement('li');
-                li.textContent = val + " ";
-                const rmBtn = document.createElement('span');
-                rmBtn.textContent = ' 🗑️';
-                rmBtn.style.cursor = 'pointer';
-                rmBtn.style.fontSize = '0.7rem';
-                rmBtn.onclick = function() {
-                    li.remove();
-                    updateRespHidden();
-                };
-                li.appendChild(rmBtn);
-                list.appendChild(li);
-                inp.value = '';
-                updateRespHidden();
-            }
-        }
-        function updateRespHidden() {
-            const list = document.getElementById('respList');
-            const items = Array.from(list.children).map(li => li.textContent.replace('  🗑️', ''));
-            const hidden = document.getElementById('respHidden');
-            hidden.value = items.join(' | ');
-            if (items.length > 0) hidden.closest('.rfl').classList.remove('has-error');
-        }
-
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Catch any un-added responsibilities
-            addResp();
 
             if (!rValidate(rCur)) return;
             
@@ -2688,6 +2681,16 @@
             
             // Handle multiple checkboxes for languages
             fd.languages = formData.getAll('languages').join(', ');
+            
+            // Handle branchSewa and hoSewa
+            let bSewa = formData.getAll('branchSewa');
+            let bOther = document.getElementById('branchSewaOtherText');
+            if (document.getElementById('branchSewaOtherCheck').checked && bOther && bOther.value) {
+                bSewa.push(bOther.value);
+            }
+            fd.responsibilities = bSewa.join(', ');
+            fd.hoSewaYesNo = document.getElementById('hoSewaYesNo').value;
+            fd.hoSewa = formData.getAll('hoSewa').join(', ');
 
             document.getElementById('regLoading').classList.add('show');
             try {
@@ -2709,8 +2712,8 @@
         function regReset() {
             document.getElementById('regSuccess').classList.remove('show');
             document.getElementById('regForm').reset();
-            document.getElementById('respList').innerHTML = '';
-            document.getElementById('respHidden').value = '';
+            document.getElementById('hoSewaGroupWrapper').style.display = 'none';
+            document.getElementById('branchSewaOtherText').style.display = 'none';
             rShowSec(1);
         }
 
