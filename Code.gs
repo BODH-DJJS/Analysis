@@ -77,15 +77,16 @@ function doPost(e) {
         'Branch Name',
         'Branch AR Name',
         'Branch AR Number',
+        'Brother / Sister',
+        'Role in BODH Team',
         'Highest Education',
         'Current Occupation',
         'Profession',
         'Years of Experience',
         'Company Name',
         'Languages Known',
+        'Current Branch Responsibilities',
         'Available Time Commitment',
-        'Role in BODH Team',
-        'Branch Level Sewa',
         'HO Level Sewa Yes/No',
         'HO Level Sewa Responsibilities'
       ];
@@ -121,15 +122,16 @@ function doPost(e) {
       formData.branchName || '',
       formData.branchArName || '',
       formData.branchArNumber || '',
+      '', // Brother / Sister is removed from form, so we leave this blank to maintain column alignment
+      formData.bodhRole || '',
       formData.education || '',
       formData.occupation || '',
       formData.profession || '',
       formData.experience || '',
       formData.companyName || '',
       formData.languages || '',
-      (formData.timeCommitValue && formData.timeCommitPeriod) ? `${formData.timeCommitValue} ${formData.timeCommitPeriod}` : '',
-      formData.bodhRole || '',
       formData.responsibilities || '',
+      (formData.timeCommitValue && formData.timeCommitPeriod) ? `${formData.timeCommitValue} ${formData.timeCommitPeriod}` : '',
       formData.hoSewaYesNo || '',
       formData.hoSewa || ''
     ];
