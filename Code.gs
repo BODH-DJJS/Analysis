@@ -36,8 +36,7 @@ function doGet(e) {
         error: error.message,
         stack: error.stack
       }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setStatusCode(500);
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
