@@ -851,6 +851,305 @@
         .rspinner { width:38px; height:38px; border:3px solid #e2e8f0; border-top-color:#4f46e5; border-radius:50%; animation:rSpin .7s linear infinite; margin:0 auto .7rem; }
         @keyframes rSpin { to{transform:rotate(360deg)} }
         @media(max-width:640px) { .rgrid{grid-template-columns:1fr} .rbtn-row{flex-direction:column-reverse} .rb{width:100%;justify-content:center} .tab-btn{padding:10px 14px;font-size:12px} }
+
+        /* ============================================================ */
+        /* Tab 3: District Information Styles                           */
+        /* ============================================================ */
+        .dst-wrap {
+            max-width: 1040px;
+            margin: 2rem auto;
+            padding: 0 1.2rem;
+            position: relative;
+        }
+        .dst-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 2.2rem 2.5rem;
+            box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+        .dst-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #0ea5e9, #0d9488, #10b981);
+        }
+        .dst-hdr {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .dst-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, #0d9488, #0ea5e9);
+            border-radius: 14px;
+            font-size: 1.6rem;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3);
+        }
+        .dst-hdr h2 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+            letter-spacing: -0.3px;
+        }
+        .dst-hdr p {
+            color: #64748b;
+            font-size: 0.92rem;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+        /* Top Stats Bar */
+        .dst-stats-bar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .dst-stat-box {
+            background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+            border: 1.5px solid #ccfbf1;
+            border-radius: 14px;
+            padding: 1.1rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dst-stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.12);
+        }
+        .dst-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0d9488, #10b981);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+        }
+        .dst-stat-info h5 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 0.15rem;
+        }
+        .dst-stat-info .num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f766e;
+            line-height: 1;
+        }
+        /* Form Sections */
+        .dst-section {
+            background: #fafafa;
+            border: 1px solid #eef2f6;
+            border-radius: 14px;
+            padding: 1.4rem 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .dst-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dst-section-sub {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        /* States Selection Grid */
+        .dst-states-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-height: 230px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+        }
+        .dst-state-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.95rem;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .dst-state-pill:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .dst-state-pill.selected {
+            background: linear-gradient(135deg, #0d9488, #0ea5e9);
+            color: #ffffff;
+            border-color: #0d9488;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+        }
+        .dst-state-pill .badge-count {
+            display: none;
+            background: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+            border-radius: 12px;
+            margin-left: 2px;
+        }
+        /* District Cards Area */
+        .dst-state-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: box-shadow 0.2s;
+        }
+        .dst-state-card:hover {
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+        .dst-state-card-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 1.3rem;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dst-state-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .dst-state-card-title .icon {
+            font-size: 1.2rem;
+        }
+        .dst-state-card-title .counter-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0d9488;
+            background: #ccfbf1;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+        .dst-state-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dst-mini-btn {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #0d9488;
+            color: #ffffff;
+        }
+        .dst-mini-btn:hover {
+            background: #0f766e;
+        }
+        .dst-mini-btn.outline {
+            background: transparent;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        .dst-mini-btn.outline:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .dst-mini-btn.remove {
+            background: #fee2e2;
+            color: #ef4444;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #fecaca;
+        }
+        .dst-mini-btn.remove:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .dst-districts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.5rem;
+            padding: 1.1rem 1.3rem;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .dst-dist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.5rem 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+            font-size: 0.82rem;
+            color: #334155;
+        }
+        .dst-dist-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .dst-dist-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0d9488;
+            cursor: pointer;
+        }
+        .dst-dist-item:has(input:checked) {
+            background: #f0fdfa;
+            border-color: #5eead4;
+            color: #0f766e;
+            font-weight: 600;
+        }
+        .dst-empty-box {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+        }
+        @media (max-width: 640px) {
+            .dst-card { padding: 1.5rem 1.2rem; }
+            .dst-stats-bar { grid-template-columns: 1fr; }
+            .dst-districts-grid { grid-template-columns: 1fr; }
+        }
+
     </style>
 </head>
 <body>
@@ -875,6 +1174,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('dashboard')" id="tab-dashboard">📊 Analysis Dashboard</button>
             <button class="tab-btn" onclick="switchTab('register')" id="tab-register">📝 Volunteer Form</button>
+            <button class="tab-btn" onclick="switchTab('districts')" id="tab-districts" style="display:none;">📍 District Information</button>
         </div>
         <!-- Dashboard Tab -->
         <div class="tab-content active" id="content-dashboard">
@@ -1199,6 +1499,88 @@
             <div class="rov" id="regSuccess"><div class="rsc"><div class="ri">🎉</div><h3 style="color:#10b981">Application Submitted!</h3><p>Thank you for registering. Your details have been saved successfully.</p><button class="rb rb-next" onclick="regReset()" style="margin-top:1rem">Submit Another Response</button></div></div>
             <div class="rov" id="regError"><div class="rsc"><div class="ri">⚠️</div><h3 style="color:#ef4444">Submission Failed</h3><p id="regErrMsg">Something went wrong. Please try again.</p><button class="rb rb-next" onclick="document.getElementById('regError').classList.remove('show')" style="margin-top:1rem">Try Again</button></div></div>
         </div><!-- end content-register -->
+
+        <!-- District Information Tab -->
+        <div class="tab-content" id="content-districts">
+            <div class="dst-wrap">
+                <div class="dst-card">
+                    <div class="dst-hdr">
+                        <div class="dst-badge">📍</div>
+                        <h2>Branch District Coverage Portal</h2>
+                        <p>Record all States and Districts covered by your Branch for official BODH outreach mapping & reporting.</p>
+                    </div>
+
+                    <!-- Live Summary Counters -->
+                    <div class="dst-stats-bar">
+                        <div class="dst-stat-box">
+                            <div class="dst-stat-icon">🗺️</div>
+                            <div class="dst-stat-info">
+                                <h5>States Covered</h5>
+                                <div class="num" id="dstStatStatesCount">0</div>
+                            </div>
+                        </div>
+                        <div class="dst-stat-box">
+                            <div class="dst-stat-icon">🏛️</div>
+                            <div class="dst-stat-info">
+                                <h5>Districts Covered</h5>
+                                <div class="num" id="dstStatDistrictsCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="districtInfoForm" onsubmit="submitDistrictInfoForm(event)">
+                        <!-- Section 1: Branch Selection -->
+                        <div class="dst-section">
+                            <div class="dst-section-title">🏢 1. Select Branch Name</div>
+                            <div class="dst-section-sub">Choose your branch from the registered branch directory</div>
+                            <div class="rfl" style="max-width: 460px;">
+                                <label>Branch Name <span class="rq">*</span></label>
+                                <select id="distBranchSelect" required>
+                                    <option value="" disabled selected>-- Select Your Branch --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: States Covered Selection -->
+                        <div class="dst-section">
+                            <div class="dst-section-title">🗺️ 2. Select State(s) Covered</div>
+                            <div class="dst-section-sub">Click on all States where your branch conducts BODH programs or activities (Multiple selection allowed)</div>
+                            <div style="margin-bottom: 0.75rem;">
+                                <input type="text" id="dstStateSearch" placeholder="🔍 Search state name..." oninput="filterStatesPills(this.value)" 
+                                       style="width: 100%; max-width: 320px; padding: 0.5rem 0.85rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.84rem; outline: none;">
+                            </div>
+                            <div class="dst-states-grid" id="distStatesPillGrid"></div>
+                        </div>
+
+                        <!-- Section 3: Districts Covered Under Selected States -->
+                        <div class="dst-section">
+                            <div class="dst-section-title">🏛️ 3. Select Districts Covered</div>
+                            <div class="dst-section-sub">Select the specific districts under each state where outreach takes place (Multiple selection allowed)</div>
+                            <div id="distCoveredContainer">
+                                <div class="dst-empty-box">
+                                    <div style="font-size: 2.2rem; margin-bottom: 8px;">🗺️</div>
+                                    <h4 style="margin-bottom: 6px; color: #1e293b;">No States Selected Yet</h4>
+                                    <p style="font-size: 0.88rem; color: #64748b;">Please click on one or more states above to select the districts covered.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div style="text-align: right; margin-top: 1.5rem;">
+                            <button type="submit" class="rb rb-submit" style="background: linear-gradient(135deg, #0d9488, #0ea5e9); padding: 0.85rem 2.4rem; font-size: 0.95rem; box-shadow: 0 4px 16px rgba(13,148,136,0.3);">
+                                ✓ Save District Information
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Overlays for District Form -->
+            <div class="rov" id="dstLoading"><div class="rsc"><div class="rspinner" style="border-top-color: #0d9488;"></div><h3>Saving District Information...</h3><p>Please wait while we record your response in the Master Sheet.</p></div></div>
+            <div class="rov" id="dstSuccess"><div class="rsc"><div class="ri">🎉</div><h3 style="color:#0d9488">Saved Successfully!</h3><p id="dstSuccessMsg">Your branch district coverage has been recorded.</p><button class="rb rb-next" onclick="resetDistrictForm()" style="background: linear-gradient(135deg, #0d9488, #0ea5e9); margin-top:1rem;">Submit Another Record</button></div></div>
+            <div class="rov" id="dstError"><div class="rsc"><div class="ri">⚠️</div><h3 style="color:#ef4444">Submission Failed</h3><p id="dstErrMsg">Something went wrong. Please try again.</p><button class="rb rb-next" onclick="document.getElementById('dstError').classList.remove('show')" style="margin-top:1rem;">Try Again</button></div></div>
+        </div><!-- end content-districts -->
+
     </div>
 
     <script>
@@ -1285,24 +1667,50 @@
             return `${startYear}-${String((startYear + 1) % 100).padStart(2, '0')}`;
         }
 
-        async function fetchData() {
+        async function fetchData(retries = 3) {
             try {
                 const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const result = await response.json();
-                allData = result.data;
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                allData = result.data || result;
                 
                 // Normalize month values in the data
-                allData = allData.map(record => ({
-                    ...record,
-                    Month: normalizeMonth(record.Month),
-                    YearCycle: getYearCycle(record)
-                }));
+                if (Array.isArray(allData)) {
+                    allData = allData.map(record => ({
+                        ...record,
+                        Month: normalizeMonth(record.Month),
+                        YearCycle: getYearCycle(record)
+                    }));
+                } else {
+                    console.error('API did not return an array for data:', allData);
+                    throw new Error('Invalid data format received');
+                }
                 
                 filteredData = [...allData];
                 initializeDashboard();
             } catch (error) {
-                document.querySelector('.container').innerHTML = 
-                    '<div class="error">Error loading data. Please try again later.</div>';
+                console.error('Error fetching data:', error);
+                if (retries > 0) {
+                    console.log(`Retrying... (${retries} attempts left)`);
+                    document.querySelector('.container').innerHTML = 
+                        `<div class="loading" style="text-align:center; padding:50px;">
+                            <div class="spinner"></div>
+                            <div class="loading-text">Connection issue. Retrying... (${retries})</div>
+                         </div>`;
+                    setTimeout(() => fetchData(retries - 1), 2000);
+                } else {
+                    document.querySelector('.container').innerHTML = 
+                        '<div class="error" style="text-align:center; padding:50px; color:red;">' +
+                        '<b>Error loading data.</b><br>Google Apps Script may have timed out or hit a limit.<br>' + 
+                        'Please refresh the page to try again.</div>';
+                }
             }
         }
 
@@ -1371,7 +1779,306 @@
                                 #${safeId}:checked + label span:first-child span {
                                     opacity: 1;
                                 }
-                            </style>
+                        
+        /* ============================================================ */
+        /* Tab 3: District Information Styles                           */
+        /* ============================================================ */
+        .dst-wrap {
+            max-width: 1040px;
+            margin: 2rem auto;
+            padding: 0 1.2rem;
+            position: relative;
+        }
+        .dst-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 2.2rem 2.5rem;
+            box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+        .dst-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #0ea5e9, #0d9488, #10b981);
+        }
+        .dst-hdr {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .dst-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, #0d9488, #0ea5e9);
+            border-radius: 14px;
+            font-size: 1.6rem;
+            color: #ffffff;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3);
+        }
+        .dst-hdr h2 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.35rem;
+            letter-spacing: -0.3px;
+        }
+        .dst-hdr p {
+            color: #64748b;
+            font-size: 0.92rem;
+            max-width: 620px;
+            margin: 0 auto;
+        }
+        /* Top Stats Bar */
+        .dst-stats-bar {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .dst-stat-box {
+            background: linear-gradient(135deg, #f0fdfa, #f8fafc);
+            border: 1.5px solid #ccfbf1;
+            border-radius: 14px;
+            padding: 1.1rem 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dst-stat-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(13, 148, 136, 0.12);
+        }
+        .dst-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0d9488, #10b981);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+        }
+        .dst-stat-info h5 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 0.15rem;
+        }
+        .dst-stat-info .num {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #0f766e;
+            line-height: 1;
+        }
+        /* Form Sections */
+        .dst-section {
+            background: #fafafa;
+            border: 1px solid #eef2f6;
+            border-radius: 14px;
+            padding: 1.4rem 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+        .dst-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dst-section-sub {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        /* States Selection Grid */
+        .dst-states-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-height: 230px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+        }
+        .dst-state-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.95rem;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .dst-state-pill:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .dst-state-pill.selected {
+            background: linear-gradient(135deg, #0d9488, #0ea5e9);
+            color: #ffffff;
+            border-color: #0d9488;
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+        }
+        .dst-state-pill .badge-count {
+            display: none;
+            background: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.1rem 0.45rem;
+            border-radius: 12px;
+            margin-left: 2px;
+        }
+        /* District Cards Area */
+        .dst-state-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            margin-bottom: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: box-shadow 0.2s;
+        }
+        .dst-state-card:hover {
+            box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+        }
+        .dst-state-card-hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 1.3rem;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .dst-state-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .dst-state-card-title .icon {
+            font-size: 1.2rem;
+        }
+        .dst-state-card-title .counter-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0d9488;
+            background: #ccfbf1;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+        }
+        .dst-state-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dst-mini-btn {
+            padding: 0.3rem 0.75rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #0d9488;
+            color: #ffffff;
+        }
+        .dst-mini-btn:hover {
+            background: #0f766e;
+        }
+        .dst-mini-btn.outline {
+            background: transparent;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+        .dst-mini-btn.outline:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .dst-mini-btn.remove {
+            background: #fee2e2;
+            color: #ef4444;
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #fecaca;
+        }
+        .dst-mini-btn.remove:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+        .dst-districts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.5rem;
+            padding: 1.1rem 1.3rem;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .dst-dist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.5rem 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+            font-size: 0.82rem;
+            color: #334155;
+        }
+        .dst-dist-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .dst-dist-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #0d9488;
+            cursor: pointer;
+        }
+        .dst-dist-item:has(input:checked) {
+            background: #f0fdfa;
+            border-color: #5eead4;
+            color: #0f766e;
+            font-weight: 600;
+        }
+        .dst-empty-box {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+        }
+        @media (max-width: 640px) {
+            .dst-card { padding: 1.5rem 1.2rem; }
+            .dst-stats-bar { grid-template-columns: 1fr; }
+            .dst-districts-grid { grid-template-columns: 1fr; }
+        }
+
+    </style>
                         </div>`;
                     }).join('')}
                 </div>
@@ -2486,6 +3193,8 @@
                         sessionStorage.setItem('userData', JSON.stringify(result.userData));
                         sessionStorage.setItem('isWhitelisted', 'true');
                         document.getElementById('tab-dashboard').style.display = 'flex';
+                        document.getElementById('tab-districts').style.display = 'flex';
+                        initDistrictForm();
                         document.getElementById('content-dashboard').classList.add('active');
                         document.getElementById('content-register').classList.remove('active');
                         document.getElementById('tab-dashboard').classList.add('active');
@@ -2497,6 +3206,7 @@
                         sessionStorage.setItem('isWhitelisted', 'false');
                         sessionStorage.setItem('userData', JSON.stringify({ email: userEmail }));
                         document.getElementById('tab-dashboard').style.display = 'none';
+                        document.getElementById('tab-districts').style.display = 'none';
                         document.getElementById('content-dashboard').classList.remove('active');
                         document.getElementById('content-register').classList.add('active');
                         document.getElementById('tab-register').classList.add('active');
@@ -2544,6 +3254,8 @@
                 if (wl === 'true') {
                     isWhitelisted = true;
                     document.getElementById('tab-dashboard').style.display = 'flex';
+                        document.getElementById('tab-districts').style.display = 'flex';
+                        initDistrictForm();
                     document.getElementById('content-dashboard').classList.add('active');
                     document.getElementById('content-register').classList.remove('active');
                     document.getElementById('tab-dashboard').classList.add('active');
@@ -2552,6 +3264,7 @@
                 } else {
                     isWhitelisted = false;
                     document.getElementById('tab-dashboard').style.display = 'none';
+                        document.getElementById('tab-districts').style.display = 'none';
                     document.getElementById('content-dashboard').classList.remove('active');
                     document.getElementById('content-register').classList.add('active');
                     document.getElementById('tab-register').classList.add('active');
@@ -2579,7 +3292,7 @@
         let rCur = 1;
         const rTotal = 4;
 
-        const REG_BRANCHES = {
+                    const REG_BRANCHES = {
             "Assam (IN)": ["Dibrugarh"],
             "Bihar (IN)": ["Patna", "Saharsa"],
             "Chattisgarh (IN)": ["Raipur"],
@@ -2722,6 +3435,308 @@
             rShowSec(1);
         }
 
+
+        // ============================================================
+        // District Information Page Logic
+        // ============================================================
+        const INDIA_DISTRICTS = {"Andhra Pradesh": ["Alluri Sitharama Raju", "Anakapalli", "Ananthapuramu", "Annamayya", "Bapatla", "Chittoor", "Dr. B.R. Ambedkar Konaseema", "East Godavari", "Eluru", "Guntur", "Kakinada", "Krishna", "Kurnool", "Nandyal", "NTR", "Palnadu", "Parvathipuram Manyam", "Prakasam", "Sri Potti Sriramulu Nellore", "Sri Sathya Sai", "Srikakulam", "Tirupati", "Visakhapatnam", "Vizianagaram", "West Godavari", "YSR Kadapa"], "Arunachal Pradesh": ["Anjaw", "Changlang", "Dibang Valley", "East Kameng", "East Siang", "Kamle", "Kra Daadi", "Kurung Kumey", "Lepa Rada", "Lohit", "Longding", "Lower Dibang Valley", "Lower Siang", "Lower Subansiri", "Namsai", "Pakke Kessang", "Papum Pare", "Shi Yomi", "Siang", "Tawang", "Tirap", "Upper Siang", "Upper Subansiri", "West Kameng", "West Siang"], "Assam": ["Baksa", "Barpeta", "Biswanath", "Bongaigaon", "Cachar", "Charaideo", "Chirang", "Darrang", "Dhemaji", "Dhubri", "Dibrugarh", "Dima Hasao", "Goalpara", "Golaghat", "Hailakandi", "Hojai", "Jorhat", "Kamrup", "Kamrup Metropolitan", "Karbi Anglong", "Karimganj", "Kokrajhar", "Lakhimpur", "Majuli", "Morigaon", "Nagaon", "Nalbari", "Sivasagar", "Sonitpur", "South Salmara-Mankachar", "Tamulpur", "Tinsukia", "Udalguri", "West Karbi Anglong"], "Bihar": ["Araria", "Arwal", "Aurangabad", "Banka", "Begusarai", "Bhagalpur", "Bhojpur", "Buxar", "Darbhanga", "East Champaran", "Gaya", "Gopalganj", "Jamui", "Jehanabad", "Kaimur", "Katihar", "Khagaria", "Kishanganj", "Lakhisarai", "Madhepura", "Madhubani", "Munger", "Muzaffarpur", "Nalanda", "Nawada", "Patna", "Purnia", "Rohtas", "Saharsa", "Samastipur", "Saran", "Sheikhpura", "Sheohar", "Sitamarhi", "Siwan", "Supaul", "Vaishali", "West Champaran"], "Chandigarh": ["Chandigarh"], "Chhattisgarh": ["Balod", "Baloda Bazar-Bhatapara", "Balrampur-Ramanujganj", "Bastar", "Bemetara", "Bijapur", "Bilaspur", "Dantewada", "Dhamtari", "Durg", "Gariaband", "Gaurela-Pendra-Marwahi", "Janjgir-Champa", "Jashpur", "Kabirdham", "Kanker", "Khairagarh-Chhuikhadan-Gandai", "Kondagaon", "Korba", "Koriya", "Mahasamund", "Manendragarh-Chirmiri-Bharatpur", "Mohla-Manpur-Ambagarh Chowki", "Mungeli", "Narayanpur", "Raigarh", "Raipur", "Rajnandgaon", "Sakti", "Sarangarh-Bilaigarh", "Sukma", "Surajpur", "Surguja"], "Delhi": ["Central Delhi", "East Delhi", "New Delhi", "North Delhi", "North East Delhi", "North West Delhi", "Shahdara", "South Delhi", "South East Delhi", "South West Delhi", "West Delhi"], "Goa": ["North Goa", "South Goa"], "Gujarat": ["Ahmedabad", "Amreli", "Anand", "Aravalli", "Banaskantha", "Bharuch", "Bhavnagar", "Botad", "Chhota Udaipur", "Dahod", "Dang", "Devbhumi Dwarka", "Gandhinagar", "Gir Somnath", "Jamnagar", "Junagadh", "Kheda", "Kutch", "Mahisagar", "Mehsana", "Morbi", "Narmada", "Navsari", "Panchmahal", "Patan", "Porbandar", "Rajkot", "Sabarkantha", "Surat", "Surendranagar", "Tapi", "Vadodara", "Valsad"], "Haryana": ["Ambala", "Bhiwani", "Charkhi Dadri", "Faridabad", "Fatehabad", "Gurugram", "Hisar", "Jhajjar", "Jind", "Kaithal", "Karnal", "Kurukshetra", "Mahendragarh", "Nuh", "Palwal", "Panchkula", "Panipat", "Rewari", "Rohtak", "Sirsa", "Sonipat", "Yamunanagar"], "Himachal Pradesh": ["Bilaspur", "Chamba", "Hamirpur", "Kangra", "Kinnaur", "Kullu", "Lahaul and Spiti", "Mandi", "Shimla", "Sirmaur", "Solan", "Una"], "Jammu and Kashmir": ["Anantnag", "Bandipora", "Baramulla", "Budgam", "Doda", "Ganderbal", "Jammu", "Kathua", "Kishtwar", "Kulgam", "Kupwara", "Poonch", "Pulwama", "Rajouri", "Ramban", "Reasi", "Samba", "Shopian", "Srinagar", "Udhampur"], "Jharkhand": ["Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka", "East Singhbhum", "Garhwa", "Giridih", "Godda", "Gumla", "Hazaribagh", "Jamtara", "Khunti", "Koderma", "Latehar", "Lohardaga", "Pakur", "Palamu", "Ramgarh", "Ranchi", "Sahebganj", "Seraikela Kharsawan", "Simdega", "West Singhbhum"], "Karnataka": ["Bagalkote", "Ballari", "Belagavi", "Bengaluru Rural", "Bengaluru Urban", "Bidar", "Chamarajanagara", "Chikkaballapura", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara", "Shivamogga", "Tumakuru", "Udupi", "Uttara Kannada", "Vijayanagara", "Vijayapura", "Yadgir"], "Kerala": ["Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"], "Ladakh": ["Kargil", "Leh"], "Madhya Pradesh": ["Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat", "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur", "Chhatarpur", "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna", "Gwalior", "Harda", "Hoshangabad (Narmadapuram)", "Indore", "Jabalpur", "Jhabua", "Katni", "Khandwa", "Khargone", "Mandla", "Mandsaur", "Morena", "Narsinghpur", "Neemuch", "Niwari", "Panna", "Raisen", "Rajgarh", "Ratlam", "Rewa", "Sagar", "Satna", "Sehore", "Seoni", "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Sidhi", "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"], "Maharashtra": ["Ahmednagar (Ahilyanagar)", "Akola", "Amravati", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Chhatrapati Sambhajinagar (Aurangabad)", "Dharashiv (Osmanabad)", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur", "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal"], "Manipur": ["Bishnupur", "Chandel", "Churachandpur", "Imphal East", "Imphal West", "Jiribam", "Kakching", "Kamjong", "Kangpokpi", "Noney", "Pherzawl", "Senapati", "Tamenglong", "Tengnoupal", "Thoubal", "Ukhrul"], "Meghalaya": ["East Garo Hills", "East Jaintia Hills", "East Khasi Hills", "Eastern West Khasi Hills", "North Garo Hills", "Ri Bhoi", "South Garo Hills", "South West Garo Hills", "South West Khasi Hills", "West Garo Hills", "West Jaintia Hills", "West Khasi Hills"], "Mizoram": ["Aizawl", "Champhai", "Hnahthial", "Khawzawl", "Kolasib", "Lawngtlai", "Lunglei", "Mamit", "Saitual", "Serchhip", "Siaha"], "Nagaland": ["Chumoukedima", "Dimapur", "Kiphire", "Kohima", "Longleng", "Mokokchung", "Mon", "Niuland", "Noklak", "Peren", "Phek", "Shamator", "Tseminyu", "Tuensang", "Wokha", "Zunheboto"], "Odisha": ["Angul", "Balangir", "Balasore", "Bargarh", "Bhadrak", "Boudh", "Cuttack", "Deogarh", "Dhenkanal", "Gajapati", "Ganjam", "Jagatsinghpur", "Jajpur", "Jharsuguda", "Kalahandi", "Kandhamal", "Kendrapara", "Kendujhar", "Khordha (Bhubaneswar)", "Koraput", "Malkangiri", "Mayurbhanj", "Nabarangpur", "Nayagarh", "Nuapada", "Puri", "Rayagada", "Sambalpur", "Subarnapur", "Sundargarh"], "Puducherry": ["Karaikal", "Mahe", "Puducherry", "Yanam"], "Punjab": ["Amritsar", "Barnala", "Bathinda", "Faridkot", "Fatehgarh Sahib", "Fazilka", "Ferozepur", "Gurdaspur", "Hoshiarpur", "Jalandhar", "Kapurthala", "Ludhiana", "Malerkotla", "Mansa", "Moga", "Muktsar", "Pathankot", "Patiala", "Rupnagar", "Sahibzada Ajit Singh Nagar (Mohali)", "Sangrur", "Shahid Bhagat Singh Nagar (Nawanshahr)", "Tarn Taran"], "Rajasthan": ["Ajmer", "Alwar", "Anupgarh", "Balotra", "Banswara", "Baran", "Barmer", "Beawar", "Bharatpur", "Bhilwara", "Bikaner", "Bundi", "Chittorgarh", "Churu", "Dausa", "Deeg", "Dholpur", "Didwana-Kuchaman", "Dudu", "Dungarpur", "Ganganagar", "Gangapur City", "Hanumangarh", "Jaipur", "Jaipur Rural", "Jaisalmer", "Jalore", "Jhalawar", "Jhunjhunu", "Jodhpur", "Jodhpur Rural", "Karauli", "Kekri", "Khairthal-Tijara", "Kota", "Kotputli-Behror", "Nagaur", "Neem Ka Thana", "Pali", "Phalodi", "Pratapgarh", "Rajsamand", "Salumbar", "Sanchore", "Sawai Madhopur", "Shahpura", "Sikar", "Sirohi", "Tonk", "Udaipur"], "Sikkim": ["Gangtok", "Gyalshing", "Mangan", "Namchi", "Pakyong", "Soreng"], "Tamil Nadu": ["Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kancheepuram", "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai", "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram", "Ranipet", "Salem", "Sivaganga", "Tenkasi", "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tirupathur", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore", "Viluppuram", "Virudhunagar"], "Telangana": ["Adilabad", "Bhadradri Kothagudem", "Hanumakonda", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar Bhupalpally", "Jogulamba Gadwal", "Kamareddy", "Karimnagar", "Khammam", "Komaram Bheem Asifabad", "Mahabubabad", "Mahabubnagar", "Mancherial", "Medak", "Medchal-Malkajgiri", "Mulugu", "Nagarkurnool", "Nalgonda", "Narayanpet", "Nirmal", "Nizamabad", "Peddapalli", "Rajanna Sircilla", "Rangareddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Wanaparthy", "Warangal", "Yadadri Bhuvanagiri"], "Tripura": ["Dhalai", "Gomati", "Khowai", "North Tripura", "Sepahijala", "South Tripura", "Unakoti", "West Tripura"], "Uttar Pradesh": ["Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar (Noida)", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kushinagar", "Lakhimpur Kheri", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Prayagraj", "Raebareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"], "Uttarakhand": ["Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar", "Nainital", "Pauri Garhwal", "Pithoragarh", "Rudraprayag", "Tehri Garhwal", "Udham Singh Nagar", "Uttarkashi"], "West Bengal": ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"]};
+
+        const ALL_BRANCH_LIST = [
+            "Abohar", "Agra", "Ahmedabad", "Aligarh", "Ambala", "Amravati", "Amritsar",
+            "Araria", "Athens", "Auckland", "Babain", "Bareilly", "Bareillyy", "Bareillyys",
+            "Batala", "Bathinda", "Bengaluru", "Berbice", "Bhagalpur", "Bhopal", "Bhubaneshwar",
+            "Bikaner", "Bilaspur", "Bodhgaya", "Brisbane", "Chakan", "Chandigarh", "Chennai",
+            "Darbhanga", "Dehradun", "Dhanbad", "Dhilwan", "Dibrugarh", "Divya Dham Ashram",
+            "DMK", "Dungarpur", "Dwarka", "East Bank Demerara", "Fairfield", "Faridabad NIIT",
+            "Faridabad Surya Nagar", "Fazilka", "Ferozepur", "Fresno", "Ghaziabad", "Gondia",
+            "Gorakhpur", "Gurugram", "Gwalior", "Hamilton, Canada", "Hanumangarh", "Harlington, UK",
+            "Harpura", "Hoshiarpur", "Hyderabad", "Itzehoe, Germany", "Jagadhari", "Jaipur",
+            "Jalandhar", "Jammu", "Jodhpur", "Kaithal", "Kanpur", "Kapurthala", "Karkarduma",
+            "Karnal", "Kathmandu Nepal", "Kota", "Kotkapura", "Kurukshetra", "Latur", "Lebanon",
+            "London", "Lucknow", "Ludhiana", "Malout", "Manama, Bahrain", "Manawala", "Mandla",
+            "Mantova", "Meerut", "Melbourne", "Moga", "Motteggiana", "Muktsar", "Nagpur",
+            "Naraingarh", "Nasrullaganj", "Nawanshahr", "Nehru Place", "New York (1)", "New York (2)",
+            "Noida", "Nurmahal", "Ontario", "Panchkula", "Panipat", "Patel Nagar", "Pathankot",
+            "Pathardi", "Patiala", "Patna", "Pauri Garhwal", "Pitampura (Head office)", "Pithoragarh",
+            "Prayagraj", "Pune", "Ranchi", "Rewari", "Rohini Sec-15", "Rudrapur", "Sacramento",
+            "Saharanpur", "Saharsa", "Sahoowal", "Samana", "Sambalpur", "Sangria", "Saraipali",
+            "Seattle", "Shaheed Bhagat Singh Nagar", "Shehzada", "Shimla", "Shyampur", "Sirsa",
+            "Siwan", "Southern California", "Sri Ganganagar", "Sunam", "Suratgarh", "Tarn taran",
+            "Udaipur", "Udakishunganj", "Vadodara", "Varanasi", "Vikaspuri"
+        ];
+
+        let selectedStates = new Set();
+        let selectedDistricts = {}; // stateName -> Set of districtNames
+
+        function initDistrictForm() {
+            // Populate branch dropdown
+            const branchSel = document.getElementById('distBranchSelect');
+            if (branchSel && branchSel.options.length <= 1) {
+                const uniqueBranches = Array.from(new Set(ALL_BRANCH_LIST)).sort();
+                uniqueBranches.forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b;
+                    opt.textContent = b;
+                    branchSel.appendChild(opt);
+                });
+            }
+
+            // Populate states pill grid
+            const statesGrid = document.getElementById('distStatesPillGrid');
+            if (statesGrid && statesGrid.children.length === 0) {
+                const sortedStates = Object.keys(INDIA_DISTRICTS).sort();
+                sortedStates.forEach(st => {
+                    const pill = document.createElement('div');
+                    pill.className = 'dst-state-pill';
+                    pill.id = 'st_pill_' + st.replace(/[^a-zA-Z0-9]/g, '_');
+                    pill.innerHTML = `<span>${st}</span><span class="badge-count">0</span>`;
+                    pill.onclick = () => toggleStateSelection(st);
+                    statesGrid.appendChild(pill);
+                });
+            }
+            updateDistrictStats();
+        }
+
+        function toggleStateSelection(stateName) {
+            if (selectedStates.has(stateName)) {
+                selectedStates.delete(stateName);
+                delete selectedDistricts[stateName];
+            } else {
+                selectedStates.add(stateName);
+                if (!selectedDistricts[stateName]) {
+                    selectedDistricts[stateName] = new Set();
+                }
+            }
+            renderSelectedStatesUI();
+            renderDistrictsCoveredUI();
+            updateDistrictStats();
+        }
+
+        function renderSelectedStatesUI() {
+            const sortedStates = Object.keys(INDIA_DISTRICTS).sort();
+            sortedStates.forEach(st => {
+                const safeId = 'st_pill_' + st.replace(/[^a-zA-Z0-9]/g, '_');
+                const el = document.getElementById(safeId);
+                if (el) {
+                    const isSelected = selectedStates.has(st);
+                    el.classList.toggle('selected', isSelected);
+                    const countBadge = el.querySelector('.badge-count');
+                    const distCount = selectedDistricts[st] ? selectedDistricts[st].size : 0;
+                    if (countBadge) {
+                        countBadge.textContent = distCount;
+                        countBadge.style.display = distCount > 0 ? 'inline-block' : (isSelected ? 'inline-block' : 'none');
+                    }
+                }
+            });
+        }
+
+        function renderDistrictsCoveredUI() {
+            const container = document.getElementById('distCoveredContainer');
+            if (!container) return;
+
+            if (selectedStates.size === 0) {
+                container.innerHTML = `
+                    <div class="dst-empty-box">
+                        <div style="font-size: 2.2rem; margin-bottom: 8px;">🗺️</div>
+                        <h4 style="margin-bottom: 6px; color: #1e293b;">No States Selected Yet</h4>
+                        <p style="font-size: 0.88rem; color: #64748b;">Please click on one or more states above to select the districts covered.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            const sortedSelected = Array.from(selectedStates).sort();
+
+            sortedSelected.forEach(st => {
+                const safeStateId = st.replace(/[^a-zA-Z0-9]/g, '_');
+                const distList = INDIA_DISTRICTS[st] || [];
+                const currentSet = selectedDistricts[st] || new Set();
+                const totalInState = distList.length;
+                const selectedInState = currentSet.size;
+
+                html += `
+                    <div class="dst-state-card" id="card_st_${safeStateId}">
+                        <div class="dst-state-card-hdr">
+                            <div class="dst-state-card-title">
+                                <span class="icon">📍</span>
+                                <div>
+                                    <h4 style="font-size: 1rem; color: #0f172a; margin: 0;">${st}</h4>
+                                    <span class="counter-tag" id="counter_tag_${safeStateId}">${selectedInState} of ${totalInState} Districts Selected</span>
+                                </div>
+                            </div>
+                            <div class="dst-state-card-actions">
+                                <button type="button" class="dst-mini-btn" onclick="toggleAllDistrictsInState('${st}', true)">Select All</button>
+                                <button type="button" class="dst-mini-btn outline" onclick="toggleAllDistrictsInState('${st}', false)">Clear</button>
+                                <button type="button" class="dst-mini-btn remove" onclick="toggleStateSelection('${st}')" title="Remove state">✕</button>
+                            </div>
+                        </div>
+                        <div class="dst-districts-grid">
+                `;
+
+                distList.forEach(dist => {
+                    const safeDistId = (st + '_' + dist).replace(/[^a-zA-Z0-9]/g, '_');
+                    const isChecked = currentSet.has(dist) ? 'checked' : '';
+                    html += `
+                        <label class="dst-dist-item" for="chk_${safeDistId}">
+                            <input type="checkbox" id="chk_${safeDistId}" value="${dist}" ${isChecked} onchange="onDistrictCheckChange('${st}', '${dist}', this.checked)">
+                            <span>${dist}</span>
+                        </label>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function onDistrictCheckChange(stateName, districtName, isChecked) {
+            if (!selectedDistricts[stateName]) {
+                selectedDistricts[stateName] = new Set();
+            }
+            if (isChecked) {
+                selectedDistricts[stateName].add(districtName);
+            } else {
+                selectedDistricts[stateName].delete(districtName);
+            }
+            updateSingleStateCardHeader(stateName);
+            updateDistrictStats();
+            renderSelectedStatesUI();
+        }
+
+        function toggleAllDistrictsInState(stateName, selectAll) {
+            if (!selectedDistricts[stateName]) {
+                selectedDistricts[stateName] = new Set();
+            }
+            const distList = INDIA_DISTRICTS[stateName] || [];
+            if (selectAll) {
+                distList.forEach(d => selectedDistricts[stateName].add(d));
+            } else {
+                selectedDistricts[stateName].clear();
+            }
+            const safeStateId = stateName.replace(/[^a-zA-Z0-9]/g, '_');
+            distList.forEach(dist => {
+                const safeDistId = (stateName + '_' + dist).replace(/[^a-zA-Z0-9]/g, '_');
+                const chk = document.getElementById('chk_' + safeDistId);
+                if (chk) chk.checked = selectAll;
+            });
+            updateSingleStateCardHeader(stateName);
+            updateDistrictStats();
+            renderSelectedStatesUI();
+        }
+
+        function updateSingleStateCardHeader(stateName) {
+            const safeStateId = stateName.replace(/[^a-zA-Z0-9]/g, '_');
+            const counterTag = document.getElementById('counter_tag_' + safeStateId);
+            const distList = INDIA_DISTRICTS[stateName] || [];
+            const count = selectedDistricts[stateName] ? selectedDistricts[stateName].size : 0;
+            if (counterTag) {
+                counterTag.textContent = `${count} of ${distList.length} Districts Selected`;
+            }
+        }
+
+        function updateDistrictStats() {
+            const statesCountEl = document.getElementById('dstStatStatesCount');
+            const districtsCountEl = document.getElementById('dstStatDistrictsCount');
+            const totalStates = selectedStates.size;
+            let totalDistricts = 0;
+            Object.values(selectedDistricts).forEach(s => {
+                totalDistricts += s.size;
+            });
+            if (statesCountEl) statesCountEl.textContent = totalStates;
+            if (districtsCountEl) districtsCountEl.textContent = totalDistricts;
+        }
+
+        function filterStatesPills(query) {
+            query = query.toLowerCase().trim();
+            const pills = document.querySelectorAll('.dst-state-pill');
+            pills.forEach(p => {
+                const name = p.querySelector('span:first-child').textContent.toLowerCase();
+                p.style.display = name.includes(query) ? 'inline-flex' : 'none';
+            });
+        }
+
+        async function submitDistrictInfoForm(e) {
+            e.preventDefault();
+            const branch = document.getElementById('distBranchSelect').value;
+            if (!branch) {
+                alert('Please select your Branch Name.');
+                document.getElementById('distBranchSelect').focus();
+                return;
+            }
+            if (selectedStates.size === 0) {
+                alert('Please select at least one State.');
+                return;
+            }
+            let totalDistricts = 0;
+            Object.values(selectedDistricts).forEach(s => totalDistricts += s.size);
+            if (totalDistricts === 0) {
+                alert('Please select at least one District covered.');
+                return;
+            }
+
+            // Build payload
+            const statesArr = Array.from(selectedStates).sort();
+            const breakdownArr = [];
+            statesArr.forEach(st => {
+                const dists = Array.from(selectedDistricts[st] || []).sort();
+                if (dists.length > 0) {
+                    breakdownArr.push(`${st} (${dists.length}): ${dists.join(', ')}`);
+                }
+            });
+
+            // Get logged in user email if available
+            let userEmail = '';
+            try {
+                const userData = sessionStorage.getItem('userData');
+                if (userData) userEmail = JSON.parse(userData).email || '';
+            } catch (_) {}
+
+            const payload = {
+                formType: 'districtInfo',
+                userEmail: userEmail,
+                branchName: branch,
+                statesCovered: statesArr,
+                totalStates: statesArr.length,
+                districtsBreakdown: breakdownArr.join(' | '),
+                totalDistricts: totalDistricts
+            };
+
+            document.getElementById('dstLoading').classList.add('show');
+            try {
+                await fetch(REG_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                document.getElementById('dstLoading').classList.remove('show');
+                document.getElementById('dstSuccessMsg').innerHTML = `Details for <b>${branch}</b> with <b>${statesArr.length} State(s)</b> and <b>${totalDistricts} District(s)</b> have been recorded in the Master Sheet tab.`;
+                document.getElementById('dstSuccess').classList.add('show');
+            } catch (err) {
+                document.getElementById('dstLoading').classList.remove('show');
+                document.getElementById('dstErrMsg').textContent = 'Network error. Please try again.';
+                document.getElementById('dstError').classList.add('show');
+                console.error(err);
+            }
+        }
+
+        function resetDistrictForm() {
+            document.getElementById('dstSuccess').classList.remove('show');
+            document.getElementById('distBranchSelect').value = '';
+            selectedStates.clear();
+            selectedDistricts = {};
+            renderSelectedStatesUI();
+            renderDistrictsCoveredUI();
+            updateDistrictStats();
+        }
+
     </script>
 </body>
 </html>
+
+

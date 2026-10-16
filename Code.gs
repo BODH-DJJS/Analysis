@@ -2,6 +2,7 @@
 const SPREADSHEET_ID = '1OvVqqDI5JwTMJA4svMKXUb2JuOMQUaPgH7Un-UMum14';
 const SHEET_NAME = 'Master data';
 const RESPONSES_SHEET_NAME = 'POC Team Leaders';
+const DISTRICT_RESPONSES_SHEET_NAME = 'District Information';
 
 /**
  * Web app entry point for GET requests
@@ -60,6 +61,56 @@ function doPost(e) {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     if (!ss) throw new Error('Spreadsheet not found');
 
+    // Check if this is a District Information form submission
+    if (formData.formType === 'districtInfo') {
+      let districtSheet = ss.getSheetByName(DISTRICT_RESPONSES_SHEET_NAME);
+      if (!districtSheet) {
+        districtSheet = ss.insertSheet(DISTRICT_RESPONSES_SHEET_NAME);
+        const dHeaders = [
+          'Timestamp',
+          'User Email',
+          'Branch Name',
+          'States Covered',
+          'Total States Covered',
+          'Districts Covered Breakdown',
+          'Total Districts Covered'
+        ];
+        districtSheet.getRange(1, 1, 1, dHeaders.length).setValues([dHeaders]);
+        const dHeaderRange = districtSheet.getRange(1, 1, 1, dHeaders.length);
+        dHeaderRange.setFontWeight('bold');
+        dHeaderRange.setBackground('#0f766e'); // Teal background
+        dHeaderRange.setFontColor('#ffffff');
+        dHeaderRange.setHorizontalAlignment('center');
+        for (let i = 1; i <= dHeaders.length; i++) {
+          districtSheet.autoResizeColumn(i);
+        }
+        districtSheet.setFrozenRows(1);
+      }
+
+      const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+      const dRowData = [
+        timestamp,
+        formData.userEmail || '',
+        formData.branchName || '',
+        Array.isArray(formData.statesCovered) ? formData.statesCovered.join(', ') : (formData.statesCovered || ''),
+        formData.totalStates || 0,
+        formData.districtsBreakdown || '',
+        formData.totalDistricts || 0
+      ];
+
+      districtSheet.appendRow(dRowData);
+      console.log('District data saved successfully');
+
+      return ContentService
+        .createTextOutput(JSON.stringify({ 
+          status: 'success', 
+          message: 'District Information submitted successfully',
+          timestamp: timestamp
+        }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Default: Volunteer POC Team Leaders submission
     // Get or create the Responses sheet
     let responseSheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
     if (!responseSheet) {
