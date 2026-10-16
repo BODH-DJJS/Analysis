@@ -25,10 +25,7 @@ function doGet(e) {
     const data = getAnalyticsData();
     return ContentService
       .createTextOutput(JSON.stringify(data))
-      .setMimeType(ContentService.MimeType.JSON)
-      .addHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-      .addHeader('Pragma', 'no-cache')
-      .addHeader('Expires', '0');
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
     console.error('Error in doGet:', error);
     return ContentService
