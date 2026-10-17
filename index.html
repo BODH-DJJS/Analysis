@@ -1383,7 +1383,7 @@
                             <div class="rsec-sub">Enter your personal information</div>
                             <div class="rgrid">
                                 <div class="rfl"><label>What is your Role <span class="rq">*</span></label>
-                                    <select name="bodhRole" id="bodhRole" required>
+                                    <select name="bodhRole" id="bodhRole" required onchange="handleRoleChange()">
                                         <option value="" disabled selected>Select Role</option>
                                         <option value="BBBH">Branch Head (Brothers) - BBBH</option>
                                         <option value="BSBH">Branch Head (Sisters) - BSBH</option>
@@ -1394,6 +1394,8 @@
                                 </div>
                                 <div class="rfl fw"><label>Select Branch Level Sewa / Responsibility <span class="rq">*</span></label>
                                     <div class="chk-list" id="branchSewaGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; text-align: left;">
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Media" style="width:auto; margin:0;"> Media</label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Counseling" style="width:auto; margin:0;"> Counseling</label>
                                         <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Public Relations" style="width:auto; margin:0;"> Public Relations</label>
                                         <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Speaker" style="width:auto; margin:0;"> Speaker</label>
                                         <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Photo/Video Editor (Branch)" style="width:auto; margin:0;"> Photo/Video Editor (Branch)</label>
@@ -1438,8 +1440,10 @@
                             <div class="rgrid">
                                 <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" id="regState" required onchange="populateRegBranches()"><option value="" disabled selected>Select State</option></select><div class="re">Please select your state</div></div>
                                 <div class="rfl"><label>Branch Name <span class="rq">*</span></label><select name="branchName" id="regBranch" required><option value="" disabled selected>Select Branch</option></select><div class="re">Please select your branch</div></div>
-                                <div class="rfl"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="text" name="branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch Head name</div></div>
-                                <div class="rfl"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="tel" name="branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+                                <div id="branchHeadWrapper" class="fw" style="display:contents;">
+                                    <div class="rfl" id="field_branchArName"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="text" name="branchArName" id="input_branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch Head name</div></div>
+                                    <div class="rfl" id="field_branchArNumber"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="tel" name="branchArNumber" id="input_branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+                                </div>
 
                             </div>
                             <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(2)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(2)">Continue →</button></div>
@@ -1473,9 +1477,9 @@
                                     </select>
                                     <div class="re">Select your occupation</div>
                                 </div>
-                                <div class="rfl"><label>Profession <span class="rq">*</span></label>
-                                    <select name="profession" required>
-                                        <option value="" disabled selected>Select Profession</option>
+                                <div class="rfl"><label>Profession</label>
+                                    <select name="profession">
+                                        <option value="" selected>Select Profession</option>
                                         <option>Data Analyst / Scientist</option>
                                         <option>Software Engineer / Developer</option>
                                         <option>Teacher / Professor</option>
@@ -1488,15 +1492,12 @@
                                         <option>Design / Creative</option>
                                         <option>Other</option>
                                     </select>
-                                    <div class="re">Select your profession</div>
                                 </div>
-                                <div class="rfl"><label>Years of Experience <span class="rq">*</span></label>
-                                    <input type="number" name="experience" placeholder="e.g., 5" min="0" required />
-                                    <div class="re">Enter years of experience</div>
+                                <div class="rfl"><label>Years of Experience</label>
+                                    <input type="number" name="experience" placeholder="e.g., 5" min="0" />
                                 </div>
-                                <div class="rfl fw"><label>Company / Organization Name <span class="rq">*</span></label>
-                                    <input type="text" name="companyName" placeholder="e.g., TCS" required />
-                                    <div class="re">Enter company name</div>
+                                <div class="rfl fw"><label>Company / Organization Name</label>
+                                    <input type="text" name="companyName" placeholder="e.g., TCS" />
                                 </div>
                                 <div class="rfl fw"><label>Languages Known <span class="rq">*</span></label>
                                     <div class="chk-list" id="languagesGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.8rem; text-align: left;">
@@ -3078,27 +3079,27 @@
         const rTotal = 4;
 
                     const REG_BRANCHES = {
-            "Assam (IN)": ["Dibrugarh"],
-            "Bihar (IN)": ["Patna", "Saharsa"],
-            "Chattisgarh (IN)": ["Raipur"],
-            "Delhi (IN)": ["Divya Dham Ashram", "Dwarka", "Karkardooma", "Patel Nagar", "Rohini"],
-            "Gujarat (IN)": ["Ahmedabad"],
-            "Haryana (IN)": ["Ambala", "Babain", "Bilaspur", "Faridabad", "Faridabad NIIT", "Gurgaon", "Hisar", "Jagadhari", "Karnal", "Kurukshetra", "Ladwa", "Panipat", "Pehowa", "Radaur", "Rohtak", "Sirsa", "Yamunanagar"],
-            "Himachal Pradesh (IN)": ["Shimla"],
-            "Jammu and Kashmir (IN)": ["Jammu"],
-            "Jharkhand (IN)": ["Ranchi"],
-            "Karnataka (IN)": ["Bengaluru", "Hubballi"],
-            "Madhya Pradesh (IN)": ["Bhopal", "Gwalior"],
-            "Maharashtra (IN)": ["Amravati", "Chakan", "Latur", "Mumbai", "Nagpur", "Pathardi", "Pune"],
-            "Orissa (IN)": ["Bhubaneswar", "Sambalpur"],
-            "Punjab (IN)": ["Abohar", "Amritsar", "Batala", "Bathinda", "Chandigarh", "DMK", "Dhilwan", "Ferozpur", "Gurdaspur", "Hoshiarpur", "Jalandhar", "Kapurthala", "Kotkapura", "Ludhiana", "Malout", "Moga", "Muktsar", "Nawanshahr", "Pathankot", "Patiala", "Tarn Taran"],
-            "Rajasthan (IN)": ["Bikaner", "Dungarpur", "Jaipur", "Jodhpur", "Kota"],
-            "Tamil Nadu (IN)": ["Chennai"],
-            "Telangana (IN)": ["Hyderabad"],
-            "Uttar Pradesh (IN)": ["Agra", "Aligarh", "Bareilly", "Ghaziabad", "Gorakhpur", "KGMU", "Kanpur", "Lucknow", "Meerut", "Saharanpur", "Varanasi"],
-            "Uttarakhand (IN)": ["Dehradun", "Haridwar", "Pithoragarh", "Roorkee"],
-            "Outside India": ["Athens", "Auckland", "Berbice", "Brisbane", "East Bank Demerara", "Fairfield", "Fresno", "Perth", "Scarborough"]
-        };
+        "Assam (IN)": ["Dibrugarh"],
+        "Bihar (IN)": ["Araria", "Bhagalpur", "Bodhgaya", "Darbhanga", "Patna", "Saharsa", "Siwan", "Udakishunganj"],
+        "Chattisgarh (IN)": ["Saraipali"],
+        "Delhi (IN)": ["Divya Dham Ashram", "Dwarka", "Karkarduma", "Nehru Place", "Patel Nagar", "Pitampura (Head office)", "Rohini Sec-15", "Vikaspuri"],
+        "Gujarat (IN)": ["Ahmedabad", "Vadodara"],
+        "Haryana (IN)": ["Ambala", "Babain", "Bilaspur", "Faridabad NIIT", "Faridabad Surya Nagar", "Gurugram", "Jagadhari", "Kaithal", "Karnal", "Kurukshetra", "Naraingarh", "Panchkula", "Panipat", "Rewari", "Sahoowal", "Sirsa"],
+        "Himachal Pradesh (IN)": ["Shimla"],
+        "Jammu and Kashmir (IN)": ["Jammu"],
+        "Jharkhand (IN)": ["Dhanbad", "Ranchi"],
+        "Karnataka (IN)": ["Bengaluru"],
+        "Madhya Pradesh (IN)": ["Bhopal", "Gwalior", "Mandla", "Nasrullaganj", "Shyampur"],
+        "Maharashtra (IN)": ["Amravati", "Chakan", "Gondia", "Latur", "Nagpur", "Pathardi", "Pune"],
+        "Orissa (IN)": ["Bhubaneshwar", "Sambalpur"],
+        "Punjab (IN)": ["Abohar", "Amritsar", "Batala", "Bathinda", "Chandigarh", "DMK", "Dhilwan", "Fazilka", "Ferozepur", "Harpura", "Hoshiarpur", "Jalandhar", "Kapurthala", "Kotkapura", "Ludhiana", "Malout", "Manawala", "Moga", "Muktsar", "Nurmahal", "Pathankot", "Patiala", "Samana", "Shaheed Bhagat Singh Nagar", "Shehzada", "Sunam", "Tarn taran"],
+        "Rajasthan (IN)": ["Bikaner", "Dungarpur", "Hanumangarh", "Jaipur", "Jodhpur", "Kota", "Sangria", "Sri Ganganagar", "Suratgarh", "Udaipur"],
+        "Tamil Nadu (IN)": ["Chennai"],
+        "Telangana (IN)": ["Hyderabad"],
+        "Uttar Pradesh (IN)": ["Agra", "Aligarh", "Bareilly", "Ghaziabad", "Gorakhpur", "Kanpur", "Lucknow", "Meerut", "Noida", "Prayagraj", "Saharanpur", "Varanasi"],
+        "Uttarakhand (IN)": ["Dehradun", "Pauri Garhwal", "Pithoragarh", "Rudrapur"],
+        "Outside India": ["Athens", "Auckland", "Berbice", "Brisbane", "East Bank Demerara", "Fairfield", "Fresno", "Hamilton, Canada", "Harlington, UK", "Itzehoe, Germany", "Kathmandu Nepal", "Lebanon", "London", "Manama, Bahrain", "Mantova", "Melbourne", "Motteggiana", "Nawanshahr", "New York (1)", "New York (2)", "Ontario", "Sacramento", "Seattle", "Southern California"]
+    };
 
         document.addEventListener('DOMContentLoaded', function() {
             const stateSel = document.getElementById('regState');
@@ -3212,11 +3213,40 @@
             }
         });
 
+        function handleRoleChange() {
+            const role = document.getElementById('bodhRole').value;
+            const wrapper = document.getElementById('branchHeadWrapper');
+            const nameInput = document.getElementById('input_branchArName');
+            const numInput = document.getElementById('input_branchArNumber');
+            
+            // If role is Branch Head (BBBH or BSBH), hide the Branch Head contact fields and make them optional
+            if (role === 'BBBH' || role === 'BSBH') {
+                if (wrapper) wrapper.style.display = 'none';
+                if (nameInput) {
+                    nameInput.removeAttribute('required');
+                    nameInput.value = '';
+                    const g = nameInput.closest('.rfl');
+                    if (g) g.classList.remove('has-error');
+                }
+                if (numInput) {
+                    numInput.removeAttribute('required');
+                    numInput.value = '';
+                    const g = numInput.closest('.rfl');
+                    if (g) g.classList.remove('has-error');
+                }
+            } else {
+                if (wrapper) wrapper.style.display = 'contents';
+                if (nameInput) nameInput.setAttribute('required', 'required');
+                if (numInput) numInput.setAttribute('required', 'required');
+            }
+        }
+
         function regReset() {
             document.getElementById('regSuccess').classList.remove('show');
             document.getElementById('regForm').reset();
             document.getElementById('hoSewaGroupWrapper').style.display = 'none';
             document.getElementById('branchSewaOtherText').style.display = 'none';
+            handleRoleChange();
             rShowSec(1);
         }
 
