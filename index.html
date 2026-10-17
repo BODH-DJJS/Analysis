@@ -1641,8 +1641,28 @@
 
             <!-- Overlays for District Form -->
             <div class="rov" id="dstLoading"><div class="rsc"><div class="rspinner" style="border-top-color: #0d9488;"></div><h3>Saving District Information...</h3><p>Please wait while we record your response in the Master Sheet.</p></div></div>
-            <div class="rov" id="dstSuccess"><div class="rsc"><div class="ri">🎉</div><h3 style="color:#0d9488">Saved Successfully!</h3><p id="dstSuccessMsg">Your branch district coverage has been recorded.</p><button class="rb rb-next" onclick="resetDistrictForm()" style="background: linear-gradient(135deg, #0d9488, #0ea5e9); margin-top:1rem;">Submit Another Record</button></div></div>
-            <div class="rov" id="dstError"><div class="rsc"><div class="ri">⚠️</div><h3 style="color:#ef4444">Submission Failed</h3><p id="dstErrMsg">Something went wrong. Please try again.</p><button class="rb rb-next" onclick="document.getElementById('dstError').classList.remove('show')" style="margin-top:1rem;">Try Again</button></div></div>
+            <div class="rov" id="dstSuccess">
+                <div class="rsc" style="position: relative;">
+                    <button type="button" onclick="document.getElementById('dstSuccess').classList.remove('show')" 
+                            style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; font-size: 1.4rem; color: #94a3b8; cursor: pointer; line-height: 1; transition: color 0.2s;" 
+                            onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#94a3b8'" title="Close">✕</button>
+                    <div class="ri">🎉</div>
+                    <h3 style="color:#0d9488">Saved Successfully!</h3>
+                    <p id="dstSuccessMsg">Your branch district coverage has been recorded.</p>
+                    <button class="rb rb-next" onclick="resetDistrictForm()" style="background: linear-gradient(135deg, #0d9488, #0ea5e9); margin-top:1rem;">Submit Another Record</button>
+                </div>
+            </div>
+            <div class="rov" id="dstError">
+                <div class="rsc" style="position: relative;">
+                    <button type="button" onclick="document.getElementById('dstError').classList.remove('show')" 
+                            style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; font-size: 1.4rem; color: #94a3b8; cursor: pointer; line-height: 1; transition: color 0.2s;" 
+                            onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#94a3b8'" title="Close">✕</button>
+                    <div class="ri">⚠️</div>
+                    <h3 style="color:#ef4444">Submission Failed</h3>
+                    <p id="dstErrMsg">Something went wrong. Please try again.</p>
+                    <button class="rb rb-next" onclick="document.getElementById('dstError').classList.remove('show')" style="margin-top:1rem;">Try Again</button>
+                </div>
+            </div>
         </div><!-- end content-districts -->
 
     </div>
