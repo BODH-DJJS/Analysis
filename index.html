@@ -1643,9 +1643,9 @@
             <div class="rov" id="dstLoading"><div class="rsc"><div class="rspinner" style="border-top-color: #0d9488;"></div><h3>Saving District Information...</h3><p>Please wait while we record your response in the Master Sheet.</p></div></div>
             <div class="rov" id="dstSuccess">
                 <div class="rsc" style="position: relative;">
-                    <button type="button" onclick="document.getElementById('dstSuccess').classList.remove('show')" 
+                    <button type="button" onclick="resetDistrictForm()" 
                             style="position: absolute; top: 12px; right: 14px; background: transparent; border: none; font-size: 1.4rem; color: #94a3b8; cursor: pointer; line-height: 1; transition: color 0.2s;" 
-                            onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#94a3b8'" title="Close">✕</button>
+                            onmouseover="this.style.color='#1e293b'" onmouseout="this.style.color='#94a3b8'" title="Close and Reset">✕</button>
                     <div class="ri">🎉</div>
                     <h3 style="color:#0d9488">Saved Successfully!</h3>
                     <p id="dstSuccessMsg">Your branch district coverage has been recorded.</p>
@@ -3626,6 +3626,11 @@
         function resetDistrictForm() {
             document.getElementById('dstSuccess').classList.remove('show');
             document.getElementById('distBranchSelect').value = '';
+            const searchInput = document.getElementById('dstStateSearch');
+            if (searchInput) {
+                searchInput.value = '';
+                filterStatesPills('');
+            }
             selectedStates.clear();
             selectedDistricts = {};
             renderSelectedStatesUI();
