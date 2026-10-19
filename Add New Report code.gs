@@ -5,6 +5,7 @@
 var MAIN_DRIVE_FOLDER_ID = '1Z6PKvQbNXo2RJ7DGZsCaWgoO1nzZiPgw';
 var SHEET_ID = '1OvVqqDI5JwTMJA4svMKXUb2JuOMQUaPgH7Un-UMum14';
 var SHEET_TAB_NAME = 'BODH Responses';
+var NOTIFICATION_EMAIL = 'bodh@djjs.org';
 
 // Serve the HTML form
 function doGet(e) {
@@ -328,12 +329,78 @@ function submitReport(formData) {
     }
 
     sheet.appendRow(rowData);
+
+    // 3. Send Email Notification to Bodh Mail ID
+    try {
+      sendReportNotificationEmail(formData, folderLink, autoEmail, timeString);
+    } catch(mailErr) {
+      console.error('Email notification failed: ' + mailErr.toString());
+      // Keep going so submission succeeds even if email fails
+    }
+
     return { success: true };
   } catch(e) {
     return { error: e.message };
   } finally {
     lock.releaseLock();
   }
+}
+
+function sendReportNotificationEmail(formData, folderLink, userEmail, timeString) {
+  if (!NOTIFICATION_EMAIL) return;
+
+  var branch = formData.branch || 'Unknown Branch';
+  var state = formData.state || 'Unknown State';
+  var date = formData.date || 'N/A';
+  var theme = formData.theme || 'BODH Event';
+  var venue = formData.venue || 'N/A';
+  var executingTeam = formData.executingTeam || 'N/A';
+  var male = formData.male || 0;
+  var female = formData.female || 0;
+  var children = formData.children || 0;
+  var totalBeneficiaries = (parseInt(male, 10) || 0) + (parseInt(female, 10) || 0) + (parseInt(children, 10) || 0);
+  var activities = formData.activities || 'None specified';
+  var guestName = formData.guestName || 'None';
+  var guestDesig = formData.guestDesignation ? ' (' + formData.guestDesignation + ')' : '';
+
+  var subject = '🚀 New BODH Event Report: ' + branch + ' (' + state + ') - ' + date;
+
+  var htmlBody = 
+    '<div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">' +
+      '<div style="background: linear-gradient(135deg, #FF6B35 0%, #1a1a5e 100%); color: #ffffff; padding: 22px 26px; text-align: center;">' +
+        '<h2 style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: 0.5px;">BODH Event Reporting Portal</h2>' +
+        '<p style="margin: 6px 0 0; font-size: 13px; opacity: 0.9;">New Report Submission Recorded</p>' +
+      '</div>' +
+      '<div style="padding: 24px 28px;">' +
+        '<p style="font-size: 14px; color: #334155; margin-top: 0;">Hari Om, a new event report has just been submitted through the BODH Reporting Form.</p>' +
+        '<table style="width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 13.5px;">' +
+          '<tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569; width: 35%;">Branch & State:</td><td style="padding: 10px 14px; color: #0f172a; font-weight: 600;">' + branch + ' (' + state + ')</td></tr>' +
+          '<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Event Date:</td><td style="padding: 10px 14px; color: #0f172a;">' + date + (timeString ? ' (' + timeString + ')' : '') + '</td></tr>' +
+          '<tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Venue / Location:</td><td style="padding: 10px 14px; color: #0f172a;">' + venue + '</td></tr>' +
+          '<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Theme / Subject:</td><td style="padding: 10px 14px; color: #0f172a;">' + theme + '</td></tr>' +
+          '<tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Executing Team:</td><td style="padding: 10px 14px; color: #0f172a;">' + executingTeam + '</td></tr>' +
+          '<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Beneficiaries:</td><td style="padding: 10px 14px; color: #0f172a;"><b>' + totalBeneficiaries + ' Total</b> (Male: ' + male + ', Female: ' + female + ', Children: ' + children + ')</td></tr>' +
+          '<tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Activities Conducted:</td><td style="padding: 10px 14px; color: #0f172a;">' + activities + '</td></tr>' +
+          '<tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Special Guest:</td><td style="padding: 10px 14px; color: #0f172a;">' + guestName + guestDesig + '</td></tr>' +
+          '<tr style="background: #f8fafc;"><td style="padding: 10px 14px; font-weight: bold; color: #475569;">Submitted By:</td><td style="padding: 10px 14px; color: #0f172a;">' + (userEmail || 'N/A') + '</td></tr>' +
+        '</table>' +
+        (folderLink ? 
+          '<div style="text-align: center; margin: 26px 0 10px;">' +
+            '<a href="' + folderLink + '" target="_blank" style="display: inline-block; background: #FF6B35; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(255,107,53,0.3);">' +
+              '📂 View Drive Event Folder' +
+            '</a>' +
+          '</div>' : '') +
+      '</div>' +
+      '<div style="background: #f1f5f9; padding: 12px; text-align: center; font-size: 11.5px; color: #64748b; border-top: 1px solid #e2e8f0;">' +
+        'This is an automated notification from BODH Event Reporting System.' +
+      '</div>' +
+    '</div>';
+
+  MailApp.sendEmail({
+    to: NOTIFICATION_EMAIL,
+    subject: subject,
+    htmlBody: htmlBody
+  });
 }
 
 function formatTimeRange(start, end) {
