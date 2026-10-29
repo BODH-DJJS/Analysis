@@ -618,6 +618,67 @@
             transform: scale(1.05);
         }
 
+        /* Table Pagination Controls */
+        .table-pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+        }
+        .table-pagination-info {
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 500;
+        }
+        .table-pagination-info strong {
+            color: #0f172a;
+        }
+        .table-pagination-btns {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tbl-page-btn {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: #334155;
+            padding: 7px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        .tbl-page-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: #ffffff;
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+        .tbl-page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+        .tbl-page-current {
+            padding: 7px 14px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            background: #e0e7ff;
+            border-radius: 6px;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -1346,6 +1407,16 @@
                 </thead>
                 <tbody id="tableBody"></tbody>
             </table>
+            <div class="table-pagination-bar" id="tablePaginationBar">
+                <div class="table-pagination-info" id="tablePaginationInfo">Showing 1 to 100 of 0 records</div>
+                <div class="table-pagination-btns">
+                    <button type="button" class="tbl-page-btn" id="tblBtnFirst" onclick="goToTablePage(1)" title="First Page">« First</button>
+                    <button type="button" class="tbl-page-btn" id="tblBtnPrev" onclick="changeTablePage(-1)" title="Previous Page">‹ Prev</button>
+                    <span class="tbl-page-current" id="tblPageCurrent">Page 1 of 1</span>
+                    <button type="button" class="tbl-page-btn" id="tblBtnNext" onclick="changeTablePage(1)" title="Next Page">Next ›</button>
+                    <button type="button" class="tbl-page-btn" id="tblBtnLast" onclick="goToTablePage('last')" title="Last Page">Last »</button>
+                </div>
+            </div>
         </div>
 
         <!-- Modal for Activity Details -->
@@ -2160,6 +2231,7 @@
         }
 
         function updateDashboard() {
+            tableCurrentPage = 1;
             updateStats();
             updateCharts();
             updateTable();
@@ -2782,8 +2854,13 @@
             }
         }
 
+        // Table pagination configuration
+        let tableCurrentPage = 1;
+        const TABLE_PAGE_SIZE = 100;
+
         function updateTable() {
             const tableBody = document.getElementById('tableBody');
+            if (!tableBody) return;
             
             // Sort data by date in descending order (newest first)
             const sortedData = [...filteredData].sort((a, b) => {
@@ -2791,34 +2868,82 @@
                 const dateB = parseDate(b['Full Date'] || b.Date);
                 return dateB - dateA; // Descending order
             });
-            
-            const recentData = sortedData.slice(0, 20);
 
-            tableBody.innerHTML = recentData.map((d, index) => {
-                // Per-row Drive folder link (column AC "Month wise Folder link").
-                // Defensive key lookup so it works whatever key the API sends.
-                const folderLink = d['Month wise Folder link'] || d['Folder Link']
-                    || d.folderLink || d['MonthFolderLink'] || d['Folder'] || '';
-                const rowDate = String(d['Full Date'] || d.Date || '');
-                const editCell = folderLink
-                    ? `<button class="view-details-btn"
-                          style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"
-                          title="Open this program's Raw folder to upload photos"
-                          onclick='openRawFolder(${JSON.stringify(folderLink)}, ${JSON.stringify(rowDate)})'>✏️ Edit / Upload</button>`
-                    : `<span style="color:#bbb; font-size:0.85em;">No folder</span>`;
-                return `
-                    <tr>
-                        <td style="white-space: nowrap;">${formatDate(d['Full Date'] || d.Date)}</td>
-                        <td>${d.State || 'N/A'}</td>
-                        <td>${d.Branch || 'N/A'}</td>
-                        <td>${d.Venue || 'N/A'}</td>
-                        <td>${getBeneficiaryCount(d).toLocaleString()}</td>
-                        <td>${d['Type of Program'] || 'N/A'}</td>
-                        <td><button class="view-details-btn" onclick="showDetails(${sortedData.indexOf(d)})">View Details</button></td>
-                        <td>${editCell}</td>
-                    </tr>
-                `;
-            }).join('');
+            const totalRecords = sortedData.length;
+            const totalPages = Math.max(1, Math.ceil(totalRecords / TABLE_PAGE_SIZE));
+            if (tableCurrentPage > totalPages) tableCurrentPage = totalPages;
+            if (tableCurrentPage < 1) tableCurrentPage = 1;
+
+            const startIdx = (tableCurrentPage - 1) * TABLE_PAGE_SIZE;
+            const endIdx = Math.min(startIdx + TABLE_PAGE_SIZE, totalRecords);
+            const pageData = sortedData.slice(startIdx, endIdx);
+
+            if (pageData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#64748b;">No matching programs found.</td></tr>';
+            } else {
+                tableBody.innerHTML = pageData.map((d) => {
+                    const folderLink = d['Month wise Folder link'] || d['Folder Link']
+                        || d.folderLink || d['MonthFolderLink'] || d['Folder'] || '';
+                    const rowDate = String(d['Full Date'] || d.Date || '');
+                    const editCell = folderLink
+                        ? `<button class="view-details-btn"
+                              style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"
+                              title="Open this program's Raw folder to upload photos"
+                              onclick='openRawFolder(${JSON.stringify(folderLink)}, ${JSON.stringify(rowDate)})'>✏️ Edit / Upload</button>`
+                        : `<span style="color:#bbb; font-size:0.85em;">No folder</span>`;
+                    return `
+                        <tr>
+                            <td style="white-space: nowrap;">${formatDate(d['Full Date'] || d.Date)}</td>
+                            <td>${d.State || 'N/A'}</td>
+                            <td>${d.Branch || 'N/A'}</td>
+                            <td>${d.Venue || 'N/A'}</td>
+                            <td>${getBeneficiaryCount(d).toLocaleString()}</td>
+                            <td>${d['Type of Program'] || 'N/A'}</td>
+                            <td><button class="view-details-btn" onclick="showDetails(${sortedData.indexOf(d)})">View Details</button></td>
+                            <td>${editCell}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Update pagination UI
+            const infoEl = document.getElementById('tablePaginationInfo');
+            if (infoEl) {
+                infoEl.innerHTML = totalRecords === 0
+                    ? 'No records to display'
+                    : `Showing <strong>${startIdx + 1}</strong> to <strong>${endIdx}</strong> of <strong>${totalRecords.toLocaleString()}</strong> programs`;
+            }
+            const pageCurrentEl = document.getElementById('tblPageCurrent');
+            if (pageCurrentEl) pageCurrentEl.textContent = `Page ${tableCurrentPage} of ${totalPages}`;
+
+            const btnFirst = document.getElementById('tblBtnFirst');
+            const btnPrev = document.getElementById('tblBtnPrev');
+            const btnNext = document.getElementById('tblBtnNext');
+            const btnLast = document.getElementById('tblBtnLast');
+
+            if (btnFirst) btnFirst.disabled = (tableCurrentPage <= 1);
+            if (btnPrev) btnPrev.disabled = (tableCurrentPage <= 1);
+            if (btnNext) btnNext.disabled = (tableCurrentPage >= totalPages);
+            if (btnLast) btnLast.disabled = (tableCurrentPage >= totalPages);
+        }
+
+        function changeTablePage(delta) {
+            tableCurrentPage += delta;
+            updateTable();
+            const tbl = document.getElementById('dataTable');
+            if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function goToTablePage(page) {
+            if (page === 'last') {
+                const totalRecords = filteredData.length;
+                tableCurrentPage = Math.max(1, Math.ceil(totalRecords / TABLE_PAGE_SIZE));
+            } else {
+                tableCurrentPage = page;
+            }
+            updateTable();
+            const tbl = document.getElementById('dataTable');
+            if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function showDetails(dataIndex) {
