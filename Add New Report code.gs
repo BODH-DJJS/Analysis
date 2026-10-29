@@ -171,6 +171,15 @@ function submitReport(formData) {
   var lock = LockService.getScriptLock();
   try {
     lock.waitLock(30000);
+
+    // Beneficiaries validation: Total must be > 0
+    var m = parseInt(formData.male, 10) || 0;
+    var f = parseInt(formData.female, 10) || 0;
+    var c = parseInt(formData.children, 10) || 0;
+    if ((m + f + c) <= 0) {
+      lock.releaseLock();
+      return { error: "Beneficiary count cannot be 0. Please enter at least 1 participant under Male, Female, or Children." };
+    }
     
     // Check file limits before creating core structure or writing to sheet
     var dateFolderForCheck = getPathToDateFolder(formData);
