@@ -1464,17 +1464,13 @@
                                     <div class="re">Please select your role</div>
                                 </div>
                                 <div class="rfl fw"><label>Select Branch Level Sewa / Responsibility <span class="rq">*</span></label>
-                                    <div class="chk-list" id="branchSewaGroup" style="max-height: 180px; overflow-y: auto; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 1rem; background: #f8fafc; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; text-align: left;">
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Media" style="width:auto; margin:0;"> Media</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Counseling" style="width:auto; margin:0;"> Counseling</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Public Relations" style="width:auto; margin:0;"> Public Relations</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Speaker" style="width:auto; margin:0;"> Speaker</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Photo/Video Editor (Branch)" style="width:auto; margin:0;"> Photo/Video Editor (Branch)</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Photography / Videography" style="width:auto; margin:0;"> Photography / Videography</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" name="branchSewa" value="Data Management & Reporting" style="width:auto; margin:0;"> Data Management & Reporting</label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.4rem; text-transform:none; font-size:0.85rem; font-weight:normal; margin:0;"><input type="checkbox" id="branchSewaOtherCheck" style="width:auto; margin:0;" onchange="document.getElementById('branchSewaOtherText').style.display = this.checked ? 'block' : 'none';"> Any Other</label>
-                                    </div>
-                                    <input type="text" id="branchSewaOtherText" placeholder="Please mention..." style="display:none; margin-top:0.8rem; width:100%; padding:0.75rem; border:1px solid #e2e8f0; border-radius:8px;" />
+                                    <select name="branchSewa" id="branchSewa" required>
+                                        <option value="" disabled selected>Select Responsibility / Category</option>
+                                        <option value="Category 1 PR, Speaking & Counselling">Category 1 PR, Speaking & Counselling</option>
+                                        <option value="Category 2  Reporting, Media & Other Activities">Category 2  Reporting, Media & Other Activities</option>
+                                        <option value="Category 3 Photography, Videography & Photo/Video Editing">Category 3 Photography, Videography & Photo/Video Editing</option>
+                                    </select>
+                                    <div class="re">Please select your branch level responsibility</div>
                                 </div>
 
                                 <div class="rfl fw"><label>Do you do any head office level Sewa? <span class="rq">*</span></label>
@@ -3312,12 +3308,7 @@
             fd.languages = formData.getAll('languages').join(', ');
             
             // Handle branchSewa and hoSewa
-            let bSewa = formData.getAll('branchSewa');
-            let bOther = document.getElementById('branchSewaOtherText');
-            if (document.getElementById('branchSewaOtherCheck').checked && bOther && bOther.value) {
-                bSewa.push(bOther.value);
-            }
-            fd.responsibilities = bSewa.join(', ');
+            fd.responsibilities = formData.get('branchSewa') || '';
             fd.hoSewaYesNo = document.getElementById('hoSewaYesNo').value;
             fd.hoSewa = formData.getAll('hoSewa').join(', ');
 
@@ -3370,7 +3361,7 @@
             document.getElementById('regSuccess').classList.remove('show');
             document.getElementById('regForm').reset();
             document.getElementById('hoSewaGroupWrapper').style.display = 'none';
-            document.getElementById('branchSewaOtherText').style.display = 'none';
+
             handleRoleChange();
             rShowSec(1);
         }
