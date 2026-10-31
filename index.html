@@ -1463,14 +1463,22 @@
                                     </select>
                                     <div class="re">Please select your role</div>
                                 </div>
-                                <div class="rfl fw"><label>Select Branch Level Sewa / Responsibility <span class="rq">*</span></label>
-                                    <select name="branchSewa" id="branchSewa" required>
-                                        <option value="" disabled selected>Select Responsibility / Category</option>
-                                        <option value="Category 1 PR, Speaking & Counselling">Category 1 PR, Speaking & Counselling</option>
-                                        <option value="Category 2  Reporting, Media & Other Activities">Category 2  Reporting, Media & Other Activities</option>
-                                        <option value="Category 3 Photography, Videography & Photo/Video Editing">Category 3 Photography, Videography & Photo/Video Editing</option>
-                                    </select>
-                                    <div class="re">Please select your branch level responsibility</div>
+                                <div class="rfl fw" id="field_branchSewa"><label>Select Branch Level Sewa / Responsibility <span class="rq">*</span></label>
+                                    <div class="chk-list" id="branchSewaGroup" style="border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0.9rem 1rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
+                                            <input type="radio" name="branchSewa" value="Category 1 PR, Speaking & Counselling" style="width:auto; margin:0; cursor:pointer;" required />
+                                            <span>Category 1 PR, Speaking & Counselling</span>
+                                        </label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
+                                            <input type="radio" name="branchSewa" value="Category 2  Reporting, Media & Other Activities" style="width:auto; margin:0; cursor:pointer;" required />
+                                            <span>Category 2  Reporting, Media & Other Activities</span>
+                                        </label>
+                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
+                                            <input type="radio" name="branchSewa" value="Category 3 Photography, Videography & Photo/Video Editing" style="width:auto; margin:0; cursor:pointer;" required />
+                                            <span>Category 3 Photography, Videography & Photo/Video Editing</span>
+                                        </label>
+                                    </div>
+                                    <div class="re" id="branchSewaError">Please select one category</div>
                                 </div>
 
                                 <div class="rfl fw"><label>Do you do any head office level Sewa? <span class="rq">*</span></label>
@@ -3278,12 +3286,25 @@
                 }
             }
 
+            // Custom check for branchSewa radio group in section 1
+            if (n === 1) {
+                const selectedRadio = sec.querySelector('input[name="branchSewa"]:checked');
+                const radioField = document.getElementById('field_branchSewa');
+                if (!selectedRadio) {
+                    if (radioField) radioField.classList.add('has-error');
+                    ok = false;
+                } else {
+                    if (radioField) radioField.classList.remove('has-error');
+                }
+            }
+
             inputs.forEach(inp => {
+                if (inp.type === 'radio') return; // Handled separately
                 const g = inp.closest('.rfl');
-                g.classList.remove('has-error');
-                if (!inp.value || !inp.value.trim()) { g.classList.add('has-error'); ok = false; }
-                else if (inp.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value)) { g.classList.add('has-error'); ok = false; }
-                else if ((inp.name === 'contact' || inp.name === 'branchArNumber') && !/^\d{10}$/.test(inp.value.trim())) { g.classList.add('has-error'); ok = false; }
+                if (g) g.classList.remove('has-error');
+                if (!inp.value || !inp.value.trim()) { if (g) g.classList.add('has-error'); ok = false; }
+                else if (inp.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inp.value)) { if (g) g.classList.add('has-error'); ok = false; }
+                else if ((inp.name === 'contact' || inp.name === 'branchArNumber') && !/^\d{10}$/.test(inp.value.trim())) { if (g) g.classList.add('has-error'); ok = false; }
             });
             return ok;
         }
@@ -3292,8 +3313,15 @@
         function rPrev(f) { if (f > 1) rShowSec(f - 1); }
 
         // Clear errors on input
-        document.querySelectorAll('#regForm input, #regForm textarea').forEach(el => {
-            el.addEventListener('input', () => el.closest('.rfl').classList.remove('has-error'));
+        document.querySelectorAll('#regForm input, #regForm textarea, #regForm select').forEach(el => {
+            el.addEventListener('input', () => {
+                const g = el.closest('.rfl');
+                if (g) g.classList.remove('has-error');
+            });
+            el.addEventListener('change', () => {
+                const g = el.closest('.rfl');
+                if (g) g.classList.remove('has-error');
+            });
         });
 
         document.getElementById('regForm').addEventListener('submit', async (e) => {
