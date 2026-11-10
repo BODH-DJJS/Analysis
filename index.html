@@ -1635,20 +1635,20 @@
                 </div>
             </div>
             <!-- Branch Quota Status Modal -->
-            <div class="rov" id="branchQuotaModal">
-                <div class="rsc" style="max-width:440px; text-align:left; position:relative;">
-                    <button type="button" onclick="closeBranchQuotaModal()" style="position:absolute; top:14px; right:16px; background:transparent; border:none; font-size:1.4rem; color:#94a3b8; cursor:pointer; line-height:1;">✕</button>
-                    <h3 style="font-size:1.15rem; color:#1e293b; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
+            <div class="rov" id="branchQuotaModal" style="z-index:99999;">
+                <div class="rsc" style="max-width:460px; text-align:left; position:relative; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); border-radius:16px;">
+                    <button type="button" onclick="closeBranchQuotaModal()" style="position:absolute; top:14px; right:16px; background:transparent; border:none; font-size:1.4rem; color:#94a3b8; cursor:pointer; line-height:1;" title="Close">✕</button>
+                    <h3 style="font-size:1.2rem; color:#1e293b; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem; font-weight:700;">
                         🏢 <span id="quotaBranchTitle">Branch</span> Role Status
                     </h3>
-                    <p style="font-size:0.83rem; color:#64748b; margin-bottom:1rem;">Current submissions vs required quota for your branch:</p>
-                    <div id="quotaRoleList" style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.1rem;">
+                    <p style="font-size:0.84rem; color:#64748b; margin-bottom:1rem;">Minimum required roles and current status for this branch:</p>
+                    <div id="quotaRoleList" style="display:flex; flex-direction:column; gap:0.65rem; margin-bottom:1.15rem;">
                         <!-- Filled dynamically -->
                     </div>
-                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:0.65rem 0.85rem; font-size:0.8rem; color:#166534; margin-bottom:1.2rem; line-height:1.45;">
-                        📌 <em>This is the minimum requirement. You can submit more entries as well.</em>
+                    <div style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:10px; padding:0.75rem 0.95rem; font-size:0.83rem; color:#14532d; margin-bottom:1.2rem; line-height:1.45;">
+                        📌 <strong>Note:</strong> <em>This is the minimum requirement, you can submit more entries as well.</em>
                     </div>
-                    <button type="button" class="rb rb-next" onclick="closeBranchQuotaModal()" style="width:100%; justify-content:center; padding:0.75rem 1rem;">Got It / Continue Filling</button>
+                    <button type="button" class="rb rb-next" onclick="closeBranchQuotaModal()" style="width:100%; justify-content:center; padding:0.8rem 1rem; font-size:0.9rem;">Got It / Continue Filling</button>
                 </div>
             </div>
 
@@ -3396,10 +3396,47 @@
                 }
             }, 300);
 
+            // Helper function to query via JSONP if fetch is blocked
+            function fetchViaJSONP(url) {
+                return new Promise((resolve, reject) => {
+                    const callbackName = 'jsonp_branch_' + Date.now();
+                    const script = document.createElement('script');
+                    const timeout = setTimeout(() => {
+                        cleanup();
+                        reject(new Error('JSONP timeout'));
+                    }, 10000);
+
+                    function cleanup() {
+                        if (script.parentNode) script.parentNode.removeChild(script);
+                        delete window[callbackName];
+                        clearTimeout(timeout);
+                    }
+
+                    window[callbackName] = function(data) {
+                        cleanup();
+                        resolve(data);
+                    };
+
+                    script.src = url + '&callback=' + callbackName;
+                    script.onerror = function() {
+                        cleanup();
+                        reject(new Error('Script load error'));
+                    };
+                    document.body.appendChild(script);
+                });
+            }
+
             try {
                 const checkUrl = `${REG_SCRIPT_URL}?action=checkBranchRoles&branch=${encodeURIComponent(branchName)}`;
-                const response = await fetch(checkUrl);
-                const data = await response.json();
+                let data = null;
+
+                try {
+                    const response = await fetch(checkUrl);
+                    data = await response.json();
+                } catch(fetchErr) {
+                    console.warn("Fetch failed, attempting JSONP fallback...", fetchErr);
+                    data = await fetchViaJSONP(checkUrl);
+                }
 
                 clearInterval(branchProgressInterval);
                 if (bar) bar.style.width = '100%';
@@ -3407,9 +3444,8 @@
 
                 setTimeout(() => {
                     if (loader) loader.style.display = 'none';
-                    if (data && data.status === 'success' && data.counts) {
-                        displayBranchQuotaModal(branchName, data.counts);
-                    }
+                    const counts = (data && data.counts) ? data.counts : { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+                    displayBranchQuotaModal(branchName, counts);
                 }, 400);
 
             } catch (err) {
@@ -3419,6 +3455,8 @@
                 if (percent) percent.textContent = '100%';
                 setTimeout(() => {
                     if (loader) loader.style.display = 'none';
+                    // Always show the quota requirements popup so the branch user is never left without feedback!
+                    displayBranchQuotaModal(branchName, { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 });
                 }, 500);
             }
         }
@@ -3446,16 +3484,16 @@
                 const isFulfilled = (filled >= req.min);
 
                 const statusBadge = isFulfilled
-                    ? `<span style="background:#dcfce7; color:#15803d; font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:12px; border:1px solid #86efac;">✓ ${filled} Filled (Quota Met)</span>`
-                    : `<span style="background:#fef3c7; color:#b45309; font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:12px; border:1px solid #fde68a;">⚠️ ${left} left</span>`;
+                    ? `<span style="background:#dcfce7; color:#15803d; font-size:0.8rem; font-weight:700; padding:4px 10px; border-radius:12px; border:1px solid #86efac; display:inline-block; text-align:center;">✓ ${filled} Filled (Completed)</span>`
+                    : `<span style="background:#fef3c7; color:#b45309; font-size:0.8rem; font-weight:700; padding:4px 10px; border-radius:12px; border:1px solid #fde68a; display:inline-block; text-align:center;">⚠️ ${left} left</span>`;
 
                 html += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; gap:8px;">
                         <div>
-                            <div style="font-weight:600; color:#1e293b; font-size:0.88rem;">${req.name}</div>
-                            <div style="font-size:0.76rem; color:#64748b; margin-top:2px;">Minimum required: <strong>${req.min}</strong> &nbsp;|&nbsp; Submitted so far: <strong>${filled}</strong></div>
+                            <div style="font-weight:700; color:#1e293b; font-size:0.9rem;">${req.name}</div>
+                            <div style="font-size:0.77rem; color:#64748b; margin-top:2px;">Min required: <strong>${req.min}</strong> &nbsp;|&nbsp; Submitted so far: <strong>${filled}</strong></div>
                         </div>
-                        <div>
+                        <div style="white-space:nowrap;">
                             ${statusBadge}
                         </div>
                     </div>

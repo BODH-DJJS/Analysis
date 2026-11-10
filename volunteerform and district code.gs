@@ -53,30 +53,42 @@ function doGet(e) {
     // ==========================================
     if (e && e.parameter && e.parameter.action === 'checkBranchRoles') {
       const branchName = (e.parameter.branch || '').trim();
+      const callback = (e.parameter.callback || '').trim();
       const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
       const sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
       const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
       if (sheet && branchName) {
         const data = sheet.getDataRange().getValues();
         if (data.length > 1) {
-          const headers = data[0];
-          const branchCol = headers.indexOf('Branch Name');
-          const roleCol = headers.indexOf('Role in BODH Team');
+          const headers = data[0].map(h => String(h || '').trim().toLowerCase());
+          // Flexible column matching
+          let branchCol = headers.indexOf('branch name');
+          if (branchCol === -1) branchCol = headers.findIndex(h => h.includes('branch'));
+          let roleCol = headers.indexOf('role in bodh team');
+          if (roleCol === -1) roleCol = headers.findIndex(h => h.includes('role'));
+
           if (branchCol !== -1 && roleCol !== -1) {
             for (let i = 1; i < data.length; i++) {
               const rowBranch = String(data[i][branchCol] || '').trim();
               if (rowBranch.toLowerCase() === branchName.toLowerCase()) {
-                const rowRole = String(data[i][roleCol] || '').trim();
-                if (counts.hasOwnProperty(rowRole)) {
-                  counts[rowRole]++;
-                }
+                const rowRole = String(data[i][roleCol] || '').trim().toUpperCase();
+                if (rowRole.includes('BBBH')) counts.BBBH++;
+                else if (rowRole.includes('BBBM')) counts.BBBM++;
+                else if (rowRole.includes('BSBH')) counts.BSBH++;
+                else if (rowRole.includes('BSBM')) counts.BSBM++;
               }
             }
           }
         }
       }
+      const resultObj = { status: 'success', branch: branchName, counts: counts };
+      if (callback) {
+        return ContentService
+          .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
       return ContentService
-        .createTextOutput(JSON.stringify({ status: 'success', branch: branchName, counts: counts }))
+        .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);
     }
     // ==========================================
