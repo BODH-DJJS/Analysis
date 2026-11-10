@@ -31,20 +31,39 @@ function doGet(e) {
       const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
       const sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
       const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+      let debugInfo = { branchName: branchName, rowCount: 0, branchCol: -1, roleCol: -1, matchedRows: 0 };
       if (sheet && branchName) {
         const data = sheet.getDataRange().getValues();
-        if (data.length > 1) {
-          const headers = data[0].map(h => String(h || '').trim().toLowerCase());
-          // Flexible column matching
-          let branchCol = headers.indexOf('branch name');
-          if (branchCol === -1) branchCol = headers.findIndex(h => h.includes('branch'));
-          let roleCol = headers.indexOf('role in bodh team');
-          if (roleCol === -1) roleCol = headers.findIndex(h => h.includes('role'));
+        debugInfo.rowCount = data.length;
+        if (data.length > 0) {
+          // Detect header row (row 0 or row 1)
+          let headerRowIdx = 0;
+          let headers = data[0].map(h => String(h || '').trim().toLowerCase());
+          let branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
+          let roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
+
+          if ((branchCol === -1 || roleCol === -1) && data.length > 1) {
+            headers = data[1].map(h => String(h || '').trim().toLowerCase());
+            branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
+            roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
+            if (branchCol !== -1 && roleCol !== -1) {
+              headerRowIdx = 1;
+            }
+          }
+
+          debugInfo.headerRowIdx = headerRowIdx;
+          debugInfo.branchCol = branchCol;
+          debugInfo.roleCol = roleCol;
 
           if (branchCol !== -1 && roleCol !== -1) {
-            for (let i = 1; i < data.length; i++) {
+            const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            for (let i = headerRowIdx + 1; i < data.length; i++) {
               const rowBranch = String(data[i][branchCol] || '').trim();
-              if (rowBranch.toLowerCase() === branchName.toLowerCase()) {
+              const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
+              
+              // Flexible branch matching: exact, normalized, or substring
+              if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
+                debugInfo.matchedRows++;
                 const rowRole = String(data[i][roleCol] || '').trim().toUpperCase();
                 if (rowRole.includes('BBBH')) counts.BBBH++;
                 else if (rowRole.includes('BBBM')) counts.BBBM++;
@@ -55,7 +74,7 @@ function doGet(e) {
           }
         }
       }
-      const resultObj = { status: 'success', branch: branchName, counts: counts };
+      const resultObj = { status: 'success', branch: branchName, counts: counts, debug: debugInfo };
       if (callback) {
         return ContentService
           .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
