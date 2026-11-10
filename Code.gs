@@ -29,47 +29,79 @@ function doGet(e) {
       const branchName = (e.parameter.branch || '').trim();
       const callback = (e.parameter.callback || '').trim();
       const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-      const sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
       const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
       let debugInfo = { branchName: branchName, rowCount: 0, branchCol: -1, roleCol: -1, matchedRows: 0 };
+
+      // Look for the responses sheet tab
+      let sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+      if (!sheet) {
+        // Fallback: search all sheets for one containing 'POC' or 'Leader' or 'Volunteer'
+        const allSheets = ss.getSheets();
+        for (let s of allSheets) {
+          const sName = s.getName().toLowerCase();
+          if (sName.includes('poc') || sName.includes('leader') || sName.includes('volunteer')) {
+            sheet = s;
+            break;
+          }
+        }
+      }
+
       if (sheet && branchName) {
+        debugInfo.sheetName = sheet.getName();
         const data = sheet.getDataRange().getValues();
         debugInfo.rowCount = data.length;
         if (data.length > 0) {
-          // Detect header row (row 0 or row 1)
+          // Detect header row across first 5 rows
           let headerRowIdx = 0;
-          let headers = data[0].map(h => String(h || '').trim().toLowerCase());
-          let branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
-          let roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
+          let branchCol = -1;
+          let roleCol = -1;
 
-          if ((branchCol === -1 || roleCol === -1) && data.length > 1) {
-            headers = data[1].map(h => String(h || '').trim().toLowerCase());
-            branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
-            roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
-            if (branchCol !== -1 && roleCol !== -1) {
-              headerRowIdx = 1;
+          for (let r = 0; r < Math.min(5, data.length); r++) {
+            const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
+            const bIdx = rowHeaders.findIndex(h => h.includes('branch'));
+            const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+            if (bIdx !== -1 && rIdx !== -1) {
+              headerRowIdx = r;
+              branchCol = bIdx;
+              roleCol = rIdx;
+              break;
             }
           }
+
+          // If still not found, check default expected column positions (8 for branch, 12 for role)
+          if (branchCol === -1) branchCol = 8;
+          if (roleCol === -1) roleCol = 12;
 
           debugInfo.headerRowIdx = headerRowIdx;
           debugInfo.branchCol = branchCol;
           debugInfo.roleCol = roleCol;
 
-          if (branchCol !== -1 && roleCol !== -1) {
-            const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            for (let i = headerRowIdx + 1; i < data.length; i++) {
-              const rowBranch = String(data[i][branchCol] || '').trim();
-              const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
-              
-              // Flexible branch matching: exact, normalized, or substring
-              if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
-                debugInfo.matchedRows++;
-                const rowRole = String(data[i][roleCol] || '').trim().toUpperCase();
-                if (rowRole.includes('BBBH')) counts.BBBH++;
-                else if (rowRole.includes('BBBM')) counts.BBBM++;
-                else if (rowRole.includes('BSBH')) counts.BSBH++;
-                else if (rowRole.includes('BSBM')) counts.BSBM++;
+          const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          for (let i = headerRowIdx + 1; i < data.length; i++) {
+            const rowBranch = String(data[i][branchCol] || '').trim();
+            const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            // Check if branch matches
+            if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
+              debugInfo.matchedRows++;
+              // Search role in roleCol or entire row if not strictly in that column
+              const directRole = String(data[i][roleCol] || '').trim().toUpperCase();
+              let matchedRole = '';
+              if (directRole.includes('BBBH') || directRole.includes('BSBH') || directRole.includes('BBBM') || directRole.includes('BSBM')) {
+                matchedRole = directRole;
+              } else {
+                // Scan the entire row for any occurrence of BBBH, BSBM, etc.
+                const rowStr = data[i].join(' ').toUpperCase();
+                if (rowStr.includes('BBBH')) matchedRole = 'BBBH';
+                else if (rowStr.includes('BSBH')) matchedRole = 'BSBH';
+                else if (rowStr.includes('BBBM')) matchedRole = 'BBBM';
+                else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
               }
+
+              if (matchedRole.includes('BBBH')) counts.BBBH++;
+              else if (matchedRole.includes('BBBM')) counts.BBBM++;
+              else if (matchedRole.includes('BSBH')) counts.BSBH++;
+              else if (matchedRole.includes('BSBM')) counts.BSBM++;
             }
           }
         }
