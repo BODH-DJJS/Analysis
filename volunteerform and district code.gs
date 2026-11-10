@@ -48,6 +48,39 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    // ==========================================
+    // ACTION: Check branch roles count for POC Team Leaders
+    // ==========================================
+    if (e && e.parameter && e.parameter.action === 'checkBranchRoles') {
+      const branchName = (e.parameter.branch || '').trim();
+      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+      const sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+      const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+      if (sheet && branchName) {
+        const data = sheet.getDataRange().getValues();
+        if (data.length > 1) {
+          const headers = data[0];
+          const branchCol = headers.indexOf('Branch Name');
+          const roleCol = headers.indexOf('Role in BODH Team');
+          if (branchCol !== -1 && roleCol !== -1) {
+            for (let i = 1; i < data.length; i++) {
+              const rowBranch = String(data[i][branchCol] || '').trim();
+              if (rowBranch.toLowerCase() === branchName.toLowerCase()) {
+                const rowRole = String(data[i][roleCol] || '').trim();
+                if (counts.hasOwnProperty(rowRole)) {
+                  counts[rowRole]++;
+                }
+              }
+            }
+          }
+        }
+      }
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: 'success', branch: branchName, counts: counts }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    // ==========================================
+
     // Default GET: Return Analytics Data for Dashboard
     const data = getAnalyticsData();
     return ContentService

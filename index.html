@@ -872,7 +872,8 @@
         .reg-hdr h2 { font-size:1.4rem; color:#1e293b; margin-bottom:.3rem; }
         .reg-hdr p { color:#64748b; font-size:.88rem; }
         .reg-prog { display:flex; align-items:center; justify-content:center; margin-bottom:1.4rem; }
-        .rdot { width:32px; height:32px; border-radius:50%; background:#f1f5f9; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:600; color:#94a3b8; transition:all .3s; }
+        .rdot { width:32px; height:32px; border-radius:50%; background:#f1f5f9; border:2px solid #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:600; color:#94a3b8; transition:all .3s; cursor:pointer; }
+        .rdot:hover { border-color:#818cf8; transform:scale(1.08); }
         .rdot.active { background:#4f46e5; border-color:#818cf8; color:#fff; box-shadow:0 0 14px rgba(79,70,229,.3); }
         .rdot.done { background:#10b981; border-color:#10b981; color:#fff; }
         .rconn { width:45px; height:2px; background:#e2e8f0; transition:background .3s; }
@@ -1442,17 +1443,38 @@
                     <p>We are gathering details to finalize the Bodh POC Team Leaders. Please fill in your information below.</p>
                 </div>
                 <div class="reg-prog">
-                    <div class="rdot active" id="rD1">1</div><div class="rconn" id="rC1"></div>
-                    <div class="rdot" id="rD2">2</div><div class="rconn" id="rC2"></div>
-                    <div class="rdot" id="rD3">3</div><div class="rconn" id="rC3"></div>
-                    <div class="rdot" id="rD4">4</div>
+                    <div class="rdot active" id="rD1" onclick="rGoToSec(1)" title="Step 1: Branch, Role & Personal Details">1</div><div class="rconn" id="rC1"></div>
+                    <div class="rdot" id="rD2" onclick="rGoToSec(2)" title="Step 2: Qualification & Profession">2</div><div class="rconn" id="rC2"></div>
+                    <div class="rdot" id="rD3" onclick="rGoToSec(3)" title="Step 3: Experience & Commitment">3</div>
                 </div>
                 <div class="rcard">
                     <form id="regForm" novalidate>
                         <div class="rsec active" id="rS1">
-                            <div class="rsec-title">👤 Basic Details</div>
-                            <div class="rsec-sub">Enter your personal information</div>
+                            <div class="rsec-title">🏢 Branch, Role &amp; Personal Details</div>
+                            <div class="rsec-sub">Select your branch, role, and personal details</div>
                             <div class="rgrid">
+                                <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" id="regState" required onchange="populateRegBranches()"><option value="" disabled selected>Select State</option></select><div class="re">Please select your state</div></div>
+                                <div class="rfl"><label>Branch Name <span class="rq">*</span></label><select name="branchName" id="regBranch" required onchange="checkBranchRoleQuota(this.value)"><option value="" disabled selected>Select Branch</option></select><div class="re">Please select your branch</div></div>
+
+                                <!-- Real-time fetching progress bar -->
+                                <div id="branchFetchLoader" style="display:none; grid-column:1/-1; padding:10px 14px; background:#ecfdf5; border:1.5px solid #10b981; border-radius:10px; font-size:0.85rem; color:#065f46; box-shadow:0 2px 8px rgba(16,185,129,0.12);">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-weight:600;">
+                                        <span style="display:flex; align-items:center; gap:6px;">
+                                            <span style="display:inline-block; animation:rSpin 1s linear infinite;">⏳</span>
+                                            <span>Fetching submission details of your branch...</span>
+                                        </span>
+                                        <span id="branchFetchPercent" style="font-family:monospace; font-weight:700; color:#047857;">0%</span>
+                                    </div>
+                                    <div style="width:100%; height:8px; background:#d1fae5; border-radius:4px; overflow:hidden;">
+                                        <div id="branchFetchBar" style="width:0%; height:100%; background:linear-gradient(90deg, #10b981, #059669); border-radius:4px; transition:width 0.25s ease;"></div>
+                                    </div>
+                                </div>
+
+                                <div id="branchHeadWrapper" class="fw" style="display:contents;">
+                                    <div class="rfl" id="field_branchArName"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="text" name="branchArName" id="input_branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch Head name</div></div>
+                                    <div class="rfl" id="field_branchArNumber"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="tel" name="branchArNumber" id="input_branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+                                </div>
+
                                 <div class="rfl"><label>What is your Role <span class="rq">*</span></label>
                                     <select name="bodhRole" id="bodhRole" required onchange="handleRoleChange()">
                                         <option value="" disabled selected>Select Role</option>
@@ -1510,20 +1532,6 @@
                             <div class="rbtn-row"><span></span><button type="button" class="rb rb-next" onclick="rNext(1)">Continue →</button></div>
                         </div>
                         <div class="rsec" id="rS2">
-                            <div class="rsec-title">🏢 Branch Details</div>
-                            <div class="rsec-sub">Your branch and location information</div>
-                            <div class="rgrid">
-                                <div class="rfl"><label>State <span class="rq">*</span></label><select name="state" id="regState" required onchange="populateRegBranches()"><option value="" disabled selected>Select State</option></select><div class="re">Please select your state</div></div>
-                                <div class="rfl"><label>Branch Name <span class="rq">*</span></label><select name="branchName" id="regBranch" required><option value="" disabled selected>Select Branch</option></select><div class="re">Please select your branch</div></div>
-                                <div id="branchHeadWrapper" class="fw" style="display:contents;">
-                                    <div class="rfl" id="field_branchArName"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="text" name="branchArName" id="input_branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch Head name</div></div>
-                                    <div class="rfl" id="field_branchArNumber"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="tel" name="branchArNumber" id="input_branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
-                                </div>
-
-                            </div>
-                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(2)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(2)">Continue →</button></div>
-                        </div>
-                        <div class="rsec" id="rS3">
                             <div class="rsec-title">🎓 Qualification &amp; Profession</div>
                             <div class="rsec-sub">Your educational and professional background</div>
                             <div class="rgrid">
@@ -1598,9 +1606,9 @@
                                     <div class="re">Select at least one language</div>
                                 </div>
                             </div>
-                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(3)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(3)">Continue →</button></div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(2)">← Back</button><button type="button" class="rb rb-next" onclick="rNext(2)">Continue →</button></div>
                         </div>
-                        <div class="rsec" id="rS4">
+                        <div class="rsec" id="rS3">
                             <div class="rsec-title">⏱️ Experience &amp; Commitment</div>
                             <div class="rsec-sub">Your responsibilities and availability</div>
                             <div class="rgrid">
@@ -1621,11 +1629,29 @@
                                     <div class="re">Select frequency</div>
                                 </div>
                             </div>
-                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(4)">← Back</button><button type="submit" class="rb rb-submit">✓ Submit Application</button></div>
+                            <div class="rbtn-row"><button type="button" class="rb rb-back" onclick="rPrev(3)">← Back</button><button type="submit" class="rb rb-submit">✓ Submit Application</button></div>
                         </div>
                     </form>
                 </div>
             </div>
+            <!-- Branch Quota Status Modal -->
+            <div class="rov" id="branchQuotaModal">
+                <div class="rsc" style="max-width:440px; text-align:left; position:relative;">
+                    <button type="button" onclick="closeBranchQuotaModal()" style="position:absolute; top:14px; right:16px; background:transparent; border:none; font-size:1.4rem; color:#94a3b8; cursor:pointer; line-height:1;">✕</button>
+                    <h3 style="font-size:1.15rem; color:#1e293b; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem;">
+                        🏢 <span id="quotaBranchTitle">Branch</span> Role Status
+                    </h3>
+                    <p style="font-size:0.83rem; color:#64748b; margin-bottom:1rem;">Current submissions vs required quota for your branch:</p>
+                    <div id="quotaRoleList" style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.1rem;">
+                        <!-- Filled dynamically -->
+                    </div>
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:0.65rem 0.85rem; font-size:0.8rem; color:#166534; margin-bottom:1.2rem; line-height:1.45;">
+                        📌 <em>This is the minimum requirement. You can submit more entries as well.</em>
+                    </div>
+                    <button type="button" class="rb rb-next" onclick="closeBranchQuotaModal()" style="width:100%; justify-content:center; padding:0.75rem 1rem;">Got It / Continue Filling</button>
+                </div>
+            </div>
+
             <!-- Status Overlays -->
             <div class="rov" id="regLoading"><div class="rsc"><div class="rspinner"></div><h3>Submitting your application...</h3><p>Please wait while we save your details.</p></div></div>
             <div class="rov" id="regSuccess"><div class="rsc"><div class="ri">🎉</div><h3 style="color:#10b981">Application Submitted!</h3><p>Thank you for registering. Your details have been saved successfully.</p><button class="rb rb-next" onclick="regReset()" style="margin-top:1rem">Submit Another Response</button></div></div>
@@ -3205,7 +3231,7 @@
         // ============================================================
         const REG_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytrnrDsnh6MZp2qEaDmdTOVhlkaM9hDGu4g3Qz-oDp2MHicyCzT3P5ZZRxNGJbUtRc/exec';
         let rCur = 1;
-        const rTotal = 4;
+        const rTotal = 3;
 
                     const REG_BRANCHES = {
         "Assam (IN)": ["Dibrugarh"],
@@ -3254,6 +3280,7 @@
             for (let i = 1; i <= rTotal; i++) {
                 const dot = document.getElementById('rD' + i);
                 const conn = document.getElementById('rC' + i);
+                if (!dot) continue;
                 dot.classList.remove('active', 'done');
                 if (conn) conn.classList.remove('active');
                 if (i < rCur) { dot.classList.add('done'); dot.textContent = '✓'; if (conn) conn.classList.add('active'); }
@@ -3264,27 +3291,29 @@
 
         function rShowSec(n) {
             document.querySelectorAll('.rsec').forEach(s => s.classList.remove('active'));
-            document.getElementById('rS' + n).classList.add('active');
+            const targetSec = document.getElementById('rS' + n);
+            if (targetSec) targetSec.classList.add('active');
             rCur = n;
             rUpdateProg();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Direct clickable navigation between sections
+        function rGoToSec(targetSec) {
+            if (targetSec === rCur) return;
+            if (targetSec > rCur) {
+                for (let i = rCur; i < targetSec; i++) {
+                    if (!rValidate(i)) return;
+                }
+            }
+            rShowSec(targetSec);
         }
 
         function rValidate(n) {
             const sec = document.getElementById('rS' + n);
+            if (!sec) return true;
             const inputs = sec.querySelectorAll('input[required], textarea[required], select[required]');
             let ok = true;
-            
-            // Custom check for languages
-            if (n === 3) {
-                const langGroup = document.getElementById('languagesGroup');
-                const checkedLangs = langGroup.querySelectorAll('input[type="checkbox"]:checked');
-                const langReq = document.getElementById('languagesReq');
-                if (checkedLangs.length === 0) {
-                    langReq.value = '';
-                } else {
-                    langReq.value = 'selected';
-                }
-            }
 
             // Custom check for branchSewa radio group in section 1
             if (n === 1) {
@@ -3295,6 +3324,20 @@
                     ok = false;
                 } else {
                     if (radioField) radioField.classList.remove('has-error');
+                }
+            }
+            
+            // Custom check for languages in section 2
+            if (n === 2) {
+                const langGroup = document.getElementById('languagesGroup');
+                const checkedLangs = langGroup ? langGroup.querySelectorAll('input[type="checkbox"]:checked') : [];
+                const langReq = document.getElementById('languagesReq');
+                if (langReq) {
+                    if (checkedLangs.length === 0) {
+                        langReq.value = '';
+                    } else {
+                        langReq.value = 'selected';
+                    }
                 }
             }
 
@@ -3323,6 +3366,110 @@
                 if (g) g.classList.remove('has-error');
             });
         });
+
+        // ============================================================
+        // Branch Role Quota Real-Time Check Logic
+        // ============================================================
+        let branchProgressInterval = null;
+
+        async function checkBranchRoleQuota(branchName) {
+            if (!branchName) return;
+
+            const loader = document.getElementById('branchFetchLoader');
+            const bar = document.getElementById('branchFetchBar');
+            const percent = document.getElementById('branchFetchPercent');
+
+            if (branchProgressInterval) clearInterval(branchProgressInterval);
+
+            // Show loader and animate progress over 6-8 seconds
+            if (loader) loader.style.display = 'block';
+            let curProgress = 5;
+            if (bar) bar.style.width = curProgress + '%';
+            if (percent) percent.textContent = curProgress + '%';
+
+            branchProgressInterval = setInterval(() => {
+                if (curProgress < 90) {
+                    const step = Math.max(1, Math.floor((90 - curProgress) * 0.12));
+                    curProgress = Math.min(90, curProgress + step);
+                    if (bar) bar.style.width = curProgress + '%';
+                    if (percent) percent.textContent = curProgress + '%';
+                }
+            }, 300);
+
+            try {
+                const checkUrl = `${REG_SCRIPT_URL}?action=checkBranchRoles&branch=${encodeURIComponent(branchName)}`;
+                const response = await fetch(checkUrl);
+                const data = await response.json();
+
+                clearInterval(branchProgressInterval);
+                if (bar) bar.style.width = '100%';
+                if (percent) percent.textContent = '100%';
+
+                setTimeout(() => {
+                    if (loader) loader.style.display = 'none';
+                    if (data && data.status === 'success' && data.counts) {
+                        displayBranchQuotaModal(branchName, data.counts);
+                    }
+                }, 400);
+
+            } catch (err) {
+                console.error("Error fetching branch role quota:", err);
+                clearInterval(branchProgressInterval);
+                if (bar) bar.style.width = '100%';
+                if (percent) percent.textContent = '100%';
+                setTimeout(() => {
+                    if (loader) loader.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        function displayBranchQuotaModal(branchName, counts) {
+            const modal = document.getElementById('branchQuotaModal');
+            const title = document.getElementById('quotaBranchTitle');
+            const list = document.getElementById('quotaRoleList');
+            if (!modal || !list) return;
+
+            if (title) title.textContent = branchName;
+
+            // Requirements: BBBH: 1, BBBM: 3, BSBH: 1, BSBM: 3
+            const requirements = [
+                { code: 'BBBH', name: 'Branch Head (Brothers) - BBBH', min: 1 },
+                { code: 'BBBM', name: 'Branch Member (Brothers) - BBBM', min: 3 },
+                { code: 'BSBH', name: 'Branch Head (Sisters) - BSBH', min: 1 },
+                { code: 'BSBM', name: 'Branch Member (Sisters) - BSBM', min: 3 }
+            ];
+
+            let html = '';
+            requirements.forEach(req => {
+                const filled = counts[req.code] || 0;
+                const left = Math.max(0, req.min - filled);
+                const isFulfilled = (filled >= req.min);
+
+                const statusBadge = isFulfilled
+                    ? `<span style="background:#dcfce7; color:#15803d; font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:12px; border:1px solid #86efac;">✓ ${filled} Filled (Quota Met)</span>`
+                    : `<span style="background:#fef3c7; color:#b45309; font-size:0.75rem; font-weight:700; padding:3px 9px; border-radius:12px; border:1px solid #fde68a;">⚠️ ${left} left</span>`;
+
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+                        <div>
+                            <div style="font-weight:600; color:#1e293b; font-size:0.88rem;">${req.name}</div>
+                            <div style="font-size:0.76rem; color:#64748b; margin-top:2px;">Minimum required: <strong>${req.min}</strong> &nbsp;|&nbsp; Submitted so far: <strong>${filled}</strong></div>
+                        </div>
+                        <div>
+                            ${statusBadge}
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+            modal.classList.add('show');
+        }
+
+        function closeBranchQuotaModal() {
+            const modal = document.getElementById('branchQuotaModal');
+            if (modal) modal.classList.remove('show');
+        }
 
         document.getElementById('regForm').addEventListener('submit', async (e) => {
             e.preventDefault();
