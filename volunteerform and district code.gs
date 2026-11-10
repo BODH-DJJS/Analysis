@@ -68,34 +68,55 @@ function doGet(e) {
           let branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
           let roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
 
-          if ((branchCol === -1 || roleCol === -1) && data.length > 1) {
-            headers = data[1].map(h => String(h || '').trim().toLowerCase());
-            branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
-            roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
-            if (branchCol !== -1 && roleCol !== -1) {
-              headerRowIdx = 1;
+          for (let r = 0; r < Math.min(5, data.length); r++) {
+            const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
+            // Specifically look for 'branch name' first so it NEVER confuses with 'branch ar name'
+            let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
+            if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
+            const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+            if (bIdx !== -1 && rIdx !== -1) {
+              headerRowIdx = r;
+              branchCol = bIdx;
+              roleCol = rIdx;
+              break;
             }
           }
+
+          // If still not found, check exact expected column positions from your sheet:
+          // Col 8: 'Branch Name', Col 12: 'Role in BODH Team'
+          if (branchCol === -1) branchCol = 8;
+          if (roleCol === -1) roleCol = 12;
 
           debugInfo.headerRowIdx = headerRowIdx;
           debugInfo.branchCol = branchCol;
           debugInfo.roleCol = roleCol;
 
-          if (branchCol !== -1 && roleCol !== -1) {
-            const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
-            for (let i = headerRowIdx + 1; i < data.length; i++) {
-              const rowBranch = String(data[i][branchCol] || '').trim();
-              const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
-              
-              // Flexible branch matching: exact, normalized, or substring
-              if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
-                debugInfo.matchedRows++;
-                const rowRole = String(data[i][roleCol] || '').trim().toUpperCase();
-                if (rowRole.includes('BBBH')) counts.BBBH++;
-                else if (rowRole.includes('BBBM')) counts.BBBM++;
-                else if (rowRole.includes('BSBH')) counts.BSBH++;
-                else if (rowRole.includes('BSBM')) counts.BSBM++;
+          const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          for (let i = headerRowIdx + 1; i < data.length; i++) {
+            const rowBranch = String(data[i][branchCol] || '').trim();
+            const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            // Check if branch matches
+            if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
+              debugInfo.matchedRows++;
+              // Search role in roleCol or entire row if not strictly in that column
+              const directRole = String(data[i][roleCol] || '').trim().toUpperCase();
+              let matchedRole = '';
+              if (directRole.includes('BBBH') || directRole.includes('BSBH') || directRole.includes('BBBM') || directRole.includes('BSBM')) {
+                matchedRole = directRole;
+              } else {
+                // Scan the entire row for any occurrence of BBBH, BSBM, etc.
+                const rowStr = data[i].join(' ').toUpperCase();
+                if (rowStr.includes('BBBH')) matchedRole = 'BBBH';
+                else if (rowStr.includes('BSBH')) matchedRole = 'BSBH';
+                else if (rowStr.includes('BBBM')) matchedRole = 'BBBM';
+                else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
               }
+
+              if (matchedRole.includes('BBBH')) counts.BBBH++;
+              else if (matchedRole.includes('BBBM')) counts.BBBM++;
+              else if (matchedRole.includes('BSBH')) counts.BSBH++;
+              else if (matchedRole.includes('BSBM')) counts.BSBM++;
             }
           }
         }

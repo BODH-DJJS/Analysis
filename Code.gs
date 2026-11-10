@@ -58,7 +58,9 @@ function doGet(e) {
 
           for (let r = 0; r < Math.min(5, data.length); r++) {
             const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
-            const bIdx = rowHeaders.findIndex(h => h.includes('branch'));
+            // Specifically look for 'branch name' first so it NEVER confuses with 'branch ar name'
+            let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
+            if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
             const rIdx = rowHeaders.findIndex(h => h.includes('role'));
             if (bIdx !== -1 && rIdx !== -1) {
               headerRowIdx = r;
@@ -68,7 +70,8 @@ function doGet(e) {
             }
           }
 
-          // If still not found, check default expected column positions (8 for branch, 12 for role)
+          // If still not found, check exact expected column positions from your sheet:
+          // Col 8: 'Branch Name', Col 12: 'Role in BODH Team'
           if (branchCol === -1) branchCol = 8;
           if (roleCol === -1) roleCol = 12;
 
