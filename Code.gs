@@ -157,6 +157,15 @@ function doPost(e) {
       throw new Error('No form data received');
     }
 
+    // Support checkBranchRoles via POST (bypasses browser CORS & redirect issues completely)
+    if (formData && formData.action === 'checkBranchRoles') {
+      const branchName = (formData.branch || '').trim();
+      const resultObj = getBranchRolesCount(branchName);
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     console.log('Received form data:', JSON.stringify(formData));
 
     // Open the spreadsheet

@@ -3430,12 +3430,44 @@
                 const checkUrl = `${REG_SCRIPT_URL}?action=checkBranchRoles&branch=${encodeURIComponent(branchName)}`;
                 let data = null;
 
+                // 1. Try GET fetch
                 try {
                     const response = await fetch(checkUrl);
-                    data = await response.json();
+                    const resJson = await response.json();
+                    if (resJson && resJson.counts) {
+                        data = resJson;
+                    }
                 } catch(fetchErr) {
-                    console.warn("Fetch failed, attempting JSONP fallback...", fetchErr);
-                    data = await fetchViaJSONP(checkUrl);
+                    console.warn("GET fetch failed, trying JSONP...", fetchErr);
+                }
+
+                // 2. Try JSONP if GET failed or returned unexpected data
+                if (!data || !data.counts) {
+                    try {
+                        const jsonpRes = await fetchViaJSONP(checkUrl);
+                        if (jsonpRes && jsonpRes.counts) {
+                            data = jsonpRes;
+                        }
+                    } catch(jsonpErr) {
+                        console.warn("JSONP failed, trying POST...", jsonpErr);
+                    }
+                }
+
+                // 3. Try POST as robust backup
+                if (!data || !data.counts) {
+                    try {
+                        const postRes = await fetch(REG_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: JSON.stringify({ action: 'checkBranchRoles', branch: branchName })
+                        });
+                        const postJson = await postRes.json();
+                        if (postJson && postJson.counts) {
+                            data = postJson;
+                        }
+                    } catch(postErr) {
+                        console.warn("POST attempt failed:", postErr);
+                    }
                 }
 
                 clearInterval(branchProgressInterval);
