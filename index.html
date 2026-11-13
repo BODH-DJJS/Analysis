@@ -1733,17 +1733,21 @@
                                 </div>
                                 <div class="rfl fw" id="field_branchSewa"><label>Select Branch Level Sewa / Responsibility <span class="rq">*</span></label>
                                     <div class="chk-list" id="branchSewaGroup" style="border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0.9rem 1rem; background: #f8fafc; display: flex; flex-direction: column; gap: 0.75rem; text-align: left;">
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
-                                            <input type="radio" name="branchSewa" value="Category 1 PR, Speaking & Counselling" style="width:auto; margin:0; cursor:pointer;" required />
+                                        <label id="lbl_branchSewa_cat1" style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
+                                            <input type="radio" name="branchSewa" id="radio_branchSewa_cat1" value="Category 1 PR, Speaking & Counselling" style="width:auto; margin:0; cursor:pointer;" required />
                                             <span>Category 1 PR, Speaking & Counselling</span>
                                         </label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
-                                            <input type="radio" name="branchSewa" value="Category 2  Reporting, Media & Other Activities" style="width:auto; margin:0; cursor:pointer;" required />
+                                        <label id="lbl_branchSewa_cat2" style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
+                                            <input type="radio" name="branchSewa" id="radio_branchSewa_cat2" value="Category 2  Reporting, Media & Other Activities" style="width:auto; margin:0; cursor:pointer;" required />
                                             <span>Category 2  Reporting, Media & Other Activities</span>
                                         </label>
-                                        <label style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
-                                            <input type="radio" name="branchSewa" value="Category 3 Photography, Videography & Photo/Video Editing" style="width:auto; margin:0; cursor:pointer;" required />
+                                        <label id="lbl_branchSewa_cat3" style="display:flex; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:normal; margin:0; cursor:pointer;">
+                                            <input type="radio" name="branchSewa" id="radio_branchSewa_cat3" value="Category 3 Photography, Videography & Photo/Video Editing" style="width:auto; margin:0; cursor:pointer;" required />
                                             <span>Category 3 Photography, Videography & Photo/Video Editing</span>
+                                        </label>
+                                        <label id="lbl_branchSewa_head" style="display:none; justify-content:flex-start; align-items:center; gap:0.6rem; text-transform:none; font-size:0.88rem; font-weight:700; margin:0; cursor:not-allowed; background:#e0e7ff; color:#3730a3; padding:8px 12px; border-radius:6px; border:1px solid #c7d2fe;">
+                                            <input type="radio" name="branchSewa" id="radio_branchSewa_head" value="Team Coordination" style="width:auto; margin:0; cursor:not-allowed;" />
+                                            <span>Team Coordination (Default for Branch Heads)</span>
                                         </label>
                                     </div>
                                     <div class="re" id="branchSewaError">Please select one category</div>
@@ -3829,6 +3833,17 @@
             const nameInput = document.getElementById('input_branchArName');
             const numInput = document.getElementById('input_branchArNumber');
             
+            // Branch level Sewa options
+            const lblCat1 = document.getElementById('lbl_branchSewa_cat1');
+            const lblCat2 = document.getElementById('lbl_branchSewa_cat2');
+            const lblCat3 = document.getElementById('lbl_branchSewa_cat3');
+            const lblHead = document.getElementById('lbl_branchSewa_head');
+
+            const radioCat1 = document.getElementById('radio_branchSewa_cat1');
+            const radioCat2 = document.getElementById('radio_branchSewa_cat2');
+            const radioCat3 = document.getElementById('radio_branchSewa_cat3');
+            const radioHead = document.getElementById('radio_branchSewa_head');
+
             // If role is Branch Head (BBBH or BSBH), hide the Branch Head contact fields and make them optional
             if (role === 'BBBH' || role === 'BSBH') {
                 if (wrapper) wrapper.style.display = 'none';
@@ -3844,11 +3859,43 @@
                     const g = numInput.closest('.rfl');
                     if (g) g.classList.remove('has-error');
                 }
+
+                // Fix 4th option as "Team Coordination" for BBBH / BSBH (cannot be changed)
+                if (lblCat1) lblCat1.style.display = 'none';
+                if (lblCat2) lblCat2.style.display = 'none';
+                if (lblCat3) lblCat3.style.display = 'none';
+                if (lblHead) lblHead.style.display = 'flex';
+
+                if (radioCat1) { radioCat1.checked = false; radioCat1.removeAttribute('required'); }
+                if (radioCat2) { radioCat2.checked = false; radioCat2.removeAttribute('required'); }
+                if (radioCat3) { radioCat3.checked = false; radioCat3.removeAttribute('required'); }
+
+                if (radioHead) {
+                    radioHead.checked = true;
+                    radioHead.setAttribute('required', 'required');
+                }
             } else {
                 if (wrapper) wrapper.style.display = 'contents';
                 if (nameInput) nameInput.setAttribute('required', 'required');
                 if (numInput) numInput.setAttribute('required', 'required');
+
+                // Restore 3 normal categories for BBBM / BSBM and other roles
+                if (lblCat1) lblCat1.style.display = 'flex';
+                if (lblCat2) lblCat2.style.display = 'flex';
+                if (lblCat3) lblCat3.style.display = 'flex';
+                if (lblHead) lblHead.style.display = 'none';
+
+                if (radioHead) {
+                    radioHead.checked = false;
+                    radioHead.removeAttribute('required');
+                }
+                if (radioCat1) radioCat1.setAttribute('required', 'required');
+                if (radioCat2) radioCat2.setAttribute('required', 'required');
+                if (radioCat3) radioCat3.setAttribute('required', 'required');
             }
+
+            const fieldBranchSewa = document.getElementById('field_branchSewa');
+            if (fieldBranchSewa) fieldBranchSewa.classList.remove('has-error');
         }
 
         function regReset() {
