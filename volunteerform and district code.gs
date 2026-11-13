@@ -22,7 +22,8 @@ function testCheckBranchRoles() {
  */
 function getAllBranchTrackerData() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const branchMap = {}; // normalizedKey -> { branchName, state, districtCount, BBBH, BBBM, BSBH, BSBM }
+  const branchMap = {}; // normalizedKey -> { branchName, state, districtCount, BBBH, BBBM, BSBH, BSBM, districts: [] }
+  const districtSubmissions = []; // [ { branch: '...', states: '...', breakdown: '...', totalDistricts: 0 } ]
 
   // 1. Process District Information Sheet
   try {
@@ -30,19 +31,40 @@ function getAllBranchTrackerData() {
     if (distSheet) {
       const dData = distSheet.getDataRange().getValues();
       if (dData.length > 1) {
-        // find branch column
+        // find columns
         const dHeaders = dData[0].map(h => String(h || '').trim().toLowerCase());
         let bCol = dHeaders.findIndex(h => h.includes('branch'));
+        let breakdownCol = dHeaders.findIndex(h => h.includes('breakdown') || h.includes('district'));
+        let statesCol = dHeaders.findIndex(h => h.includes('states covered'));
+        let totalDistsCol = dHeaders.findIndex(h => h.includes('total districts'));
+
         if (bCol === -1) bCol = 2; // Default Col C
+        if (breakdownCol === -1) breakdownCol = 5; // Default Col F
+        if (statesCol === -1) statesCol = 3; // Default Col D
+        if (totalDistsCol === -1) totalDistsCol = 6; // Default Col G
 
         for (let i = 1; i < dData.length; i++) {
           const bName = String(dData[i][bCol] || '').trim();
           if (!bName) continue;
           const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
           if (!branchMap[key]) {
-            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0, districts: [] };
           }
           branchMap[key].districtCount++;
+
+          const breakdownStr = String(dData[i][breakdownCol] || '').trim();
+          const statesStr = String(dData[i][statesCol] || '').trim();
+          const totalD = parseInt(dData[i][totalDistsCol]) || 0;
+
+          if (breakdownStr) {
+            branchMap[key].breakdown = breakdownStr;
+            districtSubmissions.push({
+              branch: bName,
+              states: statesStr,
+              breakdown: breakdownStr,
+              totalDistricts: totalD
+            });
+          }
         }
       }
     }
@@ -118,7 +140,7 @@ function getAllBranchTrackerData() {
     console.error('Error reading POC Team Leaders:', e);
   }
 
-  return { status: 'success', trackerData: branchMap };
+  return { status: 'success', trackerData: branchMap, districtSubmissions: districtSubmissions };
 }
 
 function getBranchRolesCount(branchName) {

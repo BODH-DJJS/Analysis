@@ -15,6 +15,7 @@
   gtag('config', 'G-CRHR1L6540');
 </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1452,26 +1453,114 @@
                         <button type="button" onclick="copyStateSummary()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:#10b981; border:none; border-radius:8px; color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer; box-shadow:0 3px 10px rgba(16,185,129,0.25); transition:all 0.2s ease;">
                             📋 Copy Summary
                         </button>
+                        <button type="button" onclick="downloadDistrictExcel()" style="display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:linear-gradient(135deg, #0d9488, #0284c7); border:none; border-radius:8px; color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer; box-shadow:0 3px 10px rgba(13,148,136,0.3); transition:all 0.2s ease;" title="Download complete Districts & Branch mapping to Excel">
+                            📥 Download Excel
+                        </button>
                     </div>
                 </div>
 
-                <!-- Stats Summary Cards -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
-                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                        <div style="font-size:0.8rem; font-weight:600; color:#64748b; text-transform:uppercase;">Total India Branches</div>
-                        <div style="font-size:1.8rem; font-weight:800; color:#1e293b; margin-top:4px;" id="statTotalBranches">104</div>
+                <!-- Stats Summary Cards (Row 1: Branches & POC Roles) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.04); text-align:center;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Unique States</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-top:2px;" id="statUniqueStates">19</div>
                     </div>
-                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                        <div style="font-size:0.8rem; font-weight:600; color:#15803d; text-transform:uppercase;">POC Fully Completed</div>
-                        <div style="font-size:1.8rem; font-weight:800; color:#15803d; margin-top:4px;" id="statPocComplete">0</div>
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px; box-shadow:0 2px 8px rgba(0,0,0,0.04); text-align:center;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Unique Branches</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-top:2px;" id="statTotalBranches">104</div>
                     </div>
-                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                        <div style="font-size:0.8rem; font-weight:600; color:#b45309; text-transform:uppercase;">POC In Progress / Pending</div>
-                        <div style="font-size:1.8rem; font-weight:800; color:#b45309; margin-top:4px;" id="statPocPending">0</div>
+                    <div style="background:#fff; border:1.5px solid #dcfce7; background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius:12px; padding:14px; box-shadow:0 2px 8px rgba(22,101,52,0.06); text-align:center;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#15803d; text-transform:uppercase;">POC Complete</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:#15803d; margin-top:2px;" id="statPocComplete">0</div>
                     </div>
-                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-                        <div style="font-size:0.8rem; font-weight:600; color:#0f766e; text-transform:uppercase;">District Info Completed</div>
-                        <div style="font-size:1.8rem; font-weight:800; color:#0f766e; margin-top:4px;" id="statDistrictFilled">0</div>
+                    <div style="background:#fff; border:1.5px solid #fef3c7; background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-radius:12px; padding:14px; box-shadow:0 2px 8px rgba(180,83,9,0.06); text-align:center;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#b45309; text-transform:uppercase;">POC Pending</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:#b45309; margin-top:2px;" id="statPocPending">0</div>
+                    </div>
+                    <div style="background:#fff; border:1.5px solid #ccfbf1; background:linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%); border-radius:12px; padding:14px; box-shadow:0 2px 8px rgba(15,118,110,0.06); text-align:center;">
+                        <div style="font-size:0.75rem; font-weight:700; color:#0f766e; text-transform:uppercase;">District Info Done</div>
+                        <div style="font-size:1.6rem; font-weight:800; color:#0f766e; margin-top:2px;" id="statDistrictFilled">0</div>
+                    </div>
+                </div>
+
+                <!-- POC Role Breakdown Counts Card -->
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.03); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.1rem;">👥</span>
+                        <span style="font-size:0.85rem; font-weight:800; color:#334155; text-transform:uppercase; letter-spacing:0.5px;">POC Team Total Leaders Count:</span>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                        <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 14px; display:inline-flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.78rem; font-weight:700; color:#475569;">BBBH (Head):</span>
+                            <span style="font-size:1.05rem; font-weight:800; color:#0f172a;" id="statTotalBBBH">0</span>
+                        </div>
+                        <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 14px; display:inline-flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.78rem; font-weight:700; color:#475569;">BBBM (Member):</span>
+                            <span style="font-size:1.05rem; font-weight:800; color:#0f172a;" id="statTotalBBBM">0</span>
+                        </div>
+                        <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 14px; display:inline-flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.78rem; font-weight:700; color:#475569;">BSBH (Head):</span>
+                            <span style="font-size:1.05rem; font-weight:800; color:#0f172a;" id="statTotalBSBH">0</span>
+                        </div>
+                        <div style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 14px; display:inline-flex; align-items:center; gap:8px;">
+                            <span style="font-size:0.78rem; font-weight:700; color:#475569;">BSBM (Member):</span>
+                            <span style="font-size:1.05rem; font-weight:800; color:#0f172a;" id="statTotalBSBM">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- District Analytics Panel (Total, Unique, Shared Districts) -->
+                <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:14px; padding:16px; margin-bottom: 20px; box-shadow:0 3px 12px rgba(0,0,0,0.04);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.25rem;">📍</span>
+                            <h3 style="font-size:0.98rem; font-weight:800; color:#0f172a; margin:0;">District Coverage Analytics & Shared Mapping</h3>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" onclick="copySharedDistricts()" style="padding:6px 12px; background:#fff; border:1.5px solid #cbd5e1; border-radius:6px; font-size:0.78rem; font-weight:700; color:#334155; cursor:pointer;" title="Copy all shared district names to clipboard">
+                                📋 Copy Shared Districts
+                            </button>
+                            <button type="button" onclick="copyUniqueDistricts()" style="padding:6px 12px; background:#fff; border:1.5px solid #cbd5e1; border-radius:6px; font-size:0.78rem; font-weight:700; color:#334155; cursor:pointer;" title="Copy all covered unique district names to clipboard">
+                                📋 Copy Unique Districts
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Row of 4 District Metric Cards -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; text-align:center;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Total District Entries</div>
+                            <div style="font-size:1.5rem; font-weight:800; color:#0f172a; margin-top:2px;" id="statDistTotalCount">0</div>
+                            <small style="font-size:0.7rem; color:#94a3b8;">Sum of all branch selections</small>
+                        </div>
+                        <div style="background:#fff; border:1.5px solid #bfdbfe; background:linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius:10px; padding:12px 14px; text-align:center;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#1d4ed8; text-transform:uppercase;">Unique Districts Covered</div>
+                            <div style="font-size:1.5rem; font-weight:800; color:#1d4ed8; margin-top:2px;" id="statDistUniqueCount">0</div>
+                            <small style="font-size:0.7rem; color:#3b82f6;">Distinct districts reached</small>
+                        </div>
+                        <div style="background:#fff; border:1.5px solid #fed7aa; background:linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border-radius:10px; padding:12px 14px; text-align:center;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#c2410c; text-transform:uppercase;">Shared Districts (&gt;1 Branch)</div>
+                            <div style="font-size:1.5rem; font-weight:800; color:#c2410c; margin-top:2px;" id="statDistSharedCount">0</div>
+                            <small style="font-size:0.7rem; color:#ea580c;">Covered by 2+ branches</small>
+                        </div>
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; text-align:center;">
+                            <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">National Master Districts</div>
+                            <div style="font-size:1.5rem; font-weight:800; color:#475569; margin-top:2px;" id="statDistMasterTotal">780</div>
+                            <small style="font-size:0.7rem; color:#94a3b8;">Across all States in India</small>
+                        </div>
+                    </div>
+
+                    <!-- Shared Districts Collapsible / Badge Explorer -->
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:0.82rem; font-weight:800; color:#334155; text-transform:uppercase;">
+                                🔗 Shared Districts List (<span id="sharedDistBadgeCount">0</span>):
+                            </span>
+                            <span style="font-size:0.75rem; color:#64748b;">(Click any district pill to view branches)</span>
+                        </div>
+                        <div id="sharedDistrictsContainer" style="display:flex; flex-wrap:wrap; gap:8px; max-height:160px; overflow-y:auto; padding:4px;">
+                            <span style="font-size:0.82rem; color:#94a3b8; font-style:italic;">No district coverage data loaded yet. Click 🔄 Refresh to fetch from sheet.</span>
+                        </div>
                     </div>
                 </div>
 
@@ -4160,6 +4249,9 @@
         // Live Branch Status Tracker Logic (India Only)
         // ============================================================
         let trackerDataCache = null;
+        let trackerDistrictSubmissions = [];
+        let trackerSharedDistrictsMap = {};
+        let trackerUniqueDistrictsSet = new Set();
         let trackerInitialized = false;
         let trackerSortCol = 'state';
         let trackerSortAsc = true;
@@ -4250,6 +4342,9 @@
                 } else {
                     trackerDataCache = {};
                 }
+                if (json && Array.isArray(json.districtSubmissions)) {
+                    trackerDistrictSubmissions = json.districtSubmissions;
+                }
             } catch (err) {
                 console.warn('POST failed for tracker, attempting fallback...', err);
                 try {
@@ -4257,6 +4352,9 @@
                     const getJson = await getRes.json();
                     if (getJson && getJson.trackerData) {
                         trackerDataCache = getJson.trackerData;
+                    }
+                    if (getJson && Array.isArray(getJson.districtSubmissions)) {
+                        trackerDistrictSubmissions = getJson.districtSubmissions;
                     }
                 } catch(e) {
                     console.error('Tracker data fetch error:', e);
@@ -4327,10 +4425,34 @@
             const compEl = document.getElementById('statPocComplete');
             const pendEl = document.getElementById('statPocPending');
             const distEl = document.getElementById('statDistrictFilled');
+            const statesEl = document.getElementById('statUniqueStates');
+
+            const uniqueStatesSet = new Set(allIndia.map(i => i.state));
+            if (statesEl) statesEl.textContent = uniqueStatesSet.size;
             if (totalEl) totalEl.textContent = allIndia.length;
             if (compEl) compEl.textContent = totalPocComplete;
             if (pendEl) pendEl.textContent = totalPocPending;
             if (distEl) distEl.textContent = totalDistrictFilled;
+
+            // Compute total role counts across all branches
+            let sumBBBH = 0, sumBBBM = 0, sumBSBH = 0, sumBSBM = 0;
+            processedRows.forEach(r => {
+                sumBBBH += r.bbbh;
+                sumBBBM += r.bbbm;
+                sumBSBH += r.bsbh;
+                sumBSBM += r.bsbm;
+            });
+            const bbbhEl = document.getElementById('statTotalBBBH');
+            const bbbmEl = document.getElementById('statTotalBBBM');
+            const bsbhEl = document.getElementById('statTotalBSBH');
+            const bsbmEl = document.getElementById('statTotalBSBM');
+            if (bbbhEl) bbbhEl.textContent = sumBBBH;
+            if (bbbmEl) bbbmEl.textContent = sumBBBM;
+            if (bsbhEl) bsbhEl.textContent = sumBSBH;
+            if (bsbmEl) bsbmEl.textContent = sumBSBM;
+
+            // Update District Analytics & Shared Districts
+            updateTrackerDistrictAnalytics();
 
             // Filter rows
             let filtered = processedRows.filter(r => {
@@ -4475,6 +4597,252 @@
             } else {
                 alert('Please allow clipboard access to copy.');
             }
+        }
+
+        /**
+         * Update District Analytics: Total, Unique, Shared Districts
+         */
+        function updateTrackerDistrictAnalytics() {
+            const cache = trackerDataCache || {};
+            const submissions = trackerDistrictSubmissions || [];
+
+            // districtMap: districtName -> Set of branchNames
+            const districtMap = {};
+            let totalDistrictEntries = 0;
+
+            // Strategy A: Parse from submissions if present
+            submissions.forEach(sub => {
+                const bName = sub.branch || '';
+                const bd = sub.breakdown || '';
+                if (!bd) return;
+
+                // Format: "State (count): Dist1, Dist2 | State2 (count): Dist3"
+                const parts = bd.split('|');
+                parts.forEach(part => {
+                    const colonIdx = part.indexOf(':');
+                    if (colonIdx !== -1) {
+                        const distListStr = part.substring(colonIdx + 1).trim();
+                        const distNames = distListStr.split(',').map(d => d.trim()).filter(Boolean);
+                        distNames.forEach(dName => {
+                            totalDistrictEntries++;
+                            if (!districtMap[dName]) districtMap[dName] = new Set();
+                            districtMap[dName].add(bName);
+                        });
+                    }
+                });
+            });
+
+            // Strategy B fallback: If submissions array not returned yet from older Apps Script deployment,
+            // check if any breakdown exists in cache
+            if (Object.keys(districtMap).length === 0) {
+                Object.values(cache).forEach(bData => {
+                    if (bData && bData.breakdown) {
+                        const bName = bData.branchName || '';
+                        const parts = bData.breakdown.split('|');
+                        parts.forEach(part => {
+                            const colonIdx = part.indexOf(':');
+                            if (colonIdx !== -1) {
+                                const distListStr = part.substring(colonIdx + 1).trim();
+                                const distNames = distListStr.split(',').map(d => d.trim()).filter(Boolean);
+                                distNames.forEach(dName => {
+                                    totalDistrictEntries++;
+                                    if (!districtMap[dName]) districtMap[dName] = new Set();
+                                    districtMap[dName].add(bName);
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Strategy C: If still zero breakdown rows (e.g. backend only returns districtCount),
+            // calculate sum of districtCount as fallback
+            if (totalDistrictEntries === 0) {
+                let sumCount = 0;
+                Object.values(cache).forEach(b => {
+                    sumCount += (b.districtCount || 0);
+                });
+                totalDistrictEntries = sumCount;
+            }
+
+            const uniqueDistricts = Object.keys(districtMap);
+            trackerUniqueDistrictsSet = new Set(uniqueDistricts);
+
+            // Find shared districts (covered by 2 or more branches)
+            const sharedDistricts = {};
+            uniqueDistricts.forEach(d => {
+                if (districtMap[d].size > 1) {
+                    sharedDistricts[d] = Array.from(districtMap[d]);
+                }
+            });
+            trackerSharedDistrictsMap = sharedDistricts;
+
+            // Update UI Counters
+            const totalEl = document.getElementById('statDistTotalCount');
+            const uniqueEl = document.getElementById('statDistUniqueCount');
+            const sharedEl = document.getElementById('statDistSharedCount');
+            const badgeCountEl = document.getElementById('sharedDistBadgeCount');
+
+            if (totalEl) totalEl.textContent = totalDistrictEntries;
+            if (uniqueEl) uniqueEl.textContent = uniqueDistricts.length;
+            if (sharedEl) sharedEl.textContent = Object.keys(sharedDistricts).length;
+            if (badgeCountEl) badgeCountEl.textContent = Object.keys(sharedDistricts).length;
+
+            // Render Shared District Badges
+            const container = document.getElementById('sharedDistrictsContainer');
+            if (container) {
+                const sharedKeys = Object.keys(sharedDistricts).sort();
+                if (sharedKeys.length === 0) {
+                    if (totalDistrictEntries > 0) {
+                        container.innerHTML = `<span style="font-size:0.82rem; color:#15803d; font-weight:600;">✓ No overlapping/shared districts detected yet. Each district is mapped exclusively to 1 branch!</span>`;
+                    } else {
+                        container.innerHTML = `<span style="font-size:0.82rem; color:#94a3b8; font-style:italic;">No district details loaded yet. Ensure backend script is updated with breakdown data.</span>`;
+                    }
+                } else {
+                    let html = '';
+                    sharedKeys.forEach(distName => {
+                        const branchesArr = sharedDistricts[distName];
+                        const count = branchesArr.length;
+                        const branchListTooltip = branchesArr.join(', ');
+                        html += `
+                            <span onclick="alert('📍 District: ${distName.replace(/'/g, "\\'")}\\n🏢 Covered by ${count} Branches:\\n• ' + ${JSON.stringify(branchesArr)}.join('\\n• '))" 
+                                  title="Shared by ${count} branches: ${branchListTooltip}"
+                                  style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; background:#fff7ed; color:#c2410c; border:1.5px solid #fed7aa; padding:4px 10px; border-radius:20px; font-size:0.8rem; font-weight:700; transition:all 0.15s ease;"
+                                  onmouseover="this.style.background='#ffedd5'; this.style.borderColor='#fb923c';"
+                                  onmouseout="this.style.background='#fff7ed'; this.style.borderColor='#fed7aa';">
+                                <span>${distName}</span>
+                                <span style="background:#ea580c; color:#fff; border-radius:10px; padding:1px 6px; font-size:0.7rem;">${count}</span>
+                            </span>
+                        `;
+                    });
+                    container.innerHTML = html;
+                }
+            }
+        }
+
+        /**
+         * Copy Shared Districts list to clipboard
+         */
+        function copySharedDistricts() {
+            const sharedKeys = Object.keys(trackerSharedDistrictsMap || {}).sort();
+            if (sharedKeys.length === 0) {
+                alert('No shared districts available to copy.');
+                return;
+            }
+            let text = `📍 *DJJS BODH - Shared Districts (${sharedKeys.length})*\n`;
+            text += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
+            sharedKeys.forEach((dName, idx) => {
+                const branches = trackerSharedDistrictsMap[dName] || [];
+                text += `${idx + 1}. *${dName}* (${branches.length} branches): ${branches.join(', ')}\n`;
+            });
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert(`✅ ${sharedKeys.length} Shared Districts copied to clipboard!`);
+                });
+            } else {
+                alert('Clipboard access denied.');
+            }
+        }
+
+        /**
+         * Copy Unique Districts list to clipboard
+         */
+        function copyUniqueDistricts() {
+            const uniqueArr = Array.from(trackerUniqueDistrictsSet || []).sort();
+            if (uniqueArr.length === 0) {
+                alert('No unique districts available to copy yet.');
+                return;
+            }
+            let text = `📍 *DJJS BODH - Unique Covered Districts (${uniqueArr.length})*\n`;
+            text += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
+            text += uniqueArr.join('\n');
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert(`✅ ${uniqueArr.length} Unique Districts copied to clipboard!`);
+                });
+            } else {
+                alert('Clipboard access denied.');
+            }
+        }
+
+        /**
+         * Download complete Tracker & Districts data into Excel
+         */
+        function downloadDistrictExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('Excel export library is loading, please try again in a moment.');
+                return;
+            }
+
+            const allIndia = getIndiaBranchesList();
+            const cache = trackerDataCache || {};
+            const submissions = trackerDistrictSubmissions || [];
+
+            // 1. Sheet 1: Branch Status Tracker Summary
+            const trackerRows = allIndia.map((item, idx) => {
+                const normKey = item.branch.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const data = cache[normKey] || { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0, districtCount: 0 };
+                const bbbh = data.BBBH || 0;
+                const bbbm = data.BBBM || 0;
+                const bsbh = data.BSBH || 0;
+                const bsbm = data.BSBM || 0;
+                const totalLeft = Math.max(0, 1 - bbbh) + Math.max(0, 3 - bbbm) + Math.max(0, 1 - bsbh) + Math.max(0, 3 - bsbm);
+
+                return {
+                    "S.No.": idx + 1,
+                    "State": item.state,
+                    "Branch Name": item.branch,
+                    "District Info Status": (data.districtCount && data.districtCount > 0) ? "Filled" : "Not Filled",
+                    "BBBH (Head - Min 1)": bbbh,
+                    "BBBM (Member - Min 3)": bbbm,
+                    "BSBH (Head - Min 1)": bsbh,
+                    "BSBM (Member - Min 3)": bsbm,
+                    "POC Overall Status": (totalLeft === 0) ? "Completed" : `${totalLeft} Left`
+                };
+            });
+
+            // 2. Sheet 2: Shared Districts Mapping
+            const sharedKeys = Object.keys(trackerSharedDistrictsMap || {}).sort();
+            const sharedRows = sharedKeys.map((dName, idx) => {
+                const branches = trackerSharedDistrictsMap[dName] || [];
+                return {
+                    "S.No.": idx + 1,
+                    "District Name": dName,
+                    "Branch Count": branches.length,
+                    "Covered By Branches": branches.join(', ')
+                };
+            });
+
+            // 3. Sheet 3: All Unique Covered Districts
+            const uniqueArr = Array.from(trackerUniqueDistrictsSet || []).sort();
+            const uniqueRows = uniqueArr.map((dName, idx) => {
+                return {
+                    "S.No.": idx + 1,
+                    "District Name": dName,
+                    "Is Shared?": (trackerSharedDistrictsMap && trackerSharedDistrictsMap[dName]) ? "Yes (Shared)" : "No (Single Branch)"
+                };
+            });
+
+            // Build Workbook
+            const wb = XLSX.utils.book_new();
+            const ws1 = XLSX.utils.json_to_sheet(trackerRows);
+            XLSX.utils.book_append_sheet(wb, ws1, "Branch Tracker");
+
+            if (sharedRows.length > 0) {
+                const ws2 = XLSX.utils.json_to_sheet(sharedRows);
+                XLSX.utils.book_append_sheet(wb, ws2, "Shared Districts");
+            }
+
+            if (uniqueRows.length > 0) {
+                const ws3 = XLSX.utils.json_to_sheet(uniqueRows);
+                XLSX.utils.book_append_sheet(wb, ws3, "Unique Districts");
+            }
+
+            // Export to .xlsx file
+            const fileName = `BODH_Branch_and_District_Tracker_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
         }
 
     </script>
