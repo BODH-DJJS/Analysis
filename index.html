@@ -1291,6 +1291,7 @@
         <!-- Tab Navigation -->
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab('dashboard')" id="tab-dashboard">📊 Analysis and Reporting</button>
+            <button class="tab-btn" onclick="switchTab('tracker')" id="tab-tracker">📋 Branch Status Tracker</button>
             <button class="tab-btn" onclick="switchTab('register')" id="tab-register">📝 Volunteer Form</button>
             <button class="tab-btn" onclick="switchTab('districts')" id="tab-districts" style="display:none;">📍 District Information</button>
         </div>
@@ -1433,6 +1434,121 @@
             </div>
         </div>
         </div><!-- end content-dashboard -->
+
+        <!-- Branch Status Tracker Tab (India Only) -->
+        <div class="tab-content" id="content-tracker">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 1rem;">
+                <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); border-radius: 16px; padding: 24px 28px; color: #fff; margin-bottom: 24px; box-shadow: 0 10px 25px -5px rgba(49,46,129,0.3); position: relative; overflow: hidden;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                        <div>
+                            <span style="display:inline-block; padding:4px 12px; background:rgba(255,255,255,0.15); border-radius:20px; font-size:0.75rem; font-weight:700; letter-spacing:0.5px; margin-bottom:8px;">🇮🇳 INDIA BRANCHES LIVE TRACKER</span>
+                            <h2 style="font-size: 1.6rem; font-weight: 800; margin: 0 0 6px;">POC Team Leaders &amp; District Status Tracker</h2>
+                            <p style="font-size: 0.9rem; opacity: 0.85; margin: 0;">Real-time submission status across all Indian States &amp; Branches</p>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="button" onclick="refreshTrackerData()" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px; background:rgba(255,255,255,0.2); border:1.5px solid rgba(255,255,255,0.3); border-radius:10px; color:#fff; font-weight:700; font-size:0.88rem; cursor:pointer; backdrop-filter:blur(6px); transition:all 0.2s ease;">
+                                <span id="trackerRefreshIcon">🔄</span> Refresh Live Data
+                            </button>
+                            <button type="button" onclick="copyStateSummary()" style="display:inline-flex; align-items:center; gap:6px; padding:10px 18px; background:#10b981; border:none; border-radius:10px; color:#fff; font-weight:700; font-size:0.88rem; cursor:pointer; box-shadow:0 4px 12px rgba(16,185,129,0.3); transition:all 0.2s ease;">
+                                📋 Copy State Summary
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ratio & Color Guide -->
+                    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; flex-wrap: wrap; gap: 14px; align-items: center; font-size: 0.8rem;">
+                        <span style="font-weight: 700; opacity: 0.9;">Role Ratios (1-3-1-3):</span>
+                        <span>BBBH: <b>Min 1</b></span>
+                        <span>BBBM: <b>Min 3</b></span>
+                        <span>BSBH: <b>Min 1</b></span>
+                        <span>BSBM: <b>Min 3</b></span>
+                        <span style="margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                            <span style="font-weight:700;">Color Code:</span>
+                            <span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem;">🔴 Less than Min</span>
+                            <span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem;">🟢 Equal to Min</span>
+                            <span style="background:#fce7f3; color:#9d174d; padding:2px 8px; border-radius:6px; font-weight:700; font-size:0.75rem;">🌸 More than Min</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Stats Summary Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="font-size:0.8rem; font-weight:600; color:#64748b; text-transform:uppercase;">Total India Branches</div>
+                        <div style="font-size:1.8rem; font-weight:800; color:#1e293b; margin-top:4px;" id="statTotalBranches">111</div>
+                    </div>
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="font-size:0.8rem; font-weight:600; color:#15803d; text-transform:uppercase;">POC Fully Completed</div>
+                        <div style="font-size:1.8rem; font-weight:800; color:#15803d; margin-top:4px;" id="statPocComplete">0</div>
+                    </div>
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="font-size:0.8rem; font-weight:600; color:#b45309; text-transform:uppercase;">POC In Progress / Pending</div>
+                        <div style="font-size:1.8rem; font-weight:800; color:#b45309; margin-top:4px;" id="statPocPending">0</div>
+                    </div>
+                    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                        <div style="font-size:0.8rem; font-weight:600; color:#0f766e; text-transform:uppercase;">District Info Completed</div>
+                        <div style="font-size:1.8rem; font-weight:800; color:#0f766e; margin-top:4px;" id="statDistrictFilled">0</div>
+                    </div>
+                </div>
+
+                <!-- Filters & Controls Bar -->
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 18px; margin-bottom:16px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label style="font-size:0.85rem; font-weight:700; color:#334155;">State:</label>
+                            <select id="trackerStateFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none; min-width:180px;">
+                                <option value="">🇮🇳 All India States</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label style="font-size:0.85rem; font-weight:700; color:#334155;">Status:</label>
+                            <select id="trackerStatusFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none;">
+                                <option value="">All Branches</option>
+                                <option value="pending">Pending Roles (⚠️ Left)</option>
+                                <option value="completed">Completed (✓)</option>
+                                <option value="district_pending">District Info Pending (0)</option>
+                            </select>
+                        </div>
+                        <div style="flex:1; min-width:200px;">
+                            <input type="text" id="trackerSearch" oninput="applyTrackerFilters()" placeholder="🔍 Search branch name..." style="width:100%; padding:8px 14px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; outline:none;" />
+                        </div>
+                    </div>
+                    <div style="font-size:0.85rem; color:#64748b; font-weight:600;">
+                        Showing: <span id="trackerFilteredCount" style="color:#1e293b; font-weight:700;">111</span> Branches
+                    </div>
+                </div>
+
+                <!-- Tracker Table -->
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:14px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.06);">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.88rem;">
+                            <thead>
+                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; color:#334155; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.4px;">
+                                    <th style="padding:14px 16px;">#</th>
+                                    <th style="padding:14px 16px;">State</th>
+                                    <th style="padding:14px 16px;">Branch Name</th>
+                                    <th style="padding:14px 16px; text-align:center;">District Info<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Filled: 1 / 0)</small></th>
+                                    <th style="padding:14px 16px; text-align:center;">BBBH<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Head Bros: Min 1)</small></th>
+                                    <th style="padding:14px 16px; text-align:center;">BBBM<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Member Bros: Min 3)</small></th>
+                                    <th style="padding:14px 16px; text-align:center;">BSBH<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Head Sis: Min 1)</small></th>
+                                    <th style="padding:14px 16px; text-align:center;">BSBM<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Member Sis: Min 3)</small></th>
+                                    <th style="padding:14px 16px; text-align:center;">Overall Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trackerTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align:center; padding:40px; color:#64748b;">
+                                        <div style="font-size:1.8rem; margin-bottom:8px; animation:rSpin 1s linear infinite; display:inline-block;">⏳</div>
+                                        <div>Loading real-time branch tracker data from Google Sheet...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Branch Status Tracker Tab -->
 
         <!-- Volunteer Form Tab -->
         <div class="tab-content" id="content-register">
@@ -3224,6 +3340,9 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('content-' + tabName).classList.add('active');
             document.getElementById('tab-' + tabName).classList.add('active');
+            if (tabName === 'tracker') {
+                initTracker();
+            }
         }
 
         // ============================================================
@@ -4028,6 +4147,282 @@
             renderSelectedStatesUI();
             renderDistrictsCoveredUI();
             updateDistrictStats();
+        }
+
+        // ============================================================
+        // Live Branch Status Tracker Logic (India Only)
+        // ============================================================
+        let trackerDataCache = null;
+        let trackerInitialized = false;
+
+        function getIndiaBranchesList() {
+            // Build flat list of all India branches with their State
+            const list = [];
+            Object.keys(REG_BRANCHES).sort().forEach(state => {
+                if (state === "Outside India") return; // Filter out Outside India
+                REG_BRANCHES[state].forEach(branch => {
+                    list.push({ state: state, branch: branch });
+                });
+            });
+            return list;
+        }
+
+        function initTracker() {
+            // Populate state dropdown if not done
+            const stateSel = document.getElementById('trackerStateFilter');
+            if (stateSel && stateSel.options.length <= 1) {
+                const indiaStates = Object.keys(REG_BRANCHES).filter(s => s !== "Outside India").sort();
+                indiaStates.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    stateSel.appendChild(opt);
+                });
+            }
+
+            if (!trackerInitialized || !trackerDataCache) {
+                refreshTrackerData();
+                trackerInitialized = true;
+            } else {
+                renderTrackerTable();
+            }
+        }
+
+        async function refreshTrackerData() {
+            const icon = document.getElementById('trackerRefreshIcon');
+            if (icon) icon.style.animation = 'rSpin 0.8s linear infinite';
+            
+            const tbody = document.getElementById('trackerTableBody');
+            if (tbody && !trackerDataCache) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding:40px; color:#64748b;">
+                            <div style="font-size:1.8rem; margin-bottom:8px; animation:rSpin 1s linear infinite; display:inline-block;">⏳</div>
+                            <div>Fetching latest real-time status from Google Sheet...</div>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            try {
+                // Fetch tracker data via POST to bypass CORS
+                const res = await fetch(REG_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'getAllBranchTracker' })
+                });
+                const json = await res.json();
+                if (json && json.trackerData) {
+                    trackerDataCache = json.trackerData;
+                } else {
+                    trackerDataCache = {};
+                }
+            } catch (err) {
+                console.warn('POST failed for tracker, attempting fallback...', err);
+                try {
+                    const getRes = await fetch(`${REG_SCRIPT_URL}?action=getAllBranchTracker`);
+                    const getJson = await getRes.json();
+                    if (getJson && getJson.trackerData) {
+                        trackerDataCache = getJson.trackerData;
+                    }
+                } catch(e) {
+                    console.error('Tracker data fetch error:', e);
+                    if (!trackerDataCache) trackerDataCache = {};
+                }
+            }
+
+            if (icon) icon.style.animation = 'none';
+            renderTrackerTable();
+        }
+
+        function renderTrackerTable() {
+            const tbody = document.getElementById('trackerTableBody');
+            if (!tbody) return;
+
+            const selectedState = document.getElementById('trackerStateFilter') ? document.getElementById('trackerStateFilter').value : '';
+            const selectedStatus = document.getElementById('trackerStatusFilter') ? document.getElementById('trackerStatusFilter').value : '';
+            const searchQ = (document.getElementById('trackerSearch') ? document.getElementById('trackerSearch').value : '').toLowerCase().trim();
+
+            const allIndia = getIndiaBranchesList();
+            const cache = trackerDataCache || {};
+
+            let totalPocComplete = 0;
+            let totalDistrictFilled = 0;
+            let totalPocPending = 0;
+
+            const processedRows = allIndia.map(item => {
+                const normKey = item.branch.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const data = cache[normKey] || { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0, districtCount: 0 };
+
+                const bbbh = data.BBBH || 0;
+                const bbbm = data.BBBM || 0;
+                const bsbh = data.BSBH || 0;
+                const bsbm = data.BSBM || 0;
+                const distFilled = (data.districtCount && data.districtCount > 0) ? 1 : 0;
+
+                const bbbhLeft = Math.max(0, 1 - bbbh);
+                const bbbmLeft = Math.max(0, 3 - bbbm);
+                const bsbhLeft = Math.max(0, 1 - bsbh);
+                const bsbmLeft = Math.max(0, 3 - bsbm);
+                const totalLeft = bbbhLeft + bbbmLeft + bsbhLeft + bsbmLeft;
+
+                const isPocComplete = (totalLeft === 0);
+                if (isPocComplete) totalPocComplete++;
+                else totalPocPending++;
+
+                if (distFilled === 1) totalDistrictFilled++;
+
+                return {
+                    state: item.state,
+                    branch: item.branch,
+                    distFilled: distFilled,
+                    bbbh: bbbh,
+                    bbbm: bbbm,
+                    bsbh: bsbh,
+                    bsbm: bsbm,
+                    bbbhLeft: bbbhLeft,
+                    bbbmLeft: bbbmLeft,
+                    bsbhLeft: bsbhLeft,
+                    bsbmLeft: bsbmLeft,
+                    totalLeft: totalLeft,
+                    isPocComplete: isPocComplete
+                };
+            });
+
+            // Update top cards
+            const totalEl = document.getElementById('statTotalBranches');
+            const compEl = document.getElementById('statPocComplete');
+            const pendEl = document.getElementById('statPocPending');
+            const distEl = document.getElementById('statDistrictFilled');
+            if (totalEl) totalEl.textContent = allIndia.length;
+            if (compEl) compEl.textContent = totalPocComplete;
+            if (pendEl) pendEl.textContent = totalPocPending;
+            if (distEl) distEl.textContent = totalDistrictFilled;
+
+            // Filter rows
+            const filtered = processedRows.filter(r => {
+                if (selectedState && r.state !== selectedState) return false;
+                if (searchQ && !r.branch.toLowerCase().includes(searchQ)) return false;
+                if (selectedStatus === 'completed' && !r.isPocComplete) return false;
+                if (selectedStatus === 'pending' && r.isPocComplete) return false;
+                if (selectedStatus === 'district_pending' && r.distFilled > 0) return false;
+                return true;
+            });
+
+            const countEl = document.getElementById('trackerFilteredCount');
+            if (countEl) countEl.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align:center; padding:30px; color:#64748b;">
+                            No branches matched the selected filter criteria.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Helper for Badge styling
+            // Less than min: Red (#fee2e2, #991b1b, border: #fca5a5)
+            // Equal to min: Green (#dcfce7, #166534, border: #86efac)
+            // More than min: Pink (#fce7f3, #9d174d, border: #f472b6)
+            function getRoleBadge(count, min, left) {
+                let bg, color, border, label, icon;
+                if (count < min) {
+                    bg = '#fee2e2'; color = '#991b1b'; border = '#fca5a5';
+                    label = `⚠️ ${left} Left (${count}/${min})`;
+                } else if (count === min) {
+                    bg = '#dcfce7'; color = '#166534'; border = '#86efac';
+                    label = `✓ ${count}/${min}`;
+                } else {
+                    bg = '#fce7f3'; color = '#9d174d'; border = '#f472b6';
+                    label = `★ ${count}/${min}`;
+                }
+                return `<span style="background:${bg}; color:${color}; border:1.5px solid ${border}; padding:4px 10px; border-radius:20px; font-weight:700; font-size:0.8rem; display:inline-block; min-width:85px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.05);">${label}</span>`;
+            }
+
+            let html = '';
+            filtered.forEach((r, idx) => {
+                const distBadge = (r.distFilled === 1)
+                    ? `<span style="background:#dcfce7; color:#166534; border:1.5px solid #86efac; padding:4px 12px; border-radius:20px; font-weight:800; font-size:0.82rem; display:inline-block;">🟢 1 (Filled)</span>`
+                    : `<span style="background:#fee2e2; color:#991b1b; border:1.5px solid #fca5a5; padding:4px 12px; border-radius:20px; font-weight:800; font-size:0.82rem; display:inline-block;">🔴 0 (Pending)</span>`;
+
+                let overallBadge;
+                if (r.totalLeft === 0) {
+                    overallBadge = `<span style="background:#dcfce7; color:#15803d; border:1.5px solid #86efac; padding:5px 12px; border-radius:8px; font-weight:800; font-size:0.82rem; display:inline-block; white-space:nowrap;">✓ Completed</span>`;
+                } else {
+                    // Highlight exactly how many left!
+                    overallBadge = `<span style="background:#fef3c7; color:#92400e; border:1.5px solid #fcd34d; padding:5px 12px; border-radius:8px; font-weight:800; font-size:0.82rem; display:inline-block; white-space:nowrap; box-shadow:0 1px 4px rgba(245,158,11,0.2);">⚠️ ${r.totalLeft} Left</span>`;
+                }
+
+                html += `
+                    <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <td style="padding:12px 16px; color:#94a3b8; font-weight:600;">${idx + 1}</td>
+                        <td style="padding:12px 16px; font-weight:600; color:#334155;">${r.state}</td>
+                        <td style="padding:12px 16px; font-weight:700; color:#0f172a; font-size:0.92rem;">${r.branch}</td>
+                        <td style="padding:12px 16px; text-align:center;">${distBadge}</td>
+                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bbbh, 1, r.bbbhLeft)}</td>
+                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bbbm, 3, r.bbbmLeft)}</td>
+                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bsbh, 1, r.bsbhLeft)}</td>
+                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bsbm, 3, r.bsbmLeft)}</td>
+                        <td style="padding:12px 16px; text-align:center;">${overallBadge}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function applyTrackerFilters() {
+            renderTrackerTable();
+        }
+
+        function copyStateSummary() {
+            const selectedState = document.getElementById('trackerStateFilter') ? document.getElementById('trackerStateFilter').value : '';
+            const allIndia = getIndiaBranchesList();
+            const cache = trackerDataCache || {};
+
+            const targetList = selectedState ? allIndia.filter(i => i.state === selectedState) : allIndia;
+            const stateTitle = selectedState ? selectedState : "All India Branches";
+
+            let text = `📊 *DJJS BODH - POC Team Leaders & District Status*\n`;
+            text += `📍 *State:* ${stateTitle}\n`;
+            text += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
+
+            targetList.forEach((item, idx) => {
+                const normKey = item.branch.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const data = cache[normKey] || { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0, districtCount: 0 };
+                const distFilled = (data.districtCount && data.districtCount > 0) ? "1 ✅" : "0 ❌";
+                
+                const bbbh = data.BBBH || 0;
+                const bbbm = data.BBBM || 0;
+                const bsbh = data.BSBH || 0;
+                const bsbm = data.BSBM || 0;
+                
+                const bbbhLeft = Math.max(0, 1 - bbbh);
+                const bbbmLeft = Math.max(0, 3 - bbbm);
+                const bsbhLeft = Math.max(0, 1 - bsbh);
+                const bsbmLeft = Math.max(0, 3 - bsbm);
+                const totalLeft = bbbhLeft + bbbmLeft + bsbhLeft + bsbmLeft;
+
+                const statusStr = (totalLeft === 0) ? "✅ Complete" : `⚠️ ${totalLeft} Left`;
+
+                text += `${idx + 1}. *${item.branch}* (${item.state}):\n`;
+                text += `   • District Info: ${distFilled}\n`;
+                text += `   • BBBH: ${bbbh}/1 | BBBM: ${bbbm}/3 | BSBH: ${bsbh}/1 | BSBM: ${bsbm}/3\n`;
+                text += `   • Status: ${statusStr}\n\n`;
+            });
+
+            text += `📌 *Required Ratio:* BBBH: 1, BBBM: 3, BSBH: 1, BSBM: 3\n`;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert(`✅ State Summary for "${stateTitle}" copied to clipboard! You can now paste and send it on WhatsApp or Email.`);
+                });
+            } else {
+                alert('Please allow clipboard access to copy.');
+            }
         }
 
     </script>

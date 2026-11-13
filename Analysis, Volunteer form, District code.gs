@@ -15,6 +15,112 @@ function testCheckBranchRoles() {
   return result;
 }
 
+/**
+ * Returns comprehensive tracker data for ALL branches across both:
+ * 1. POC Team Leaders (Roles BBBH, BBBM, BSBH, BSBM)
+ * 2. District Information (whether filled or not)
+ */
+function getAllBranchTrackerData() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const branchMap = {}; // normalizedKey -> { branchName, state, districtCount, BBBH, BBBM, BSBH, BSBM }
+
+  // 1. Process District Information Sheet
+  try {
+    const distSheet = ss.getSheetByName(DISTRICT_RESPONSES_SHEET_NAME);
+    if (distSheet) {
+      const dData = distSheet.getDataRange().getValues();
+      if (dData.length > 1) {
+        // find branch column
+        const dHeaders = dData[0].map(h => String(h || '').trim().toLowerCase());
+        let bCol = dHeaders.findIndex(h => h.includes('branch'));
+        if (bCol === -1) bCol = 2; // Default Col C
+
+        for (let i = 1; i < dData.length; i++) {
+          const bName = String(dData[i][bCol] || '').trim();
+          if (!bName) continue;
+          const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (!branchMap[key]) {
+            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+          }
+          branchMap[key].districtCount++;
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error reading District Information:', e);
+  }
+
+  // 2. Process POC Team Leaders Sheet
+  try {
+    let pocSheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+    if (!pocSheet) {
+      const allSheets = ss.getSheets();
+      for (let s of allSheets) {
+        const sName = s.getName().toLowerCase();
+        if (sName.includes('poc') || sName.includes('leader') || sName.includes('volunteer')) {
+          pocSheet = s;
+          break;
+        }
+      }
+    }
+
+    if (pocSheet) {
+      const pData = pocSheet.getDataRange().getValues();
+      if (pData.length > 1) {
+        let headerRowIdx = 0;
+        let branchCol = -1;
+        let roleCol = -1;
+
+        for (let r = 0; r < Math.min(5, pData.length); r++) {
+          const rowHeaders = pData[r].map(h => String(h || '').trim().toLowerCase());
+          let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
+          if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
+          const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+          if (bIdx !== -1 && rIdx !== -1) {
+            headerRowIdx = r;
+            branchCol = bIdx;
+            roleCol = rIdx;
+            break;
+          }
+        }
+
+        if (branchCol === -1) branchCol = 8;
+        if (roleCol === -1) roleCol = 12;
+
+        for (let i = headerRowIdx + 1; i < pData.length; i++) {
+          const bName = String(pData[i][branchCol] || '').trim();
+          if (!bName) continue;
+          const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (!branchMap[key]) {
+            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+          }
+
+          const directRole = String(pData[i][roleCol] || '').trim().toUpperCase();
+          let matchedRole = '';
+          if (directRole.includes('BBBH') || directRole.includes('BSBH') || directRole.includes('BBBM') || directRole.includes('BSBM')) {
+            matchedRole = directRole;
+          } else {
+            const rowStr = pData[i].join(' ').toUpperCase();
+            if (rowStr.includes('BBBH')) matchedRole = 'BBBH';
+            else if (rowStr.includes('BSBH')) matchedRole = 'BSBH';
+            else if (rowStr.includes('BBBM')) matchedRole = 'BBBM';
+            else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
+          }
+
+          if (matchedRole.includes('BBBH')) branchMap[key].BBBH++;
+          else if (matchedRole.includes('BBBM')) branchMap[key].BBBM++;
+          else if (matchedRole.includes('BSBH')) branchMap[key].BSBH++;
+          else if (matchedRole.includes('BSBM')) branchMap[key].BSBM++;
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error reading POC Team Leaders:', e);
+  }
+
+  return { status: 'success', trackerData: branchMap };
+}
+
 function getBranchRolesCount(branchName) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
@@ -126,6 +232,19 @@ function doGet(e) {
         .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);
     }
+
+    if (e && e.parameter && e.parameter.action === 'getAllBranchTracker') {
+      const callback = (e.parameter.callback || '').trim();
+      const resultObj = getAllBranchTrackerData();
+      if (callback) {
+        return ContentService
+          .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     // ==========================================
 
     const data = getAnalyticsData();
@@ -161,6 +280,14 @@ function doPost(e) {
     if (formData && formData.action === 'checkBranchRoles') {
       const branchName = (formData.branch || '').trim();
       const resultObj = getBranchRolesCount(branchName);
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Support getAllBranchTracker via POST
+    if (formData && formData.action === 'getAllBranchTracker') {
+      const resultObj = getAllBranchTrackerData();
       return ContentService
         .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);

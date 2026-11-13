@@ -1,7 +1,3 @@
-// ==============================================================================
-// BODH DASHBOARD, VOLUNTEER FORM & DISTRICT INFORMATION BACKEND (Code.gs)
-// ==============================================================================
-
 // Configuration
 const SPREADSHEET_ID = '1OvVqqDI5JwTMJA4svMKXUb2JuOMQUaPgH7Un-UMum14';
 const SHEET_NAME = 'Master data';
@@ -9,43 +5,214 @@ const RESPONSES_SHEET_NAME = 'POC Team Leaders';
 const DISTRICT_RESPONSES_SHEET_NAME = 'District Information';
 
 /**
- * Web app entry point for GET requests (Analytics Data & Month Folder Resolution)
+ * Helper test function you can run directly inside the Google Apps Script Editor!
+ * Select 'testCheckBranchRoles' from the function dropdown and click Run.
+ * Check View -> Logs to see exactly what was found for Kota!
+ */
+function testCheckBranchRoles() {
+  const result = getBranchRolesCount('Kota');
+  Logger.log('TEST RESULT FOR KOTA: ' + JSON.stringify(result));
+  return result;
+}
+
+/**
+ * Returns comprehensive tracker data for ALL branches across both:
+ * 1. POC Team Leaders (Roles BBBH, BBBM, BSBH, BSBM)
+ * 2. District Information (whether filled or not)
+ */
+function getAllBranchTrackerData() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const branchMap = {}; // normalizedKey -> { branchName, state, districtCount, BBBH, BBBM, BSBH, BSBM }
+
+  // 1. Process District Information Sheet
+  try {
+    const distSheet = ss.getSheetByName(DISTRICT_RESPONSES_SHEET_NAME);
+    if (distSheet) {
+      const dData = distSheet.getDataRange().getValues();
+      if (dData.length > 1) {
+        // find branch column
+        const dHeaders = dData[0].map(h => String(h || '').trim().toLowerCase());
+        let bCol = dHeaders.findIndex(h => h.includes('branch'));
+        if (bCol === -1) bCol = 2; // Default Col C
+
+        for (let i = 1; i < dData.length; i++) {
+          const bName = String(dData[i][bCol] || '').trim();
+          if (!bName) continue;
+          const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (!branchMap[key]) {
+            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+          }
+          branchMap[key].districtCount++;
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error reading District Information:', e);
+  }
+
+  // 2. Process POC Team Leaders Sheet
+  try {
+    let pocSheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+    if (!pocSheet) {
+      const allSheets = ss.getSheets();
+      for (let s of allSheets) {
+        const sName = s.getName().toLowerCase();
+        if (sName.includes('poc') || sName.includes('leader') || sName.includes('volunteer')) {
+          pocSheet = s;
+          break;
+        }
+      }
+    }
+
+    if (pocSheet) {
+      const pData = pocSheet.getDataRange().getValues();
+      if (pData.length > 1) {
+        let headerRowIdx = 0;
+        let branchCol = -1;
+        let roleCol = -1;
+
+        for (let r = 0; r < Math.min(5, pData.length); r++) {
+          const rowHeaders = pData[r].map(h => String(h || '').trim().toLowerCase());
+          let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
+          if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
+          const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+          if (bIdx !== -1 && rIdx !== -1) {
+            headerRowIdx = r;
+            branchCol = bIdx;
+            roleCol = rIdx;
+            break;
+          }
+        }
+
+        if (branchCol === -1) branchCol = 8;
+        if (roleCol === -1) roleCol = 12;
+
+        for (let i = headerRowIdx + 1; i < pData.length; i++) {
+          const bName = String(pData[i][branchCol] || '').trim();
+          if (!bName) continue;
+          const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (!branchMap[key]) {
+            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+          }
+
+          const directRole = String(pData[i][roleCol] || '').trim().toUpperCase();
+          let matchedRole = '';
+          if (directRole.includes('BBBH') || directRole.includes('BSBH') || directRole.includes('BBBM') || directRole.includes('BSBM')) {
+            matchedRole = directRole;
+          } else {
+            const rowStr = pData[i].join(' ').toUpperCase();
+            if (rowStr.includes('BBBH')) matchedRole = 'BBBH';
+            else if (rowStr.includes('BSBH')) matchedRole = 'BSBH';
+            else if (rowStr.includes('BBBM')) matchedRole = 'BBBM';
+            else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
+          }
+
+          if (matchedRole.includes('BBBH')) branchMap[key].BBBH++;
+          else if (matchedRole.includes('BBBM')) branchMap[key].BBBM++;
+          else if (matchedRole.includes('BSBH')) branchMap[key].BSBH++;
+          else if (matchedRole.includes('BSBM')) branchMap[key].BSBM++;
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error reading POC Team Leaders:', e);
+  }
+
+  return { status: 'success', trackerData: branchMap };
+}
+
+function getBranchRolesCount(branchName) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+  let debugInfo = { branchName: branchName, rowCount: 0, branchCol: -1, roleCol: -1, matchedRows: 0 };
+
+  // Look for the responses sheet tab
+  let sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+  if (!sheet) {
+    const allSheets = ss.getSheets();
+    for (let s of allSheets) {
+      const sName = s.getName().toLowerCase();
+      if (sName.includes('poc') || sName.includes('leader') || sName.includes('volunteer')) {
+        sheet = s;
+        break;
+      }
+    }
+  }
+
+  if (sheet && branchName) {
+    debugInfo.sheetName = sheet.getName();
+    const data = sheet.getDataRange().getValues();
+    debugInfo.rowCount = data.length;
+    if (data.length > 0) {
+      let headerRowIdx = 0;
+      let branchCol = -1;
+      let roleCol = -1;
+
+      for (let r = 0; r < Math.min(5, data.length); r++) {
+        const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
+        let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
+        if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
+        const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+        if (bIdx !== -1 && rIdx !== -1) {
+          headerRowIdx = r;
+          branchCol = bIdx;
+          roleCol = rIdx;
+          break;
+        }
+      }
+
+      if (branchCol === -1) branchCol = 8;
+      if (roleCol === -1) roleCol = 12;
+
+      debugInfo.headerRowIdx = headerRowIdx;
+      debugInfo.branchCol = branchCol;
+      debugInfo.roleCol = roleCol;
+
+      const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      for (let i = headerRowIdx + 1; i < data.length; i++) {
+        const rowBranch = String(data[i][branchCol] || '').trim();
+        const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
+        
+        if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
+          debugInfo.matchedRows++;
+          const directRole = String(data[i][roleCol] || '').trim().toUpperCase();
+          let matchedRole = '';
+          if (directRole.includes('BBBH') || directRole.includes('BSBH') || directRole.includes('BBBM') || directRole.includes('BSBM')) {
+            matchedRole = directRole;
+          } else {
+            const rowStr = data[i].join(' ').toUpperCase();
+            if (rowStr.includes('BBBH')) matchedRole = 'BBBH';
+            else if (rowStr.includes('BSBH')) matchedRole = 'BSBH';
+            else if (rowStr.includes('BBBM')) matchedRole = 'BBBM';
+            else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
+          }
+
+          if (matchedRole.includes('BBBH')) counts.BBBH++;
+          else if (matchedRole.includes('BBBM')) counts.BBBM++;
+          else if (matchedRole.includes('BSBH')) counts.BSBH++;
+          else if (matchedRole.includes('BSBM')) counts.BSBM++;
+        }
+      }
+    }
+  }
+  return { status: 'success', branch: branchName, counts: counts, debug: debugInfo };
+}
+
+/**
+ * Web app entry point for GET requests
  */
 function doGet(e) {
   try {
-    // Action: Resolve month folder -> Raw folder
-    if (e && e.parameter && e.parameter.action === 'raw') {
-      const monthUrl = e.parameter.link || '';
-      const dateStr = e.parameter.date || '';
-      let targetUrl = monthUrl;
-      try {
-        if (monthUrl && dateStr) {
-          const match = monthUrl.match(/folders\/([a-zA-Z0-9_-]+)/);
-          if (match && match[1]) {
-            const monthFolder = DriveApp.getFolderById(match[1]);
-            const d = new Date(dateStr + 'T00:00:00');
-            const shortMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            const day = d.getDate();
-            const dayStr = (day < 10 ? '0' : '') + day;
-            const folderBase = dayStr + '-' + shortMonths[d.getMonth()] + '-' + d.getFullYear();
-            
-            const dateFolders = monthFolder.getFoldersByName(folderBase);
-            if (dateFolders.hasNext()) {
-              const df = dateFolders.next();
-              const rawFolders = df.getFoldersByName('Raw');
-              if (rawFolders.hasNext()) {
-                targetUrl = rawFolders.next().getUrl();
-              } else {
-                targetUrl = df.getUrl();
-              }
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Error resolving raw folder:', err);
-      }
-      return ContentService.createTextOutput(JSON.stringify({ url: targetUrl }))
-        .setMimeType(ContentService.MimeType.JSON);
+    // ==========================================
+    // Route to the HTML form if ?p=form
+    // ==========================================
+    if (e && e.parameter && e.parameter.p === 'form') {
+      var template = HtmlService.createTemplateFromFile('index');
+      template.userEmail = (e && e.parameter && e.parameter.email) ? e.parameter.email : '';
+      return template.evaluate()
+          .setTitle('BODH Event Reporting Form')
+          .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+          .addMetaTag('viewport', 'width=device-width, initial-scale=1');
     }
 
     // ==========================================
@@ -54,74 +221,21 @@ function doGet(e) {
     if (e && e.parameter && e.parameter.action === 'checkBranchRoles') {
       const branchName = (e.parameter.branch || '').trim();
       const callback = (e.parameter.callback || '').trim();
-      const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-      const sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
-      const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
-      let debugInfo = { branchName: branchName, rowCount: 0, branchCol: -1, roleCol: -1, matchedRows: 0 };
-      if (sheet && branchName) {
-        const data = sheet.getDataRange().getValues();
-        debugInfo.rowCount = data.length;
-        if (data.length > 0) {
-          // Detect header row (row 0 or row 1)
-          let headerRowIdx = 0;
-          let headers = data[0].map(h => String(h || '').trim().toLowerCase());
-          let branchCol = headers.findIndex(h => h === 'branch name' || h === 'branch' || h.includes('branch'));
-          let roleCol = headers.findIndex(h => h === 'role in bodh team' || h === 'role' || h.includes('role in'));
+      const resultObj = getBranchRolesCount(branchName);
 
-          for (let r = 0; r < Math.min(5, data.length); r++) {
-            const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
-            // Specifically look for 'branch name' first so it NEVER confuses with 'branch ar name'
-            let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
-            if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
-            const rIdx = rowHeaders.findIndex(h => h.includes('role'));
-            if (bIdx !== -1 && rIdx !== -1) {
-              headerRowIdx = r;
-              branchCol = bIdx;
-              roleCol = rIdx;
-              break;
-            }
-          }
-
-          // If still not found, check exact expected column positions from your sheet:
-          // Col 8: 'Branch Name', Col 12: 'Role in BODH Team'
-          if (branchCol === -1) branchCol = 8;
-          if (roleCol === -1) roleCol = 12;
-
-          debugInfo.headerRowIdx = headerRowIdx;
-          debugInfo.branchCol = branchCol;
-          debugInfo.roleCol = roleCol;
-
-          const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
-          for (let i = headerRowIdx + 1; i < data.length; i++) {
-            const rowBranch = String(data[i][branchCol] || '').trim();
-            const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
-            
-            // Check if branch matches
-            if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
-              debugInfo.matchedRows++;
-              // Search role in roleCol or entire row if not strictly in that column
-              const directRole = String(data[i][roleCol] || '').trim().toUpperCase();
-              let matchedRole = '';
-              if (directRole.includes('BBBH') || directRole.includes('BSBH') || directRole.includes('BBBM') || directRole.includes('BSBM')) {
-                matchedRole = directRole;
-              } else {
-                // Scan the entire row for any occurrence of BBBH, BSBM, etc.
-                const rowStr = data[i].join(' ').toUpperCase();
-                if (rowStr.includes('BBBH')) matchedRole = 'BBBH';
-                else if (rowStr.includes('BSBH')) matchedRole = 'BSBH';
-                else if (rowStr.includes('BBBM')) matchedRole = 'BBBM';
-                else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
-              }
-
-              if (matchedRole.includes('BBBH')) counts.BBBH++;
-              else if (matchedRole.includes('BBBM')) counts.BBBM++;
-              else if (matchedRole.includes('BSBH')) counts.BSBH++;
-              else if (matchedRole.includes('BSBM')) counts.BSBM++;
-            }
-          }
-        }
+      if (callback) {
+        return ContentService
+          .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
       }
-      const resultObj = { status: 'success', branch: branchName, counts: counts, debug: debugInfo };
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (e && e.parameter && e.parameter.action === 'getAllBranchTracker') {
+      const callback = (e.parameter.callback || '').trim();
+      const resultObj = getAllBranchTrackerData();
       if (callback) {
         return ContentService
           .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
@@ -133,7 +247,6 @@ function doGet(e) {
     }
     // ==========================================
 
-    // Default GET: Return Analytics Data for Dashboard
     const data = getAnalyticsData();
     return ContentService
       .createTextOutput(JSON.stringify(data))
@@ -150,25 +263,43 @@ function doGet(e) {
 }
 
 /**
- * Web app entry point for POST requests (Volunteer Form & District Information)
+ * Web app entry point for POST requests (Form Submissions)
  */
 function doPost(e) {
   try {
     let formData;
+    
+    // Parse the incoming JSON data
     if (e.postData && e.postData.contents) {
       formData = JSON.parse(e.postData.contents);
     } else {
       throw new Error('No form data received');
     }
 
+    // Support checkBranchRoles via POST (bypasses browser CORS & redirect issues completely)
+    if (formData && formData.action === 'checkBranchRoles') {
+      const branchName = (formData.branch || '').trim();
+      const resultObj = getBranchRolesCount(branchName);
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Support getAllBranchTracker via POST
+    if (formData && formData.action === 'getAllBranchTracker') {
+      const resultObj = getAllBranchTrackerData();
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     console.log('Received form data:', JSON.stringify(formData));
 
+    // Open the spreadsheet
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     if (!ss) throw new Error('Spreadsheet not found');
 
-    // -------------------------------------------------------------
-    // 1. DISTRICT INFORMATION FORM SUBMISSION
-    // -------------------------------------------------------------
+    // Check if this is a District Information form submission
     if (formData.formType === 'districtInfo') {
       let districtSheet = ss.getSheetByName(DISTRICT_RESPONSES_SHEET_NAME);
       if (!districtSheet) {
@@ -185,7 +316,7 @@ function doPost(e) {
         districtSheet.getRange(1, 1, 1, dHeaders.length).setValues([dHeaders]);
         const dHeaderRange = districtSheet.getRange(1, 1, 1, dHeaders.length);
         dHeaderRange.setFontWeight('bold');
-        dHeaderRange.setBackground('#0f766e');
+        dHeaderRange.setBackground('#0f766e'); // Teal background
         dHeaderRange.setFontColor('#ffffff');
         dHeaderRange.setHorizontalAlignment('center');
         for (let i = 1; i <= dHeaders.length; i++) {
@@ -206,7 +337,7 @@ function doPost(e) {
       ];
 
       districtSheet.appendRow(dRowData);
-      console.log('District data saved successfully in tab: ' + DISTRICT_RESPONSES_SHEET_NAME);
+      console.log('District data saved successfully');
 
       return ContentService
         .createTextOutput(JSON.stringify({ 
@@ -217,12 +348,12 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // -------------------------------------------------------------
-    // 2. VOLUNTEER REGISTRATION FORM SUBMISSION
-    // -------------------------------------------------------------
+    // Default: Volunteer POC Team Leaders submission
+    // Get or create the Responses sheet
     let responseSheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
     if (!responseSheet) {
       responseSheet = ss.insertSheet(RESPONSES_SHEET_NAME);
+      // Add headers
       const headers = [
         'Timestamp',
         'Full Name',
@@ -249,17 +380,24 @@ function doPost(e) {
         'HO Level Sewa Responsibilities'
       ];
       responseSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+      // Style the header row
       const headerRange = responseSheet.getRange(1, 1, 1, headers.length);
       headerRange.setFontWeight('bold');
       headerRange.setBackground('#1a237e');
       headerRange.setFontColor('#ffffff');
       headerRange.setHorizontalAlignment('center');
+      
+      // Auto-resize columns
       for (let i = 1; i <= headers.length; i++) {
         responseSheet.autoResizeColumn(i);
       }
+      
+      // Freeze header row
       responseSheet.setFrozenRows(1);
     }
 
+    // Prepare the row data
     const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
     const rowData = [
       timestamp,
@@ -273,7 +411,7 @@ function doPost(e) {
       formData.branchName || '',
       formData.branchArName || '',
       formData.branchArNumber || '',
-      '', // Brother / Sister blank to preserve original column indexing
+      '', // Brother / Sister is removed from form, so we leave this blank to maintain column alignment
       formData.bodhRole || '',
       formData.education || '',
       formData.occupation || '',
@@ -287,9 +425,12 @@ function doPost(e) {
       formData.hoSewa || ''
     ];
 
+    // Append the row
     responseSheet.appendRow(rowData);
-    console.log('Volunteer Form data saved successfully in tab: ' + RESPONSES_SHEET_NAME);
 
+    console.log('Form data saved successfully');
+
+    // Return success response
     return ContentService
       .createTextOutput(JSON.stringify({ 
         status: 'success', 
@@ -310,17 +451,22 @@ function doPost(e) {
 }
 
 /**
- * Main function to get analytics data for Dashboard
+ * Main function to get analytics data
  */
 function getAnalyticsData() {
   try {
+    console.log('Opening spreadsheet...');
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     if (!ss) throw new Error('Spreadsheet not found');
     
+    console.log('Getting sheet:', SHEET_NAME);
     const sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) throw new Error(`Sheet '${SHEET_NAME}' not found`);
     
+    console.log('Fetching data...');
     const data = sheet.getDataRange().getValues();
+    console.log(`Fetched ${data.length} rows of data`);
+    
     if (data.length < 2) {
       throw new Error('Not enough data in the sheet');
     }
@@ -329,6 +475,10 @@ function getAnalyticsData() {
     const headers = data[1];
     const dataRows = data.slice(2).filter(row => row.some(cell => cell !== ''));
     
+    console.log(`Processing ${dataRows.length} data rows`);
+    console.log('Headers:', headers);
+    
+    // Find column indices for important fields
     const columnIndices = {
       state: findColumnIndex(headers, 'State'),
       branch: findColumnIndex(headers, 'Branch Full'),
@@ -363,6 +513,7 @@ function getAnalyticsData() {
       campaignName: findColumnIndex(headers, 'Campaign Name')
     };
 
+    // Process the data
     const result = {
       summary: getSummaryStats(dataRows, columnIndices),
       byState: groupByState(dataRows, columnIndices),
@@ -379,25 +530,41 @@ function getAnalyticsData() {
   }
 }
 
+/**
+ * Helper function to find column index by header name
+ */
 function findColumnIndex(headers, name) {
   return headers.findIndex(header => 
     header && header.toString().trim().toLowerCase() === name.toLowerCase()
   );
 }
 
+/**
+ * Group data by state
+ */
 function groupByState(data, columns) {
   const result = {};
+  
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     if (!row || row.length < 2) continue;
+    
     const state = String(row[columns.state] || '').trim();
     if (!state) continue;
+    
     if (!result[state]) {
-      result[state] = { count: 0, branches: new Set(), activities: {} };
+      result[state] = {
+        count: 0,
+        branches: new Set(),
+        activities: {}
+      };
     }
+    
     result[state].count++;
+    
     const branch = String(row[columns.branch] || '').trim();
     if (branch) result[state].branches.add(branch);
+    
     if (columns.activityTypes && Array.isArray(columns.activityTypes)) {
       columns.activityTypes.forEach(activity => {
         if (activity && activity.index !== undefined) {
@@ -410,22 +577,32 @@ function groupByState(data, columns) {
       });
     }
   }
+  
   Object.keys(result).forEach(state => {
     result[state].branches = Array.from(result[state].branches);
   });
+  
   return result;
 }
 
+/**
+ * Get statistics by activity type
+ */
 function getActivityStats(data, columns) {
   const result = {};
+  
   if (columns.activityTypes && Array.isArray(columns.activityTypes)) {
     columns.activityTypes.forEach(activity => {
-      if (activity && activity.name) result[activity.name] = 0;
+      if (activity && activity.name) {
+        result[activity.name] = 0;
+      }
     });
   }
+  
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     if (!row || row.length < 2) continue;
+    
     if (columns.activityTypes && Array.isArray(columns.activityTypes)) {
       columns.activityTypes.forEach(activity => {
         if (activity && activity.index !== undefined) {
@@ -437,58 +614,83 @@ function getActivityStats(data, columns) {
       });
     }
   }
+  
   return result;
 }
 
+/**
+ * Get statistics by program type
+ */
 function getProgramTypeStats(data, columns) {
   const result = {};
+  
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     if (!row || row.length < 2) continue;
+    
     const programType = String(row[columns.programType] || '').trim();
     if (!programType) continue;
+    
     result[programType] = (result[programType] || 0) + 1;
   }
+  
   return result;
 }
 
+/**
+ * Get monthly statistics
+ */
 function getMonthlyStats(data, columns) {
   const result = {};
+  
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     if (!row || row.length < 2) continue;
+    
     const month = String(row[columns.month] || '').trim();
     const year = String(row[columns.year] || '').trim();
+    
     if (!month || !year) continue;
+    
     const monthYear = `${month} ${year}`;
     result[monthYear] = (result[monthYear] || 0) + 1;
   }
+  
   return result;
 }
 
+/**
+ * Calculate summary statistics
+ */
 function getSummaryStats(data, columns) {
   const states = new Set();
   const branches = new Set();
   let startDate = null;
   let endDate = null;
+  
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     if (!row || row.length < 2) continue;
+    
     const branch = String(row[columns.branch] || '').trim();
     const state = String(row[columns.state] || '').trim();
     const dateStr = row[columns.date];
     let date = null;
+    
     if (dateStr) {
       date = new Date(dateStr);
       if (isNaN(date.getTime())) date = null;
     }
+    
     if (branch) branches.add(branch);
     if (state) states.add(state);
+    
     if (date) {
       if (!startDate || date < startDate) startDate = date;
       if (!endDate || date > endDate) endDate = date;
     }
   }
+  
   return {
     totalEvents: data.length,
     totalBranches: branches.size,
@@ -498,11 +700,23 @@ function getSummaryStats(data, columns) {
   };
 }
 
+/**
+ * Calculate total beneficiaries
+ */
 function getTotalBeneficiaries(data, columns) {
-  const result = { men: 0, women: 0, students: 0, teachers: 0, children: 0, total: 0 };
+  const result = {
+    men: 0,
+    women: 0,
+    students: 0,
+    teachers: 0,
+    children: 0,
+    total: 0
+  };
+  
   for (let i = 0; i < data.length; i++) {
     const row = data[i];
     if (!row || !columns.beneficiaries) continue;
+    
     Object.entries(columns.beneficiaries).forEach(([key, colIndex]) => {
       if (colIndex !== -1) {
         const value = parseInt(row[colIndex]) || 0;
@@ -511,5 +725,124 @@ function getTotalBeneficiaries(data, columns) {
       }
     });
   }
+  
   return result;
+}
+
+
+// ==========================================
+// NEW REPORT FORM BACKEND FUNCTIONS (APPENDED)
+// ==========================================
+var MAIN_DRIVE_FOLDER_ID = '1Z6PKvQbNXo2RJ7DGZsCaWgoO1nzZiPgw';
+var FORM_SHEET_ID = '1OvVqqDI5JwTMJA4svMKXUb2JuOMQUaPgH7Un-UMum14';
+var FORM_SHEET_TAB_NAME = 'BODH Responses';
+
+function getOrCreateFolder(parentFolder, folderName) {
+  var folders = parentFolder.getFoldersByName(folderName);
+  if (folders.hasNext()) return folders.next();
+  return parentFolder.createFolder(folderName);
+}
+
+function generateFolderStructure(formData) {
+  try {
+    var state = formData.state; var branch = formData.branch; var dateStr = formData.date;
+    if (!state || !branch || !dateStr) throw new Error('State, Branch, and Date are required.');
+
+    var d = new Date(dateStr + 'T00:00:00'); var year = d.getFullYear().toString();
+    var fullMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var shortMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    var monthName = fullMonths[d.getMonth()];
+    var day = d.getDate();
+    var dayStr = (day < 10 ? '0' : '') + day;
+    var formattedDateFolder = dayStr + '-' + shortMonths[d.getMonth()] + '-' + year;
+
+    var mainDrive = DriveApp.getFolderById(MAIN_DRIVE_FOLDER_ID);
+    var eventsFolder = getOrCreateFolder(mainDrive, '2 - Events Reports - Year Wise');
+    var stateFolder = getOrCreateFolder(eventsFolder, state);
+    var branchFolder = getOrCreateFolder(stateFolder, branch);
+    var yearFolder = getOrCreateFolder(branchFolder, year);
+    var monthFolder = getOrCreateFolder(yearFolder, monthName);
+    var dateFolder = getOrCreateFolder(monthFolder, formattedDateFolder);
+
+    var rawFolder = getOrCreateFolder(dateFolder, 'Raw');
+    getOrCreateFolder(dateFolder, 'Selected');
+    getOrCreateFolder(dateFolder, 'Selected (Edited)');
+
+    var docNames = ['Writing', 'Editing', 'Proofreading', 'Crosscheck'];
+    var existingFiles = dateFolder.getFilesByType(MimeType.GOOGLE_DOCS);
+    var foundDocs = {};
+    while (existingFiles.hasNext()) foundDocs[existingFiles.next().getName()] = true;
+    
+    for (var i = 0; i < docNames.length; i++) {
+      if (!foundDocs[docNames[i]]) {
+        var newDoc = DocumentApp.create(docNames[i]);
+        DriveApp.getFileById(newDoc.getId()).moveTo(dateFolder);
+      }
+    }
+    return { rawFolderUrl: rawFolder.getUrl(), dateFolderUrl: dateFolder.getUrl() };
+  } catch (e) {
+    return { error: e.message };
+  }
+}
+
+function submitReport(formData) {
+  try {
+    var ss = SpreadsheetApp.openById(FORM_SHEET_ID);
+    var sheet = ss.getSheetByName(FORM_SHEET_TAB_NAME);
+    if (!sheet) throw new Error('Sheet tab "' + FORM_SHEET_TAB_NAME + '" not found.');
+
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+
+    var autoEmail = Session.getActiveUser().getEmail() || '';
+    if(!autoEmail) autoEmail = Session.getEffectiveUser().getEmail() || '';
+
+    var sParts = formData.timeFrom ? formData.timeFrom.split(':') : null;
+    var eParts = formData.timeTo ? formData.timeTo.split(':') : null;
+    var sTime = ''; var eTime = '';
+    if(sParts) { var h = parseInt(sParts[0],10); var ampm = h>=12?'pm':'am'; h = h%12; h = h?h:12; sTime = h+':'+sParts[1]+' '+ampm; }
+    if(eParts) { var h = parseInt(eParts[0],10); var ampm = h>=12?'pm':'am'; h = h%12; h = h?h:12; eTime = h+':'+eParts[1]+' '+ampm; }
+    var timeString = (sTime && eTime) ? (sTime + ' to ' + eTime) : (sTime || eTime);
+
+    var rowData = [];
+    for (var i = 0; i < headers.length; i++) {
+      var h = headers[i].toString().trim();
+      if (h === 'Timestamp') rowData.push(new Date());
+      else if (h === 'Email Address') rowData.push(autoEmail);
+      else if (h.indexOf('कार्यकारी टीम') > -1 || h.indexOf('Executing Team') > -1) rowData.push(formData.executingTeam || '');
+      else if (h === 'राज्य | State') rowData.push(formData.state || '');
+      else if (h.indexOf('शाखा | Branch') > -1) {
+        if (h.indexOf('(' + formData.state + ')') > -1) rowData.push(formData.branch || '');
+        else rowData.push('');
+      }
+      else if (h.indexOf('स्थान | Venue') > -1) rowData.push(formData.venue || '');
+      else if (h.indexOf('विषय / थीम') > -1) rowData.push(formData.theme || '');
+      else if (h.indexOf('दिनांक / Date') > -1) rowData.push(formData.date || '');
+      else if (h.indexOf('समय / Timings') > -1) rowData.push(timeString || '');
+      else if (h.indexOf('पुरुष / Male') > -1) rowData.push(formData.male || '');
+      else if (h.indexOf('महिलाएं / Female') > -1) rowData.push(formData.female || '');
+      else if (h.indexOf('बच्चे') > -1) rowData.push(formData.children || '');
+      else if (h.indexOf('आयोजक / Organizer') > -1) rowData.push(formData.organizer || '');
+      else if (h.indexOf('भागीदार / प्रायोजक') > -1) rowData.push(formData.partner || '');
+      else if (h.indexOf('अतिथि / वक्ता') > -1) rowData.push(''); 
+      else if (h === 'नाम | Name') rowData.push(formData.guestName || '');
+      else if (h.indexOf('पद / Designation') > -1) rowData.push(formData.guestDesignation || '');
+      else if (h.indexOf('सहयोगी संगठन') > -1) rowData.push(formData.guestOrg || '');
+      else if (h.indexOf('संचालित गतिविधियाँ') > -1) rowData.push(formData.activities || '');
+      else if (h.indexOf('कोई विशेष जानकारी') > -1) rowData.push(formData.observation || '');
+      else if (h.indexOf('फोटोज़') > -1) rowData.push(formData.photos || '');
+      else if (h.indexOf('वीडियो') > -1) rowData.push(formData.videos || '');
+      else if (h.indexOf('प्रैस विज्ञप्ति') > -1) rowData.push(formData.pressRelease || '');
+      else if (h.indexOf('प्रशंसा पत्र') > -1) rowData.push(formData.appreciation || '');
+      else if (h.indexOf('प्रचार माध्यम') > -1) rowData.push(formData.publicity || '');
+      else if (h.indexOf('ज्ञान दीक्षा') > -1) rowData.push(formData.initiatedCount || '');
+      else if (h.indexOf('फीडबैक') > -1) rowData.push(formData.feedback || '');
+      else if (h === 'Link') rowData.push(formData.folderLink || '');
+      else rowData.push('');
+    }
+    sheet.appendRow(rowData);
+    return { success: true };
+  } catch(e) {
+    return { error: e.message };
+  }
 }
