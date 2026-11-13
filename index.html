@@ -1580,23 +1580,36 @@
                 <!-- Filters & Controls Bar -->
                 <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 18px; margin-bottom:16px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
                     <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
+                        <!-- 1. State Filter -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">State:</label>
-                            <select id="trackerStateFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none; min-width:180px;">
+                            <select id="trackerStateFilter" onchange="onTrackerStateChange()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none; min-width:170px;">
                                 <option value="">🇮🇳 All India States</option>
                             </select>
                         </div>
+
+                        <!-- 2. Branch Dropdown Filter (with auto-sync to selected State) -->
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <label style="font-size:0.85rem; font-weight:700; color:#334155;">Branch:</label>
+                            <select id="trackerBranchFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none; min-width:170px; max-width:220px;">
+                                <option value="">🏢 All Branches</option>
+                            </select>
+                        </div>
+
+                        <!-- 3. Search Box -->
+                        <div style="min-width:180px; flex:1; max-width:260px;">
+                            <input type="text" id="trackerSearch" oninput="applyTrackerFilters()" placeholder="🔍 Type to search branch..." style="width:100%; padding:8px 14px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; outline:none;" />
+                        </div>
+
+                        <!-- 4. Status Filter -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">Status:</label>
                             <select id="trackerStatusFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none;">
-                                <option value="">All Branches</option>
+                                <option value="">All Status</option>
                                 <option value="pending">Pending Roles (⚠️ Left)</option>
                                 <option value="completed">Completed (✓)</option>
                                 <option value="district_pending">District Info Pending (0)</option>
                             </select>
-                        </div>
-                        <div style="flex:1; min-width:200px;">
-                            <input type="text" id="trackerSearch" oninput="applyTrackerFilters()" placeholder="🔍 Search branch name..." style="width:100%; padding:8px 14px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; outline:none;" />
                         </div>
                     </div>
                     <div style="font-size:0.85rem; color:#64748b; font-weight:600;">
@@ -4318,12 +4331,43 @@
                 });
             }
 
+            // Populate branch dropdown
+            populateTrackerBranchDropdown();
+
             if (!trackerInitialized || !trackerDataCache) {
                 refreshTrackerData();
                 trackerInitialized = true;
             } else {
                 renderTrackerTable();
             }
+        }
+
+        function populateTrackerBranchDropdown() {
+            const branchSel = document.getElementById('trackerBranchFilter');
+            const stateSel = document.getElementById('trackerStateFilter');
+            if (!branchSel) return;
+
+            const selectedState = stateSel ? stateSel.value : '';
+            const prevSelectedBranch = branchSel.value;
+            const allIndia = getIndiaBranchesList();
+
+            const branches = (selectedState 
+                ? (REG_BRANCHES[selectedState] || []) 
+                : allIndia.map(i => i.branch)).slice().sort();
+
+            branchSel.innerHTML = '<option value="">🏢 All Branches</option>';
+            branches.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.textContent = b;
+                if (b === prevSelectedBranch) opt.selected = true;
+                branchSel.appendChild(opt);
+            });
+        }
+
+        function onTrackerStateChange() {
+            populateTrackerBranchDropdown();
+            applyTrackerFilters();
         }
 
         async function refreshTrackerData() {
@@ -4384,6 +4428,7 @@
             if (!tbody) return;
 
             const selectedState = document.getElementById('trackerStateFilter') ? document.getElementById('trackerStateFilter').value : '';
+            const selectedBranch = document.getElementById('trackerBranchFilter') ? document.getElementById('trackerBranchFilter').value : '';
             const selectedStatus = document.getElementById('trackerStatusFilter') ? document.getElementById('trackerStatusFilter').value : '';
             const searchQ = (document.getElementById('trackerSearch') ? document.getElementById('trackerSearch').value : '').toLowerCase().trim();
 
@@ -4476,6 +4521,7 @@
             // Filter rows
             let filtered = processedRows.filter(r => {
                 if (selectedState && r.state !== selectedState) return false;
+                if (selectedBranch && r.branch !== selectedBranch) return false;
                 if (searchQ && !r.branch.toLowerCase().includes(searchQ)) return false;
                 if (selectedStatus === 'completed' && !r.isPocComplete) return false;
                 if (selectedStatus === 'pending' && r.isPocComplete) return false;
