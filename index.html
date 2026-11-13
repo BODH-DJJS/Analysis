@@ -1508,15 +1508,46 @@
                         <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.88rem;">
                             <thead>
                                 <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; color:#334155; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.4px;">
-                                    <th style="padding:14px 16px;">#</th>
-                                    <th style="padding:14px 16px;">State</th>
-                                    <th style="padding:14px 16px;">Branch Name</th>
-                                    <th style="padding:14px 16px; text-align:center;">District Info<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Filled: 1 / 0)</small></th>
-                                    <th style="padding:14px 16px; text-align:center;">BBBH<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Head Bros: Min 1)</small></th>
-                                    <th style="padding:14px 16px; text-align:center;">BBBM<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Member Bros: Min 3)</small></th>
-                                    <th style="padding:14px 16px; text-align:center;">BSBH<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Head Sis: Min 1)</small></th>
-                                    <th style="padding:14px 16px; text-align:center;">BSBM<br><small style="font-size:0.72rem; text-transform:none; font-weight:normal;">(Member Sis: Min 3)</small></th>
-                                    <th style="padding:14px 16px; text-align:center;">Overall Status</th>
+                                    <th style="padding:12px 14px; width:45px;">#</th>
+                                    <th style="padding:12px 14px; cursor:pointer; user-select:none;" onclick="setTrackerSort('state')" title="Click to sort by State">
+                                        <div style="display:flex; align-items:center; gap:4px;">State <span id="sort_icon_state">↕️</span></div>
+                                    </th>
+                                    <th style="padding:12px 14px; cursor:pointer; user-select:none;" onclick="setTrackerSort('branch')" title="Click to sort by Branch Name">
+                                        <div style="display:flex; align-items:center; gap:4px;">Branch Name <span id="sort_icon_branch">↕️</span></div>
+                                    </th>
+                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('distFilled')" title="Click to sort by District Info">
+                                        <div style="display:inline-flex; flex-direction:column; align-items:center;">
+                                            <span>District Info <span id="sort_icon_distFilled">↕️</span></span>
+                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Filled: 1 / 0)</small>
+                                        </div>
+                                    </th>
+                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bbbh')" title="Click to sort by BBBH">
+                                        <div style="display:inline-flex; flex-direction:column; align-items:center;">
+                                            <span>BBBH <span id="sort_icon_bbbh">↕️</span></span>
+                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Head Bros: Min 1)</small>
+                                        </div>
+                                    </th>
+                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bbbm')" title="Click to sort by BBBM">
+                                        <div style="display:inline-flex; flex-direction:column; align-items:center;">
+                                            <span>BBBM <span id="sort_icon_bbbm">↕️</span></span>
+                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Member Bros: Min 3)</small>
+                                        </div>
+                                    </th>
+                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bsbh')" title="Click to sort by BSBH">
+                                        <div style="display:inline-flex; flex-direction:column; align-items:center;">
+                                            <span>BSBH <span id="sort_icon_bsbh">↕️</span></span>
+                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Head Sis: Min 1)</small>
+                                        </div>
+                                    </th>
+                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bsbm')" title="Click to sort by BSBM">
+                                        <div style="display:inline-flex; flex-direction:column; align-items:center;">
+                                            <span>BSBM <span id="sort_icon_bsbm">↕️</span></span>
+                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Member Sis: Min 3)</small>
+                                        </div>
+                                    </th>
+                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('totalLeft')" title="Click to sort by Overall Status">
+                                        <div style="display:inline-flex; align-items:center; gap:4px;">Overall Status <span id="sort_icon_totalLeft">↕️</span></div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="trackerTableBody">
@@ -4138,6 +4169,32 @@
         // ============================================================
         let trackerDataCache = null;
         let trackerInitialized = false;
+        let trackerSortCol = 'state';
+        let trackerSortAsc = true;
+
+        function setTrackerSort(colKey) {
+            if (trackerSortCol === colKey) {
+                trackerSortAsc = !trackerSortAsc;
+            } else {
+                trackerSortCol = colKey;
+                trackerSortAsc = true;
+            }
+            renderTrackerTable();
+        }
+
+        function updateTrackerSortIcons() {
+            const cols = ['state', 'branch', 'distFilled', 'bbbh', 'bbbm', 'bsbh', 'bsbm', 'totalLeft'];
+            cols.forEach(c => {
+                const el = document.getElementById('sort_icon_' + c);
+                if (el) {
+                    if (trackerSortCol === c) {
+                        el.textContent = trackerSortAsc ? '🔼' : '🔽';
+                    } else {
+                        el.textContent = '↕️';
+                    }
+                }
+            });
+        }
 
         function getIndiaBranchesList() {
             // Build flat list of all India branches with their State
@@ -4284,13 +4341,32 @@
             if (distEl) distEl.textContent = totalDistrictFilled;
 
             // Filter rows
-            const filtered = processedRows.filter(r => {
+            let filtered = processedRows.filter(r => {
                 if (selectedState && r.state !== selectedState) return false;
                 if (searchQ && !r.branch.toLowerCase().includes(searchQ)) return false;
                 if (selectedStatus === 'completed' && !r.isPocComplete) return false;
                 if (selectedStatus === 'pending' && r.isPocComplete) return false;
                 if (selectedStatus === 'district_pending' && r.distFilled > 0) return false;
                 return true;
+            });
+
+            // Apply Sorting
+            updateTrackerSortIcons();
+            filtered.sort((a, b) => {
+                let vA = a[trackerSortCol];
+                let vB = b[trackerSortCol];
+
+                if (typeof vA === 'string') {
+                    vA = vA.toLowerCase();
+                    vB = vB.toLowerCase();
+                    if (vA < vB) return trackerSortAsc ? -1 : 1;
+                    if (vA > vB) return trackerSortAsc ? 1 : -1;
+                    return 0;
+                } else {
+                    vA = Number(vA) || 0;
+                    vB = Number(vB) || 0;
+                    return trackerSortAsc ? (vA - vB) : (vB - vA);
+                }
             });
 
             const countEl = document.getElementById('trackerFilteredCount');
