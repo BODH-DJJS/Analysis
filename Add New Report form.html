@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <title>BODH Event Reporting / बोध कार्यक्रम रिपोर्टिंग</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  
+  <!-- IMPORTANT: Flatpickr MUST be loaded normally via standard tags in Apps Script -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  
+  <style>
+    :root {
+      --saffron: #FF6B35; --saffron-dark: #e55a28; --saffron-light: #fff3ed;
+      --navy: #1a1a5e; --navy-light: #2d2d7a;
+      --teal: #0ea5a0; --teal-dark: #0c8c88;
+      --bg: #f4f6fb; --card: #ffffff;
+      --text: #1e293b; --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981; --error: #ef4444;
+      --shadow: 0 4px 24px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .page-header { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 50%, var(--saffron) 100%); padding: 28px 20px 32px; text-align: center; }
+    .header-badge { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgba(255,255,255,0.15); border-radius: 18px; font-size: 1.6rem; color: #fff; margin-bottom: 12px; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; color: #fff; line-height: 1.4; }
+    .page-header h1 small { display: block; font-size: 0.95rem; font-weight: 500; opacity: 0.85; margin-top: 2px; }
+    .page-header p { color: rgba(255,255,255,0.75); font-size: 0.85rem; margin-top: 8px; }
+    .form-container { max-width: 820px; margin: -20px auto 40px; padding: 0 16px; }
+    .section-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid var(--bg); }
+    .section-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--saffron), var(--saffron-dark)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #fff; }
+    .section-icon.teal { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); }
+    .section-icon.navy { background: linear-gradient(135deg, var(--navy), var(--navy-light)); }
+    .section-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+    .section-title { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+    .section-title small { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-muted); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .field { display: flex; flex-direction: column; }
+    .field label { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px; text-transform: uppercase; }
+    .field label .hi { font-weight: 500; color: var(--saffron-dark); text-transform: none; font-size: 0.82rem; }
+    .field label .req { color: var(--error); margin-left: 2px; }
+    .field input, .field select, .field textarea { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.92rem; font-family: inherit; background: #fafbfd; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--saffron); outline: none; background: #fff; }
+    .field .hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+    .guest-block { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; position: relative; }
+    .guest-block .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+    .add-btn { background: #e0f2fe; color: #0284c7; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-block; margin-top: 5px; }
+    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .cb-item { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--text); }
+    .cb-item input { width: 16px; height: 16px; accent-color: var(--navy); }
+    .time-row { display: flex; align-items: center; gap: 10px; }
+    .time-row input { flex: 1; }
+    .date-display { display: inline-block; margin-top: 6px; font-weight: 700; color: var(--saffron-dark); font-size: 0.9rem; background: var(--saffron-light); padding: 4px 10px; border-radius: 6px; }
+    .yn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .yn-item { display: flex; flex-direction: column; background: #fafbfd; border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+    .yn-item label.yn-label { font-size: 0.85rem; font-weight: 700; text-align: center; margin-bottom: 8px; }
+    .yn-toggle { display: flex; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .yn-toggle label { flex: 1; text-align: center; padding: 10px 0; font-weight: 700; cursor: pointer; background: #fff; color: var(--text-muted); font-size: 0.95rem; }
+    .yn-toggle input { display: none; }
+    .yn-toggle input[value="Y"]:checked + label { background: var(--success); color: #fff; }
+    .yn-toggle input[value="N"]:checked + label { background: var(--error); color: #fff; }
+    .media-row { display: flex; align-items: center; justify-content: space-between; background: #fafbfd; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
+    .media-label { font-size: 0.95rem; font-weight: 600; color: var(--navy); width: 220px; }
+    .media-yn { display: flex; gap: 8px; align-items: center; }
+    .media-yn input { display: none; }
+    .yn-pill { padding: 6px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: #fff; color: var(--text-muted); transition: all 0.2s ease; }
+    .media-yn input[value="Yes"]:checked + .yn-pill { background: #ecfdf5; border-color: #10b981; color: #065f46; box-shadow: 0 2px 8px rgba(16,185,129,0.15); }
+    .media-yn input[value="No"]:checked + .yn-pill { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    .media-upload-slot { flex: 1; text-align: right; font-size: 0.85rem; }
+    @media (max-width: 600px) {
+      .media-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .media-label { width: 100%; margin-bottom: 4px; }
+      .media-upload-slot { text-align: left; width: 100%; margin-top: 2px; }
+    }
+    .bottom-action-box { text-align: center; padding: 24px; background: #f8fafc; border: 2px dashed var(--navy); border-radius: var(--radius); margin-bottom: 20px; }
+    .btn-create-folder { padding: 12px 32px; background: var(--navy); color: #fff; font-size: 1rem; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; }
+    .folder-success { display: none; background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 16px; margin-top: 16px; }
+    .folder-success a { display: inline-block; margin-top: 8px; padding: 8px 24px; background: #10b981; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; }
+    .btn-submit { display: inline-flex; width: 100%; justify-content: center; padding: 16px; background: linear-gradient(135deg, var(--saffron), var(--saffron-dark)); color: #fff; font-size: 1.1rem; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 6px 20px rgba(255,107,53,0.3); margin-top: 10px; opacity: 0.5; }
+    .btn-submit.active { opacity: 1; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 999; align-items: center; justify-content: center; }
+    .overlay.visible { display: flex; }
+    .status-card { background: #fff; border-radius: 16px; padding: 36px 32px; text-align: center; max-width: 400px; width: 90%; }
+    .submit-spinner { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: var(--saffron); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="header-badge">B</div>
+    <h1>बोध कार्यक्रम रिपोर्टिंग फॉर्म <small>BODH Event Reporting Form</small></h1>
+  </div>
+
+  <div class="form-container">
+    <form id="bodhForm" novalidate>
+
+      <!-- SECTION 1 -->
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon">📋</div><div class="section-title">कार्यक्रम का विवरण <small>Event Basic Details</small></div></div>
+        <div class="form-grid">
+          
+          <!-- Executing Team ADDED HERE -->
+          <div class="field full">
+            <label><span class="hi">कार्यकारी टीम</span> / Executing Team <span class="req">*</span></label>
+            <select id="executingTeam" required>
+              <option value="">-- चुनें / Select --</option>
+              <option value="Yuva Parivar Sewa Samiti (YPSS)">Yuva Parivar Sewa Samiti (YPSS)</option>
+              <option value="BODH Sisters Team">BODH Sisters Team</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label><span class="hi">दिनांक</span> / Date <span class="req">*</span></label>
+            <input type="text" id="date" required placeholder="DD/MM/YYYY">
+          </div>
+          <div class="field">
+            <label><span class="hi">राज्य</span> / State <span class="req">*</span></label>
+            <select id="state" required onchange="populateBranches()"><option value="">-- राज्य चुनें --</option></select>
+          </div>
+          <div class="field">
+            <label><span class="hi">शाखा</span> / Branch <span class="req">*</span></label>
+            <select id="branch" required><option value="">-- पहले राज्य चुनें --</option></select>
+          </div>
+          <div class="field">
+            <label><span class="hi">स्थान</span> / Venue <span class="req">*</span></label>
+            <input type="text" id="venue" required>
+          </div>
+          <div class="field full">
+            <label><span class="hi">विषय / थीम</span> / Subject / Theme <span class="req">*</span></label>
+            <select id="theme" required>
+              <option value="">-- विषय चुनें / Select Theme --</option>
+              <option value="Sankalp - The Real Hero">Sankalp - The Real Hero</option>
+              <option value="Sankalp - Quit Karo">Sankalp - Quit Karo</option>
+              <option value="Sankalp - Ek Yudhh Apne Virudhh">Sankalp - Ek Yudhh Apne Virudhh</option>
+              <option value="Sankalp- Unplugging">Sankalp- Unplugging</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label><span class="hi">समय</span> / Timings</label>
+            <div class="time-row">
+              <input type="time" id="timeFrom"> <span class="time-sep">से / to</span> <input type="time" id="timeTo">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: PARTICIPANTS -->
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon teal">👥</div><div class="section-title">प्रतिभागी एवं अतिथि <small>Participants & Guests</small></div></div>
+        <div class="form-grid">
+          <div class="field"><label><span class="hi">पुरुष</span> / Male</label><input type="number" id="male" min="0"></div>
+          <div class="field"><label><span class="hi">महिलाएं</span> / Female</label><input type="number" id="female" min="0"></div>
+          <div class="field"><label><span class="hi">बच्चे</span> / Children</label><input type="number" id="children" min="0"></div>
+          <div class="field"><label><span class="hi">आयोजक</span> / Organizer(s)</label><input type="text" id="organizer"></div>
+          <div class="field full"><label><span class="hi">भागीदार / प्रायोजक</span> / Partner(s)</label><input type="text" id="partner"></div>
+        </div>
+        <div style="margin-top:20px; border-top:1px solid #e2e8f0; padding-top:16px;">
+          <label style="font-size:0.85rem; font-weight:700; color:var(--navy); margin-bottom:10px; display:block;">अतिथि / वक्ता / प्रतिभागी (Guests / Speakers)</label>
+          <div id="guestsContainer">
+            <div class="guest-block form-grid" data-index="0">
+              <div class="field full"><label>नाम / Name</label><input type="text" class="g-name" placeholder="Guest Name"></div>
+              <div class="field"><label>पद / Designation</label><input type="text" class="g-desig" placeholder="Designation"></div>
+              <div class="field"><label>संगठन / Organization</label><input type="text" class="g-org" placeholder="Organization"></div>
+            </div>
+          </div>
+          <button type="button" class="add-btn" onclick="addGuest()">+ Add Another Guest</button>
+        </div>
+      </div>
+
+      <!-- SECTION 4: ACTIVITIES & MEDIA -->
+      <div class="section-card">
+        <div class="section-header"><div class="section-icon navy">🎯</div><div class="section-title">गतिविधियाँ और मीडिया <small>Activities & Media</small></div></div>
+        
+        <div class="field full" style="margin-bottom:16px;">
+          <label><span class="hi">संचालित गतिविधियाँ</span> / Activities Conducted</label>
+          <div class="checkbox-grid" id="activitiesGrid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div class="field full"><label><span class="hi">कोई विशेष जानकारी</span> / Any Important Observation</label><textarea id="observation"></textarea></div>
+
+        <div style="margin-top:20px;">
+          <label style="display:block; font-size:0.78rem; font-weight:700; color:var(--navy); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">मीडिया / Media</label>
+          
+          <div class="media-row" id="mrow-Photos">
+            <span class="media-label">📷 फोटोज़ / Photos <span class="req" style="color:var(--error);">*</span></span>
+            <div class="media-yn">
+              <input type="hidden" name="photos" id="val-Photos" value="No">
+              <button type="button" class="yn-pill" style="background:#e0f2fe; border-color:#0284c7; color:#0284c7;" onclick="triggerUpload('Photos', this)">📤 अपलोड करें / Upload</button>
+            </div>
+            <div class="media-upload-slot" id="media-status-Photos"></div>
+          </div>
+
+          <div class="media-row" id="mrow-Videos">
+            <span class="media-label">🎬 वीडियो / Videos</span>
+            <div class="media-yn">
+              <input type="hidden" name="videos" id="val-Videos" value="No">
+              <button type="button" class="yn-pill" style="background:#e0f2fe; border-color:#0284c7; color:#0284c7;" onclick="triggerUpload('Videos', this)">📤 अपलोड करें / Upload</button>
+            </div>
+            <div class="media-upload-slot" id="media-status-Videos"></div>
+          </div>
+
+          <div class="media-row" id="mrow-Press Release">
+            <span class="media-label">📰 प्रैस विज्ञप्ति / Press Release</span>
+            <div class="media-yn">
+              <input type="hidden" name="pressRelease" id="val-Press Release" value="No">
+              <button type="button" class="yn-pill" style="background:#e0f2fe; border-color:#0284c7; color:#0284c7;" onclick="triggerUpload('Press Release', this)">📤 अपलोड करें / Upload</button>
+            </div>
+            <div class="media-upload-slot" id="media-status-Press Release"></div>
+          </div>
+
+          <div class="media-row" id="mrow-Appreciation">
+            <span class="media-label">🏆 प्रशंसा पत्र / Appreciation</span>
+            <div class="media-yn">
+              <input type="hidden" name="appreciation" id="val-Appreciation" value="No">
+              <button type="button" class="yn-pill" style="background:#e0f2fe; border-color:#0284c7; color:#0284c7;" onclick="triggerUpload('Appreciation', this)">📤 अपलोड करें / Upload</button>
+            </div>
+            <div class="media-upload-slot" id="media-status-Appreciation"></div>
+          </div>
+        </div>
+        
+        <div class="form-grid" style="margin-top:18px;">
+          <div class="field"><label><span class="hi">प्रचार माध्यम</span> / Publicity Source(s)</label><input type="text" id="publicity"></div>
+          <div class="field"><label><span class="hi">ज्ञान दीक्षा संख्या</span> / No. of People Initiated</label><input type="number" id="initiatedCount" min="0"></div>
+          <div class="field full"><label><span class="hi">फीडबैक</span> / Feedback</label><textarea id="feedback"></textarea></div>
+        </div>
+      </div>
+
+      <div class="bottom-action-box" style="margin-top:20px;">
+        <button type="submit" class="btn-submit active" id="btnSubmit">
+          🚀 रिपोर्ट जमा करें / Final Submit
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- OVERLAYS -->
+  <div class="overlay" id="loadingOverlay">
+    <div class="status-card">
+      <div class="submit-spinner" id="defSpinner"></div>
+      <div id="loadingContent">
+        <h3 id="loadingTitle" style="color: #065f46; font-weight: 800; font-size: 1.3rem;">कृपया प्रतीक्षा करें...</h3>
+        <p id="loadingMsg" style="color: #10b981; font-weight: 600; font-size: 0.95rem; margin-top: 8px;">Loading...</p>
+        
+        <div id="progContainer" style="display:none; width: 100%; background: #e2e8f0; border-radius: 12px; height: 18px; position: relative; margin: 30px 0 10px;">
+           <div id="progBarFill" style="background: linear-gradient(90deg, #10b981, #059669); width: 0%; height: 100%; border-radius: 12px; transition: width 0.3s linear; box-shadow: 0 0 10px rgba(16,185,129,0.4);"></div>
+           <div id="progBarIcon" style="position: absolute; top: -8px; left: 0%; transition: left 0.3s linear; font-size: 1.6rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 2;">🏹</div>
+           <div style="position: absolute; top: -8px; right: -12px; font-size: 1.6rem; z-index: 1;">🎯</div>
+        </div>
+        
+        <div id="progText" style="display:none; color: #065f46; font-weight: 800; font-size: 1.3rem; margin-top: 5px;">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="successOverlay"><div class="status-card"><div style="font-size:3rem;margin-bottom:10px;">🎉</div><h3>सफलतापूर्वक जमा हो गया!</h3><button style="margin-top:15px;padding:10px 24px;background:var(--success);color:#fff;border:none;border-radius:6px;cursor:pointer;" onclick="location.reload()">नया फॉर्म / Reload</button></div></div>
+
+  <div class="overlay" id="alertOverlay">
+    <div class="status-card" style="padding: 24px; max-width: 450px;">
+      <div style="font-size: 2.5rem; margin-bottom: 10px;">⚠️</div>
+      <p id="alertMsg" style="color: #334155; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; white-space: pre-wrap; font-weight: 500;"></p>
+      <button style="padding: 10px 24px; background: #b91c1c; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="document.getElementById('alertOverlay').classList.remove('visible')">OK</button>
+    </div>
+  </div>
+
+  <script>
+    function customAlert(msg) {
+      document.getElementById('alertMsg').textContent = msg;
+      document.getElementById('alertOverlay').classList.add('visible');
+    }
+
+    const passedEmail = <?= JSON.stringify(userEmail) ?>;
+
+        const BRANCHES = {
+        "Assam (IN)": ["Dibrugarh"],
+        "Bihar (IN)": ["Araria", "Bhagalpur", "Bodhgaya", "Darbhanga", "Patna", "Saharsa", "Siwan", "Udakishunganj"],
+        "Chhattisgarh (IN)": ["Saraipali"],
+        "Delhi (IN)": ["Divya Dham Ashram", "Dwarka", "Karkarduma", "Nehru Place", "Patel Nagar", "Pitampura (Head office)", "Rohini Sec-15", "Vikaspuri"],
+        "Gujarat (IN)": ["Ahmedabad", "Vadodara"],
+        "Haryana (IN)": ["Ambala", "Babain", "Bilaspur", "Faridabad NIIT", "Faridabad Surya Nagar", "Gurugram", "Hisar", "Jagadhari", "Kaithal", "Karnal", "Kurukshetra", "Naraingarh", "Panchkula", "Panipat", "Rewari", "Sahoowal", "Sirsa"],
+        "Himachal Pradesh (IN)": ["Shimla"],
+        "Jammu and Kashmir (IN)": ["Jammu"],
+        "Jharkhand (IN)": ["Dhanbad", "Ranchi"],
+        "Karnataka (IN)": ["Bengaluru"],
+        "Madhya Pradesh (IN)": ["Bhopal", "Gwalior", "Mandla", "Nasrullaganj", "Shyampur"],
+        "Maharashtra (IN)": ["Amravati", "Chakan", "Gondia", "Latur", "Nagpur", "Pathardi", "Pune"],
+        "Orissa (IN)": ["Bhubaneshwar", "Sambalpur"],
+        "Punjab (IN)": ["Abohar", "Amritsar", "Batala", "Bathinda", "Chandigarh", "DMK", "Dhilwan", "Fazilka", "Ferozepur", "Harpura", "Hoshiarpur", "Jalandhar", "Kapurthala", "Kotkapura", "Ludhiana", "Malout", "Manawala", "Moga", "Muktsar", "Nurmahal", "Pathankot", "Patiala", "Samana", "Shaheed Bhagat Singh Nagar", "Shehzada", "Sunam", "Tarn taran"],
+        "Rajasthan (IN)": ["Bikaner", "Dungarpur", "Hanumangarh", "Jaipur", "Jodhpur", "Kota", "Sangria", "Sri Ganganagar", "Suratgarh", "Udaipur"],
+        "Tamil Nadu (IN)": ["Chennai"],
+        "Telangana (IN)": ["Hyderabad"],
+        "Uttar Pradesh (IN)": ["Agra", "Aligarh", "Bareilly", "Ghaziabad", "Gorakhpur", "Kanpur", "Lucknow", "Meerut", "Noida", "Prayagraj", "Saharanpur", "Varanasi"],
+        "Uttarakhand (IN)": ["Dehradun", "Pauri Garhwal", "Pithoragarh", "Rudrapur"],
+        "Outside India": ["Athens", "Auckland", "Berbice", "Brisbane", "East Bank Demerara", "Fairfield", "Fresno", "Hamilton, Canada", "Harlington, UK", "Itzehoe, Germany", "Kathmandu Nepal", "Lebanon", "London", "Manama, Bahrain", "Mantova", "Melbourne", "Motteggiana", "Nawanshahr", "New York (1)", "New York (2)", "Ontario", "Sacramento", "Seattle", "Southern California"]
+    };
+
+    const ACTIVITIES_LIST = [
+      "Lecture", "Skit", "Motivational Songs", "Choreography", "Demo", "Video Screening",
+      "Meditation Session", "Discussion/ Meeting / Conference", "Exhibition", "Om Chanting",
+      "Counseling", "Activities", "Rally / Road Show", "Drawing / Craft", "Signature Campaign",
+      "Testimony / Sharing Testimonials", "Pledge", "TOT", "Survey", "De addiction Camp", "Physical Activities", "Other"
+    ];
+
+    let guestCount = 1;
+
+    function init() {
+      const sel = document.getElementById('state');
+      Object.keys(BRANCHES).sort().forEach(s => {
+        const o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o);
+      });
+      document.getElementById('timeFrom').value = "10:00";
+      document.getElementById('timeTo').value = "12:00";
+      const grid = document.getElementById('activitiesGrid');
+      grid.innerHTML = ACTIVITIES_LIST.map((act, i) => `
+        <label class="cb-item">
+          <input type="checkbox" name="activityCb" value="${act}"> ${act}
+        </label>
+      `).join('');
+      
+      // THIS MAKES FLATPICKR WORK IN APPS SCRIPT
+      flatpickr('#date', {
+        altInput: true,
+        altFormat: 'd-M-Y',
+        dateFormat: 'Y-m-d',
+        maxDate: 'today',
+        disableMobile: true
+      });
+    }
+
+    function populateBranches() {
+      const state = document.getElementById('state').value;
+      const sel = document.getElementById('branch');
+      sel.innerHTML = '<option value="">-- शाखा चुनें / Select Branch --</option>';
+      if (state && BRANCHES[state]) {
+        BRANCHES[state].forEach(b => {
+          const o = document.createElement('option'); o.value = b; o.textContent = b; sel.appendChild(o);
+        });
+      }
+    }
+
+
+    function addGuest() {
+      const container = document.getElementById('guestsContainer');
+      const div = document.createElement('div');
+      div.className = 'guest-block form-grid';
+      div.innerHTML = `
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">X</button>
+        <div class="field full"><label>नाम / Name</label><input type="text" class="g-name"></div>
+        <div class="field"><label>पद / Designation</label><input type="text" class="g-desig"></div>
+        <div class="field"><label>संगठन / Organization</label><input type="text" class="g-org"></div>
+      `;
+      container.appendChild(div);
+    }
+
+    function compileGuests() {
+      const blocks = document.querySelectorAll('.guest-block');
+      let names=[], desigs=[], orgs=[];
+      blocks.forEach(b => {
+        const n = b.querySelector('.g-name').value.trim();
+        const d = b.querySelector('.g-desig').value.trim();
+        const o = b.querySelector('.g-org').value.trim();
+        if(n || d || o) {
+          names.push(n||'-'); desigs.push(d||'-'); orgs.push(o||'-');
+        }
+      });
+      return { names: names.join('\n'), desigs: desigs.join('\n'), orgs: orgs.join('\n') };
+    }
+
+    let globalLoadInterval = null;
+
+    function showLoad(title, msg, simulateProgress = false) {
+      document.getElementById('loadingTitle').innerHTML = title;
+      document.getElementById('loadingMsg').innerHTML = msg;
+      const spinner = document.getElementById('defSpinner');
+      const progContainer = document.getElementById('progContainer');
+      const progText = document.getElementById('progText');
+      const progBarFill = document.getElementById('progBarFill');
+      const progBarIcon = document.getElementById('progBarIcon');
+
+      if (simulateProgress) {
+        spinner.style.display = 'none';
+        progContainer.style.display = 'block';
+        progText.style.display = 'block';
+        
+        let p = 0;
+        progBarFill.style.width = '0%';
+        progBarIcon.style.left = '0%';
+        progText.innerText = '0%';
+        
+        globalLoadInterval = setInterval(() => {
+          if (p < 95) p += 1;
+          progBarFill.style.width = p + '%';
+          progBarIcon.style.left = `calc(${p}% - 15px)`;
+          progText.innerText = p + '%';
+        }, 250); 
+      } else {
+        spinner.style.display = 'block';
+        if(progContainer) progContainer.style.display = 'none';
+        if(progText) progText.style.display = 'none';
+      }
+      document.getElementById('loadingOverlay').classList.add('visible');
+    }
+    
+    function hideLoad() {
+      if (globalLoadInterval) { clearInterval(globalLoadInterval); globalLoadInterval = null; }
+      document.getElementById('loadingOverlay').classList.remove('visible');
+    }
+
+    function triggerUpload(mediaType, btnElement) {
+      const statusDiv = document.getElementById('media-status-' + mediaType);
+      const state = document.getElementById('state').value;
+      const branch = document.getElementById('branch').value;
+      const date = document.getElementById('date').value;
+      const venue = document.getElementById('venue').value;
+
+      if(!state || !branch || !date || !venue) {
+        statusDiv.innerHTML = '<span style="color:red;">⚠️ Please fill Date, State, Branch, and Venue first.</span>';
+        return;
+      }
+
+      // Mark the hidden input as 'Yes' so the backend knows a folder was generated
+      document.getElementById('val-' + mediaType).value = 'Yes';
+      
+      // Hide the upload button to prevent multiple clicks
+      btnElement.style.display = 'none';
+
+      statusDiv.innerHTML = '<span style="color:#065f46;">⏳ <b>0%</b> - Please wait, creating folder for uploading ' + mediaType + '...</span>';
+      
+      let prog = 0;
+      const progInt = setInterval(() => {
+        if(prog < 90) prog += 10;
+        if(statusDiv.innerText.includes('wait')) {
+          statusDiv.innerHTML = '<span style="color:#065f46;">⏳ <b>' + prog + '%</b> - Please wait, creating folder for uploading ' + mediaType + '...</span>';
+        }
+      }, 500);
+
+      var formData = { state: state, branch: branch, date: date, venue: venue };
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          clearInterval(progInt);
+          if(res.error) {
+            statusDiv.innerHTML = '<span style="color:red;">⚠️ Error: ' + res.error + '</span>';
+            btnElement.style.display = 'inline-block'; // Re-show if failed
+            document.getElementById('val-' + mediaType).value = 'No';
+          } else {
+            let limitsText = (mediaType === 'Videos') ? " (Max 15)" : " (Max 40)";
+            statusDiv.innerHTML = `
+              <div style="margin-top: 8px; text-align: center; animation: regScaleIn 0.3s ease;">
+                <p style="font-size: 0.75rem; color: #065f46; font-weight: 800; margin-bottom: 6px;">✅ फ़ोल्डर तैयार है! (Folder Ready)</p>
+                <a href="${res.url}" target="_blank" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 10px 14px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(16,185,129,0.3); border: 2px solid #047857; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                  <span style="font-size: 1.1rem; margin-bottom: 2px;">📤 यहाँ क्लिक करके अपलोड करें</span>
+                  <span style="font-size: 0.75rem; opacity: 0.9;">(Click to Upload ${mediaType}) ${limitsText}</span>
+                </a>
+              </div>
+            `;
+          }
+        })
+        .withFailureHandler(function(err) {
+          clearInterval(progInt);
+          statusDiv.innerHTML = '<span style="color:red;">⚠️ Error: ' + err.message + '</span>';
+          btnElement.style.display = 'inline-block';
+          document.getElementById('val-' + mediaType).value = 'No';
+        })
+        .createSpecificMediaFolder(formData, mediaType);
+    }
+
+    document.getElementById('bodhForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const photosSelected = document.getElementById('val-Photos').value;
+      if (photosSelected === 'No') {
+        customAlert("📷 Photos are mandatory! Please click the 'Upload' button for Photos, wait for the folder to be created, and upload at least 1 photo before submitting.");
+        return;
+      }
+      
+      const theme = document.getElementById('theme').value;
+      if(!theme) { customAlert("Please select a Theme"); return; }
+
+      // Beneficiaries validation (Total must be > 0)
+      const maleCount = parseInt(document.getElementById('male').value, 10) || 0;
+      const femaleCount = parseInt(document.getElementById('female').value, 10) || 0;
+      const childrenCount = parseInt(document.getElementById('children').value, 10) || 0;
+      const totalBeneficiaries = maleCount + femaleCount + childrenCount;
+
+      if (totalBeneficiaries <= 0) {
+        customAlert("⚠️ Beneficiary count cannot be 0!\n\nPlease enter the number of participants under Male, Female, or Children (प्रतिभागी संख्या 0 नहीं हो सकती। कृपया पुरुष, महिलाएं या बच्चे में संख्या दर्ज करें।)");
+        return;
+      }
+
+      const guests = compileGuests();
+      const checkedActs = Array.from(document.querySelectorAll('input[name="activityCb"]:checked')).map(c => c.value);
+      
+      var formData = {
+        email: passedEmail,
+        executingTeam: document.getElementById('executingTeam').value,
+        date: document.getElementById('date').value,
+        state: document.getElementById('state').value,
+        branch: document.getElementById('branch').value,
+        venue: document.getElementById('venue').value,
+        theme: theme,
+        timeFrom: document.getElementById('timeFrom').value,
+        timeTo: document.getElementById('timeTo').value,
+        male: document.getElementById('male').value,
+        female: document.getElementById('female').value,
+        children: document.getElementById('children').value,
+        organizer: document.getElementById('organizer').value,
+        partner: document.getElementById('partner').value,
+        guestName: guests.names,
+        guestDesignation: guests.desigs,
+        guestOrg: guests.orgs,
+        activities: checkedActs.join(', '),
+        observation: document.getElementById('observation').value,
+        photos: photosSelected,
+        videos: document.getElementById('val-Videos').value,
+        pressRelease: document.getElementById('val-Press Release').value,
+        appreciation: document.getElementById('val-Appreciation').value,
+        publicity: document.getElementById('publicity').value,
+        initiatedCount: document.getElementById('initiatedCount').value,
+        feedback: document.getElementById('feedback').value
+      };
+
+      showLoad('अंतिम प्रक्रिया चल रही है...', 'Saving your Report...', true);
+      
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoad();
+          if(res && res.error === 'FILE_LIMIT_ERROR') {
+             customAlert('❌ Not Submitted!\n\n' + res.messages + '\n\nPlease click the upload links to add the missing files, then try submitting again.');
+             return;
+          }
+          if(res && res.error) { customAlert('Backend Error: ' + res.error); return; }
+          document.getElementById('successOverlay').classList.add('visible');
+        })
+        .withFailureHandler(function(err) {
+          hideLoad();
+          customAlert('Error saving report: ' + err.message);
+        })
+        .submitReport(formData);
+    });
+
+    init();
+
+  </script>
+
+</body>
+</html>
+
