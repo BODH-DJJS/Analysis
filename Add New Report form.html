@@ -53,7 +53,13 @@
     .guest-block { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; position: relative; }
     .guest-block .remove-btn { position: absolute; top: 10px; right: 10px; background: #fee2e2; color: #ef4444; border: none; border-radius: 4px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
     .add-btn { background: #e0f2fe; color: #0284c7; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: inline-block; margin-top: 5px; }
-    .checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+    @media (max-width: 900px) {
+      .checkbox-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 550px) {
+      .checkbox-grid { grid-template-columns: 1fr; }
+    }
     .cb-item { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--text); }
     .cb-item input { width: 16px; height: 16px; accent-color: var(--navy); }
     .time-row { display: flex; align-items: center; gap: 10px; }
@@ -306,10 +312,41 @@
     };
 
     const ACTIVITIES_LIST = [
-      "Lecture", "Skit", "Motivational Songs", "Choreography", "Demo", "Video Screening",
-      "Meditation Session", "Discussion/ Meeting / Conference", "Exhibition", "Om Chanting",
-      "Counseling", "Activities", "Rally / Road Show", "Drawing / Craft", "Signature Campaign",
-      "Testimony / Sharing Testimonials", "Pledge", "TOT", "Survey", "De addiction Camp", "Physical Activities", "Other"
+      "Lecture",
+      "Skit",
+      "Motivational Songs",
+      "Choreography",
+      "Demo",
+      "Video Screening",
+      "Meditation Session",
+      "Discussion/ Meeting / Conference",
+      "Exhibition",
+      "Om Chanting",
+      "Counseling",
+      "Activities",
+      "Rally / Road Show",
+      "Drawing / Craft",
+      "Signature Campaign",
+      "Testimony / Sharing Testimonials",
+      "Pledge",
+      "Information Counter",
+      "TOT",
+      "Survey",
+      "De addiction Camp",
+      "Physical Activities",
+      "Satsang Awareness Program",
+      "Community Awareness Session",
+      "School /College Workshop",
+      "Sanskarshala",
+      "Ignite Workshop",
+      "Manthan Awareness Session",
+      "Women Meeting",
+      "Quiz / Knowledge Competition",
+      "Yoga Session / Pranayam",
+      "Bhajan Clubbing",
+      "Press Release",
+      "Rangoli Making",
+      "Other"
     ];
 
     let guestCount = 1;
