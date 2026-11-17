@@ -2059,10 +2059,47 @@
             campaign: []
         };
 
-        const activityFields = ['Lecture', 'Skit', 'Motivational Songs', 'Choreography', 'Demo', 
-                                'Video Screening', 'Meditation Session', 'Discussion/ Meeting / Conference',
-                                'Exhibition', 'Om Chanting', 'Counseling', 'Rally / Road Show', 
-                                'Drawing  / Craft', 'Signature Campaign', 'TOT', 'Survey'];
+        const activityFields = [
+            "Satsang Awareness Program",
+            "Community Awareness Session",
+            "School /College Workshop",
+            "Sanskarshala",
+            "Ignite Workshop",
+            "Manthan Awareness Session",
+            "Skit / Nukkad Natak",
+            "Pledge",
+            "Lecture/Workshop",
+            "Women Meeting",
+            "Motivational Song / Dance",
+            "Demonstration / Educational Activities",
+            "Quiz / Knowledge Competition",
+            "Yoga Session / Pranayam",
+            "Bhajan Clubbing",
+            "Meditation Session",
+            "Exhibition / Table Activities",
+            "Counseling Session",
+            "Rally / Walkathon/ Prabhat Pheri / Sandhya Pheri",
+            "Marathon/ /Cyclotron / Road Show / Bikeothon",
+            "Press Release",
+            "Signature Campaign",
+            "Sports & Physical Activities",
+            "Choreography / Dance / Bailey",
+            "Meeting / Discussion / Conference [Village, School Authorizes, Offices etc.)",
+            "Om Chanting / Slogan Chanting",
+            "Drawing Competition / Craft",
+            "Testimonial Shoot",
+            "Training Volunteers",
+            "De-Addiction Camp",
+            "Showing Videos/ Short Film",
+            "Rangoli Making",
+            "Survey",
+            "Other",
+            // Legacy field aliases for backwards compatibility with historical sheet columns
+            "Lecture", "Skit", "Motivational Songs", "Choreography", "Demo",
+            "Video Screening", "Discussion/ Meeting / Conference", "Exhibition",
+            "Om Chanting", "Counseling", "Rally / Road Show", "Drawing  / Craft",
+            "TOT", "De adidiction Camp", "Physical Activities", "Activities"
+        ];
 
         // Month mapping for standardization
         const monthMap = {
@@ -2849,8 +2886,32 @@
                        (selectedFilters.campaign.length === 0 || selectedFilters.campaign.includes(d['Campaign Name'] || 'Not Specified'));
             });
             
-            activityFields.forEach(field => {
-                activityData[field] = useData.filter(d => d[field]).length;
+            // Count from both:
+            // 1. Single cell "All Activities" / "संचालित गतिविधियाँ" (comma-separated list)
+            // 2. Individual column flags (for historical/legacy rows)
+            useData.forEach(row => {
+                const seenInRow = new Set();
+                
+                // Check single comma-separated column
+                const allActStr = row['All Activities'] || row['संचालित गतिविधियाँ'] || '';
+                if (allActStr && typeof allActStr === 'string') {
+                    allActStr.split(',').forEach(act => {
+                        const trimmed = act.trim();
+                        if (trimmed) seenInRow.add(trimmed);
+                    });
+                }
+                
+                // Check individual column keys
+                activityFields.forEach(field => {
+                    if (row[field]) {
+                        seenInRow.add(field.trim());
+                    }
+                });
+                
+                // Tally unique activities per row
+                seenInRow.forEach(act => {
+                    activityData[act] = (activityData[act] || 0) + 1;
+                });
             });
 
             const sorted = Object.entries(activityData)
@@ -3235,8 +3296,19 @@
             
             const program = sortedData[dataIndex];
             
-            // Get all activities
-            const conductedActivities = activityFields.filter(field => program[field]);
+            // Get all activities (from single cell and individual columns)
+            const conductedActivitiesSet = new Set();
+            const actStr = program['All Activities'] || program['संचालित गतिविधियाँ'] || '';
+            if (actStr && typeof actStr === 'string') {
+                actStr.split(',').forEach(a => {
+                    const t = a.trim();
+                    if (t) conductedActivitiesSet.add(t);
+                });
+            }
+            activityFields.forEach(field => {
+                if (program[field]) conductedActivitiesSet.add(field.trim());
+            });
+            const conductedActivities = Array.from(conductedActivitiesSet);
             
             // Get beneficiary breakdown
             const beneficiaryCategories = ['Men', 'Women', 'Students', 'Teachers', 'Children'];
