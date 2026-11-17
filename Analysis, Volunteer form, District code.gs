@@ -92,29 +92,40 @@ function getAllBranchTrackerData() {
         let headerRowIdx = 0;
         let branchCol = -1;
         let roleCol = -1;
+        let nameCol = -1;
+        let contactCol = -1;
 
         for (let r = 0; r < Math.min(5, pData.length); r++) {
           const rowHeaders = pData[r].map(h => String(h || '').trim().toLowerCase());
           let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
           if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
           const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+          const nIdx = rowHeaders.findIndex(h => h === 'full name' || h === 'name');
+          const cIdx = rowHeaders.findIndex(h => h.includes('contact') || h.includes('phone') || h.includes('mobile'));
           if (bIdx !== -1 && rIdx !== -1) {
             headerRowIdx = r;
             branchCol = bIdx;
             roleCol = rIdx;
+            if (nIdx !== -1) nameCol = nIdx;
+            if (cIdx !== -1) contactCol = cIdx;
             break;
           }
         }
 
         if (branchCol === -1) branchCol = 8;
         if (roleCol === -1) roleCol = 12;
+        if (nameCol === -1) nameCol = 1;
+        if (contactCol === -1) contactCol = 2;
 
         for (let i = headerRowIdx + 1; i < pData.length; i++) {
           const bName = String(pData[i][branchCol] || '').trim();
           if (!bName) continue;
           const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
           if (!branchMap[key]) {
-            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+            branchMap[key] = { branchName: bName, districtCount: 0, BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0, members: [] };
+          }
+          if (!branchMap[key].members) {
+            branchMap[key].members = [];
           }
 
           const directRole = String(pData[i][roleCol] || '').trim().toUpperCase();
@@ -129,10 +140,30 @@ function getAllBranchTrackerData() {
             else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
           }
 
-          if (matchedRole.includes('BBBH')) branchMap[key].BBBH++;
-          else if (matchedRole.includes('BBBM')) branchMap[key].BBBM++;
-          else if (matchedRole.includes('BSBH')) branchMap[key].BSBH++;
-          else if (matchedRole.includes('BSBM')) branchMap[key].BSBM++;
+          let standardRole = '';
+          if (matchedRole.includes('BBBH')) {
+            branchMap[key].BBBH++;
+            standardRole = 'BBBH';
+          } else if (matchedRole.includes('BBBM')) {
+            branchMap[key].BBBM++;
+            standardRole = 'BBBM';
+          } else if (matchedRole.includes('BSBH')) {
+            branchMap[key].BSBH++;
+            standardRole = 'BSBH';
+          } else if (matchedRole.includes('BSBM')) {
+            branchMap[key].BSBM++;
+            standardRole = 'BSBM';
+          }
+
+          const personName = String(pData[i][nameCol] || '').trim();
+          const personContact = String(pData[i][contactCol] || '').trim();
+          if (personName || standardRole) {
+            branchMap[key].members.push({
+              name: personName || 'N/A',
+              role: standardRole || directRole || 'Member',
+              contact: personContact || ''
+            });
+          }
         }
       }
     }
@@ -146,6 +177,7 @@ function getAllBranchTrackerData() {
 function getBranchRolesCount(branchName) {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   const counts = { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0 };
+  const members = [];
   let debugInfo = { branchName: branchName, rowCount: 0, branchCol: -1, roleCol: -1, matchedRows: 0 };
 
   // Look for the responses sheet tab
@@ -169,22 +201,30 @@ function getBranchRolesCount(branchName) {
       let headerRowIdx = 0;
       let branchCol = -1;
       let roleCol = -1;
+      let nameCol = -1;
+      let contactCol = -1;
 
       for (let r = 0; r < Math.min(5, data.length); r++) {
         const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
         let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
         if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
         const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+        const nIdx = rowHeaders.findIndex(h => h === 'full name' || h === 'name');
+        const cIdx = rowHeaders.findIndex(h => h.includes('contact') || h.includes('phone') || h.includes('mobile'));
         if (bIdx !== -1 && rIdx !== -1) {
           headerRowIdx = r;
           branchCol = bIdx;
           roleCol = rIdx;
+          if (nIdx !== -1) nameCol = nIdx;
+          if (cIdx !== -1) contactCol = cIdx;
           break;
         }
       }
 
       if (branchCol === -1) branchCol = 8;
       if (roleCol === -1) roleCol = 12;
+      if (nameCol === -1) nameCol = 1;
+      if (contactCol === -1) contactCol = 2;
 
       debugInfo.headerRowIdx = headerRowIdx;
       debugInfo.branchCol = branchCol;
@@ -209,15 +249,35 @@ function getBranchRolesCount(branchName) {
             else if (rowStr.includes('BSBM')) matchedRole = 'BSBM';
           }
 
-          if (matchedRole.includes('BBBH')) counts.BBBH++;
-          else if (matchedRole.includes('BBBM')) counts.BBBM++;
-          else if (matchedRole.includes('BSBH')) counts.BSBH++;
-          else if (matchedRole.includes('BSBM')) counts.BSBM++;
+          let standardRole = '';
+          if (matchedRole.includes('BBBH')) {
+            counts.BBBH++;
+            standardRole = 'BBBH';
+          } else if (matchedRole.includes('BBBM')) {
+            counts.BBBM++;
+            standardRole = 'BBBM';
+          } else if (matchedRole.includes('BSBH')) {
+            counts.BSBH++;
+            standardRole = 'BSBH';
+          } else if (matchedRole.includes('BSBM')) {
+            counts.BSBM++;
+            standardRole = 'BSBM';
+          }
+
+          const pName = String(data[i][nameCol] || '').trim();
+          const pContact = String(data[i][contactCol] || '').trim();
+          if (pName || standardRole) {
+            members.push({
+              name: pName || 'N/A',
+              role: standardRole || directRole || 'Member',
+              contact: pContact || ''
+            });
+          }
         }
       }
     }
   }
-  return { status: 'success', branch: branchName, counts: counts, debug: debugInfo };
+  return { status: 'success', branch: branchName, counts: counts, members: members, debug: debugInfo };
 }
 
 /**

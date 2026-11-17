@@ -1676,6 +1676,32 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Branch Members & Pending Roles Modal -->
+                <div id="branchMembersModal" style="display:none; position:fixed; z-index:10000; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); justify-content:center; align-items:center; padding:16px;">
+                    <div style="background:#fff; border-radius:16px; width:100%; max-width:680px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,0.25); border:1px solid #e2e8f0; animation:regScaleIn 0.25s ease;">
+                        <!-- Modal Header -->
+                        <div style="background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; padding:18px 24px; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3 id="branchModalTitle" style="margin:0; font-size:1.2rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                                    <span>🏢</span> <span id="modalBranchName">Branch Name</span>
+                                </h3>
+                                <div id="modalBranchSub" style="font-size:0.8rem; color:#94a3b8; margin-top:3px;">State • POC Team Leaders</div>
+                            </div>
+                            <button onclick="closeBranchModal()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; font-size:1.2rem; width:34px; height:34px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">✕</button>
+                        </div>
+                        
+                        <!-- Modal Body -->
+                        <div id="branchModalBody" style="padding:20px 24px;">
+                            <!-- Filled dynamically by showBranchModal -->
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div style="padding:14px 24px; background:#f8fafc; border-top:1px solid #e2e8f0; text-align:right; border-radius:0 0 16px 16px;">
+                            <button onclick="closeBranchModal()" style="padding:8px 20px; background:#e2e8f0; color:#334155; font-weight:700; font-size:0.88rem; border:none; border-radius:8px; cursor:pointer;">बंद करें / Close</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- End Branch Status Tracker Tab -->
@@ -3572,7 +3598,7 @@
         "Madhya Pradesh (IN)": ["Bhopal", "Gwalior", "Mandla", "Nasrullaganj", "Shyampur"],
         "Maharashtra (IN)": ["Amravati", "Chakan", "Latur", "Nagpur", "Pathardi"],
         "Orissa (IN)": ["Bhubaneshwar", "Sambalpur"],
-        "Punjab (IN)": ["Abohar", "Amritsar", "Batala", "Bathinda", "Chandigarh", "Dhilwan", "DMK (Malout)", "Fazilka", "Ferozepur", "Harpura", "Hoshiarpur", "Jalandhar", "Kapurthala", "Kotkapura", "Ludhiana", "Moga", "Muktsar", "Nurmahal", "Pathankot", "Patiala", "Shaheed Bhagat Singh Nagar (Nawanshahr)", "Shehzada", "Sunam", "Tarn taran"],
+        "Punjab (IN)": ["Abohar", "Amritsar", "Batala", "Bathinda", "Chandigarh", "Dhilwan", "DMK (Malout)", "Fazilka", "Ferozepur", "Harpura", "Hoshiarpur", "Jalandhar", "Kapurthala", "Kotkapura", "Ludhiana", "Ludhiana 2 (kailash nagar)", "Moga", "Muktsar", "Nurmahal", "Pathankot", "Patiala", "Shaheed Bhagat Singh Nagar (Nawanshahr)", "Shehzada", "Sunam", "Tarn taran"],
         "Rajasthan (IN)": ["Bikaner", "Dungarpur", "Hanumangarh (Dissolved)", "Jaipur", "Jodhpur", "Kota", "Sangria", "Sri Ganganagar", "Suratgarh", "Udaipur"],
         "Tamil Nadu (IN)": ["Chennai"],
         "Telangana (IN)": ["Hyderabad"],
@@ -4058,6 +4084,7 @@
             "London",
             "Lucknow",
             "Ludhiana",
+            "Ludhiana 2 (kailash nagar)",
             "Manama, Bahrain",
             "Mandla",
             "Mantova",
@@ -4593,7 +4620,8 @@
                     bsbhLeft: bsbhLeft,
                     bsbmLeft: bsbmLeft,
                     totalLeft: totalLeft,
-                    isPocComplete: isPocComplete
+                    isPocComplete: isPocComplete,
+                    members: data.members || []
                 };
             });
 
@@ -4715,10 +4743,15 @@
                 }
 
                 html += `
-                    <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s ease; cursor:pointer;" onclick="showBranchModal('${r.branch.replace(/'/g, "\\'")}', '${r.state.replace(/'/g, "\\'")}')" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'" title="Click to view submitted members & remaining vacancies">
                         <td style="padding:12px 16px; color:#94a3b8; font-weight:600;">${idx + 1}</td>
                         <td style="padding:12px 16px; font-weight:600; color:#334155;">${r.state}</td>
-                        <td style="padding:12px 16px; font-weight:700; color:#0f172a; font-size:0.92rem;">${r.branch}</td>
+                        <td style="padding:12px 16px; font-weight:700; color:#0284c7; font-size:0.92rem;">
+                            <span style="display:inline-flex; align-items:center; gap:6px;">
+                                <span>🏢</span>
+                                <span style="text-decoration:underline; text-decoration-color:#93c5fd; text-underline-offset:3px;">${r.branch}</span>
+                            </span>
+                        </td>
                         <td style="padding:12px 16px; text-align:center;">${distBadge}</td>
                         <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bbbh, 1, r.bbbhLeft)}</td>
                         <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bbbm, 3, r.bbbmLeft)}</td>
@@ -4731,6 +4764,204 @@
 
             tbody.innerHTML = html;
         }
+
+        async function showBranchModal(branchName, stateName) {
+            const modal = document.getElementById('branchMembersModal');
+            const titleEl = document.getElementById('modalBranchName');
+            const subEl = document.getElementById('modalBranchSub');
+            const bodyEl = document.getElementById('branchModalBody');
+            if (!modal || !bodyEl) return;
+
+            titleEl.textContent = branchName;
+            subEl.textContent = `${stateName} • POC Team Leaders Breakdown`;
+            modal.style.display = 'flex';
+
+            const normKey = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const cache = trackerDataCache || {};
+            let branchData = cache[normKey];
+
+            // If members array not cached yet or empty, fetch real-time from server via checkBranchRoles
+            let members = (branchData && Array.isArray(branchData.members)) ? branchData.members : null;
+            let counts = {
+                BBBH: (branchData && branchData.BBBH) || 0,
+                BBBM: (branchData && branchData.BBBM) || 0,
+                BSBH: (branchData && branchData.BSBH) || 0,
+                BSBM: (branchData && branchData.BSBM) || 0
+            };
+
+            // Render temporary loading state if fetching
+            if (!members) {
+                bodyEl.innerHTML = `
+                    <div style="text-align:center; padding:30px; color:#64748b;">
+                        <div style="font-size:2rem; animation:rSpin 1s linear infinite; display:inline-block; margin-bottom:10px;">⏳</div>
+                        <div style="font-weight:600;">Fetching member names for ${branchName}...</div>
+                    </div>
+                `;
+
+                try {
+                    const res = await fetch(REG_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({ action: 'checkBranchRoles', branch: branchName })
+                    });
+                    const json = await res.json();
+                    if (json && json.status === 'success') {
+                        if (json.counts) counts = json.counts;
+                        members = json.members || [];
+                        if (!branchData) branchData = {};
+                        branchData.members = members;
+                        cache[normKey] = branchData;
+                    }
+                } catch (e) {
+                    console.warn('Real-time members fetch error:', e);
+                }
+            }
+
+            members = members || [];
+
+            // Calculate Remaining Requirements
+            const bbbhLeft = Math.max(0, 1 - (counts.BBBH || 0));
+            const bbbmLeft = Math.max(0, 3 - (counts.BBBM || 0));
+            const bsbhLeft = Math.max(0, 1 - (counts.BSBH || 0));
+            const bsbmLeft = Math.max(0, 3 - (counts.BSBM || 0));
+            const totalLeft = bbbhLeft + bbbmLeft + bsbhLeft + bsbmLeft;
+
+            // Group members by Role
+            const roleCategories = [
+                { key: 'BBBH', title: 'Bodh Branch Head (Brothers)', target: 1, current: counts.BBBH || 0, left: bbbhLeft, bg: '#eff6ff', border: '#bfdbfe', color: '#1e40af' },
+                { key: 'BBBM', title: 'Bodh Branch Member (Brothers)', target: 3, current: counts.BBBM || 0, left: bbbmLeft, bg: '#eff6ff', border: '#bfdbfe', color: '#1e40af' },
+                { key: 'BSBH', title: 'Bodh Branch Head (Sisters)', target: 1, current: counts.BSBH || 0, left: bsbhLeft, bg: '#fdf2f8', border: '#fbcfe8', color: '#9d174d' },
+                { key: 'BSBM', title: 'Bodh Branch Member (Sisters)', target: 3, current: counts.BSBM || 0, left: bsbmLeft, bg: '#fdf2f8', border: '#fbcfe8', color: '#9d174d' }
+            ];
+
+            let modalHtml = '';
+
+            // Top Status Overview Banner
+            if (totalLeft === 0) {
+                modalHtml += `
+                    <div style="background:#ecfdf5; border:1.5px solid #a7f3d0; border-radius:12px; padding:12px 16px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.4rem;">🎉</span>
+                            <div>
+                                <div style="font-weight:800; color:#065f46; font-size:0.95rem;">All POC Roles Completed!</div>
+                                <div style="font-size:0.78rem; color:#047857;">All 8 required team leaders (2 Heads + 6 Members) have submitted.</div>
+                            </div>
+                        </div>
+                        <span style="background:#10b981; color:#fff; font-weight:800; font-size:0.78rem; padding:4px 12px; border-radius:20px;">✓ COMPLETED</span>
+                    </div>
+                `;
+            } else {
+                modalHtml += `
+                    <div style="background:#fffbeb; border:1.5px solid #fde68a; border-radius:12px; padding:12px 16px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.4rem;">⚠️</span>
+                            <div>
+                                <div style="font-weight:800; color:#92400e; font-size:0.95rem;">${totalLeft} Leader${totalLeft > 1 ? 's' : ''} Still Left To Fill</div>
+                                <div style="font-size:0.78rem; color:#b45309;">Please identify and follow up with branch volunteers for pending roles below.</div>
+                            </div>
+                        </div>
+                        <span style="background:#f59e0b; color:#fff; font-weight:800; font-size:0.78rem; padding:4px 12px; border-radius:20px;">⚠️ ${totalLeft} LEFT</span>
+                    </div>
+                `;
+            }
+
+            // Role Categories Grid
+            modalHtml += `<div style="display:flex; flex-direction:column; gap:14px;">`;
+
+            roleCategories.forEach(cat => {
+                const roleMembers = members.filter(m => (m.role || '').toUpperCase().includes(cat.key));
+                const isComplete = (cat.left === 0);
+
+                let badgeHtml = '';
+                if (cat.left === 0) {
+                    badgeHtml = `<span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:0.75rem; font-weight:800; padding:3px 10px; border-radius:12px;">✓ ${cat.current}/${cat.target} Filled</span>`;
+                } else {
+                    badgeHtml = `<span style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:0.75rem; font-weight:800; padding:3px 10px; border-radius:12px;">⚠️ ${cat.left} Left (${cat.current}/${cat.target})</span>`;
+                }
+
+                modalHtml += `
+                    <div style="background:${cat.bg}; border:1.5px solid ${cat.border}; border-radius:12px; padding:14px 16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:6px;">
+                            <div style="font-weight:800; color:${cat.color}; font-size:0.9rem; display:flex; align-items:center; gap:6px;">
+                                <span>${cat.key.startsWith('BB') ? '👨' : '👩'}</span>
+                                <span>${cat.key}</span>
+                                <span style="font-size:0.78rem; font-weight:600; color:#64748b;">— ${cat.title}</span>
+                            </div>
+                            ${badgeHtml}
+                        </div>
+                `;
+
+                if (roleMembers.length > 0) {
+                    modalHtml += `
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px;">
+                            ${roleMembers.map((m, mIdx) => `
+                                <div style="background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; display:flex; align-items:center; gap:8px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                                    <span style="font-size:0.75rem; font-weight:700; color:#94a3b8; width:16px;">${mIdx + 1}.</span>
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div style="font-weight:700; color:#0f172a; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.name}</div>
+                                        ${m.contact ? `<div style="font-size:0.74rem; color:#64748b;">📞 ${m.contact}</div>` : ''}
+                                    </div>
+                                    <span style="font-size:0.8rem; color:#10b981;" title="Form Submitted">✓</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    modalHtml += `
+                        <div style="background:rgba(255,255,255,0.7); border:1px dashed #cbd5e1; border-radius:8px; padding:10px 14px; color:#94a3b8; font-size:0.82rem; font-style:italic;">
+                            No one has filled for this role yet. (${cat.left} vacancy remaining)
+                        </div>
+                    `;
+                }
+
+                // If some slots left in this category, show clear helper note
+                if (cat.left > 0 && roleMembers.length > 0) {
+                    modalHtml += `
+                        <div style="margin-top:6px; font-size:0.74rem; color:#b45309; font-weight:600;">
+                            ⚠️ Still need ${cat.left} more person for ${cat.key}.
+                        </div>
+                    `;
+                }
+
+                modalHtml += `</div>`;
+            });
+
+            modalHtml += `</div>`;
+
+            // District Information Status Section
+            const distFilled = (branchData && branchData.districtCount && branchData.districtCount > 0);
+            const breakdown = (branchData && branchData.breakdown) || '';
+            modalHtml += `
+                <div style="margin-top:16px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:12px; padding:14px 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div style="font-weight:800; color:#334155; font-size:0.88rem; display:flex; align-items:center; gap:6px;">
+                            <span>🗺️</span> <span>District Information</span>
+                        </div>
+                        ${distFilled 
+                            ? '<span style="background:#dcfce7; color:#15803d; border:1px solid #86efac; font-size:0.75rem; font-weight:800; padding:2px 10px; border-radius:12px;">✓ Form Submitted</span>' 
+                            : '<span style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; font-size:0.75rem; font-weight:800; padding:2px 10px; border-radius:12px;">✗ Not Filled</span>'
+                        }
+                    </div>
+                    ${distFilled && breakdown 
+                        ? `<div style="font-size:0.8rem; color:#475569; background:#fff; padding:8px 12px; border-radius:6px; border:1px solid #e2e8f0; margin-top:6px;"><b>Covered Districts:</b> ${breakdown}</div>` 
+                        : `<div style="font-size:0.8rem; color:#94a3b8; font-style:italic;">District Information form has not been submitted for this branch.</div>`
+                    }
+                </div>
+            `;
+
+            bodyEl.innerHTML = modalHtml;
+        }
+
+        function closeBranchModal() {
+            const modal = document.getElementById('branchMembersModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        // Close branch modal when clicking outside box
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('branchMembersModal');
+            if (e.target === modal) closeBranchModal();
+        });
 
         function applyTrackerFilters() {
             renderTrackerTable();
