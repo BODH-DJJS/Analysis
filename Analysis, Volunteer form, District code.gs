@@ -235,7 +235,7 @@ function getBranchRolesCount(branchName) {
         const rowBranch = String(data[i][branchCol] || '').trim();
         const rowBranchNorm = rowBranch.toLowerCase().replace(/[^a-z0-9]/g, '');
         
-        if (rowBranchNorm === bNorm || rowBranchNorm.includes(bNorm) || bNorm.includes(rowBranchNorm)) {
+        if (rowBranchNorm === bNorm) {
           debugInfo.matchedRows++;
           const directRole = String(data[i][roleCol] || '').trim().toUpperCase();
           let matchedRole = '';
