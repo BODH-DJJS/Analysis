@@ -119,7 +119,8 @@ function finalizeFolderStructure(formData) {
     }
     
     getOrCreateFolder(dateFolder, 'Selected');
-    getOrCreateFolder(dateFolder, 'Selected (Edited)');
+    var selectedEditedFolder = getOrCreateFolder(dateFolder, 'Selected (Edited)');
+    getOrCreateFolder(selectedEditedFolder, 'Edited Thumbnail');
 
     var docNames = ['Writing', 'Editing', 'Proofreading', 'Crosscheck'];
     var existingFiles = dateFolder.getFilesByType(MimeType.GOOGLE_DOCS);
