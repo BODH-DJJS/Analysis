@@ -1770,9 +1770,10 @@
                                     </div>
                                 </div>
 
-                                <div id="branchHeadWrapper" class="fw" style="display:contents;">
-                                    <div class="rfl" id="field_branchArName"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="text" name="branchArName" id="input_branchArName" placeholder="e.g., Ramesh Gupta" required /><div class="re">Enter Branch Head name</div></div>
-                                    <div class="rfl" id="field_branchArNumber"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH <span class="rq">*</span></label><input type="tel" name="branchArNumber" id="input_branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" required /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
+                                <!-- Hidden as no longer required in UI (columns maintained in Google Sheets) -->
+                                <div id="branchHeadWrapper" class="fw" style="display:none !important;">
+                                    <div class="rfl" id="field_branchArName"><label>Name - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH</label><input type="text" name="branchArName" id="input_branchArName" placeholder="e.g., Ramesh Gupta" /><div class="re">Enter Branch Head name</div></div>
+                                    <div class="rfl" id="field_branchArNumber"><label>Contact - Bodh Branch Head (Brothers/ Sisters) - BBBH/ BSBH</label><input type="tel" name="branchArNumber" id="input_branchArNumber" placeholder="e.g., 9123456780" pattern="[0-9]{10}" /><div class="rh">10-digit mobile number</div><div class="re">Enter valid 10-digit number</div></div>
                                 </div>
 
                                 <div class="rfl"><label>What is your Role <span class="rq">*</span></label>
@@ -3970,23 +3971,23 @@
             const radioCat3 = document.getElementById('radio_branchSewa_cat3');
             const radioHead = document.getElementById('radio_branchSewa_head');
 
-            // If role is Branch Head (BBBH or BSBH), hide the Branch Head contact fields and make them optional
-            if (role === 'BBBH' || role === 'BSBH') {
-                if (wrapper) wrapper.style.display = 'none';
-                if (nameInput) {
-                    nameInput.removeAttribute('required');
-                    nameInput.value = '';
-                    const g = nameInput.closest('.rfl');
-                    if (g) g.classList.remove('has-error');
-                }
-                if (numInput) {
-                    numInput.removeAttribute('required');
-                    numInput.value = '';
-                    const g = numInput.closest('.rfl');
-                    if (g) g.classList.remove('has-error');
-                }
+            // Branch Head fields are removed from UI (columns maintained in Google Sheets)
+            if (wrapper) wrapper.style.display = 'none';
+            if (nameInput) {
+                nameInput.removeAttribute('required');
+                nameInput.value = '';
+                const g = nameInput.closest('.rfl');
+                if (g) g.classList.remove('has-error');
+            }
+            if (numInput) {
+                numInput.removeAttribute('required');
+                numInput.value = '';
+                const g = numInput.closest('.rfl');
+                if (g) g.classList.remove('has-error');
+            }
 
-                // Fix 4th option as "Team Coordination" for BBBH / BSBH (cannot be changed)
+            // If role is Branch Head (BBBH or BSBH), fix 4th option as "Team Coordination" (cannot be changed)
+            if (role === 'BBBH' || role === 'BSBH') {
                 if (lblCat1) lblCat1.style.display = 'none';
                 if (lblCat2) lblCat2.style.display = 'none';
                 if (lblCat3) lblCat3.style.display = 'none';
@@ -4001,10 +4002,6 @@
                     radioHead.setAttribute('required', 'required');
                 }
             } else {
-                if (wrapper) wrapper.style.display = 'contents';
-                if (nameInput) nameInput.setAttribute('required', 'required');
-                if (numInput) numInput.setAttribute('required', 'required');
-
                 // Restore 3 normal categories for BBBM / BSBM and other roles
                 if (lblCat1) lblCat1.style.display = 'flex';
                 if (lblCat2) lblCat2.style.display = 'flex';
