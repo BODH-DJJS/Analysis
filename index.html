@@ -1438,7 +1438,7 @@
 
         <!-- Branch Status Tracker Tab (India Only) -->
         <div class="tab-content" id="content-tracker">
-            <div style="max-width: 1200px; margin: 0 auto; padding: 1rem 1rem;">
+            <div style="max-width: 1400px; margin: 0 auto; padding: 1rem 1rem;">
                 <!-- Compact Action Header Bar -->
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom: 16px;">
                     <div>
@@ -1622,48 +1622,48 @@
                     <div style="overflow-x:auto;">
                         <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.88rem;">
                             <thead>
-                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; color:#334155; font-size:0.82rem; text-transform:uppercase; letter-spacing:0.4px;">
-                                    <th style="padding:12px 14px; width:45px;">#</th>
-                                    <th style="padding:12px 14px; cursor:pointer; user-select:none;" onclick="setTrackerSort('state')" title="Click to sort by State">
-                                        <div style="display:flex; align-items:center; gap:4px;">State <span id="sort_icon_state">↕️</span></div>
+                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; color:#334155; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.3px;">
+                                    <th style="padding:10px 8px; width:35px; text-align:center;">#</th>
+                                    <th style="padding:10px 10px; cursor:pointer; user-select:none; width:120px;" onclick="setTrackerSort('state')" title="Click to sort by State">
+                                        <div style="display:flex; align-items:center; gap:3px;">State <span id="sort_icon_state">↕️</span></div>
                                     </th>
-                                    <th style="padding:12px 14px; cursor:pointer; user-select:none;" onclick="setTrackerSort('branch')" title="Click to sort by Branch Name">
-                                        <div style="display:flex; align-items:center; gap:4px;">Branch Name <span id="sort_icon_branch">↕️</span></div>
+                                    <th style="padding:10px 10px; cursor:pointer; user-select:none; width:160px;" onclick="setTrackerSort('branch')" title="Click to sort by Branch Name">
+                                        <div style="display:flex; align-items:center; gap:3px;">Branch Name <span id="sort_icon_branch">↕️</span></div>
                                     </th>
-                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('distFilled')" title="Click to sort by District Info">
+                                    <th style="padding:10px 8px; text-align:center; cursor:pointer; user-select:none; width:95px;" onclick="setTrackerSort('distFilled')" title="Click to sort by District Info">
                                         <div style="display:inline-flex; flex-direction:column; align-items:center;">
-                                            <span>District Info <span id="sort_icon_distFilled">↕️</span></span>
-                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Filled / Pending)</small>
+                                            <span>District <span id="sort_icon_distFilled">↕️</span></span>
+                                            <small style="font-size:0.68rem; text-transform:none; font-weight:normal; opacity:0.8;">(Info)</small>
                                         </div>
                                     </th>
-                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bbbh')" title="Click to sort by BBBH">
+                                    <th style="padding:10px 6px; text-align:center; cursor:pointer; user-select:none; width:75px;" onclick="setTrackerSort('bbbh')" title="Click to sort by BBBH">
                                         <div style="display:inline-flex; flex-direction:column; align-items:center;">
                                             <span>BBBH <span id="sort_icon_bbbh">↕️</span></span>
-                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Head Bros: Min 1)</small>
+                                            <small style="font-size:0.68rem; text-transform:none; font-weight:normal; opacity:0.8;">(Min 1)</small>
                                         </div>
                                     </th>
-                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bbbm')" title="Click to sort by BBBM">
+                                    <th style="padding:10px 6px; text-align:center; cursor:pointer; user-select:none; width:75px;" onclick="setTrackerSort('bbbm')" title="Click to sort by BBBM">
                                         <div style="display:inline-flex; flex-direction:column; align-items:center;">
                                             <span>BBBM <span id="sort_icon_bbbm">↕️</span></span>
-                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Member Bros: Min 3)</small>
+                                            <small style="font-size:0.68rem; text-transform:none; font-weight:normal; opacity:0.8;">(Min 3)</small>
                                         </div>
                                     </th>
-                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bsbh')" title="Click to sort by BSBH">
+                                    <th style="padding:10px 6px; text-align:center; cursor:pointer; user-select:none; width:75px;" onclick="setTrackerSort('bsbh')" title="Click to sort by BSBH">
                                         <div style="display:inline-flex; flex-direction:column; align-items:center;">
                                             <span>BSBH <span id="sort_icon_bsbh">↕️</span></span>
-                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Head Sis: Min 1)</small>
+                                            <small style="font-size:0.68rem; text-transform:none; font-weight:normal; opacity:0.8;">(Min 1)</small>
                                         </div>
                                     </th>
-                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('bsbm')" title="Click to sort by BSBM">
+                                    <th style="padding:10px 6px; text-align:center; cursor:pointer; user-select:none; width:75px;" onclick="setTrackerSort('bsbm')" title="Click to sort by BSBM">
                                         <div style="display:inline-flex; flex-direction:column; align-items:center;">
                                             <span>BSBM <span id="sort_icon_bsbm">↕️</span></span>
-                                            <small style="font-size:0.7rem; text-transform:none; font-weight:normal; opacity:0.8;">(Member Sis: Min 3)</small>
+                                            <small style="font-size:0.68rem; text-transform:none; font-weight:normal; opacity:0.8;">(Min 3)</small>
                                         </div>
                                     </th>
-                                    <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('totalLeft')" title="Click to sort by Overall Status">
-                                        <div style="display:inline-flex; align-items:center; gap:4px;">Overall Status <span id="sort_icon_totalLeft">↕️</span></div>
+                                    <th style="padding:10px 8px; text-align:center; cursor:pointer; user-select:none; width:100px;" onclick="setTrackerSort('totalLeft')" title="Click to sort by Overall Status">
+                                        <div style="display:inline-flex; align-items:center; gap:3px;">Status <span id="sort_icon_totalLeft">↕️</span></div>
                                     </th>
-                                    <th style="padding:12px 14px; min-width:180px;">Calling Remarks / Notes</th>
+                                    <th style="padding:10px 12px; min-width:240px;">Calling Remarks / Notes</th>
                                 </tr>
                             </thead>
                             <tbody id="trackerTableBody">
@@ -4801,19 +4801,19 @@
                 let remarkHtml = '';
                 if (r.remark) {
                     remarkHtml = `
-                        <div style="display:flex; flex-direction:column; gap:4px; max-width:260px;">
-                            <div style="font-size:0.83rem; color:#1e293b; background:#f1f5f9; border-left:3px solid #0284c7; padding:6px 10px; border-radius:4px; line-height:1.35; word-break:break-word;">
+                        <div style="display:flex; flex-direction:column; gap:4px; width:100%;">
+                            <div style="font-size:0.83rem; color:#1e293b; background:#f8fafc; border:1px solid #e2e8f0; border-left:3.5px solid #0284c7; padding:7px 10px; border-radius:6px; line-height:1.4; word-break:break-word;">
                                 ${escapeHtml(r.remark)}
                             </div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#94a3b8;">
-                                <span>${r.remarkUpdated ? r.remarkUpdated.split(',')[0] : ''}</span>
-                                <button type="button" onclick="event.stopPropagation(); openRemarkModal('${r.branch.replace(/'/g, "\\'")}')" style="background:none; border:none; color:#0284c7; font-weight:700; cursor:pointer; padding:2px 4px; text-decoration:underline;">✏️ Edit</button>
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#94a3b8; padding:0 2px;">
+                                <span>🕒 ${r.remarkUpdated ? r.remarkUpdated.split(',')[0] : ''}</span>
+                                <button type="button" onclick="event.stopPropagation(); openRemarkModal('${r.branch.replace(/'/g, "\\'")}')" style="background:none; border:none; color:#0284c7; font-weight:700; cursor:pointer; padding:2px 6px; text-decoration:underline;">✏️ Edit</button>
                             </div>
                         </div>
                     `;
                 } else {
                     remarkHtml = `
-                        <button type="button" onclick="event.stopPropagation(); openRemarkModal('${r.branch.replace(/'/g, "\\'")}')" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:#f0fdf4; border:1px dashed #86efac; border-radius:6px; color:#166534; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                        <button type="button" onclick="event.stopPropagation(); openRemarkModal('${r.branch.replace(/'/g, "\\'")}')" style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; background:#f0fdf4; border:1.5px dashed #86efac; border-radius:6px; color:#166534; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
                             ➕ Add Remark
                         </button>
                     `;
@@ -4821,21 +4821,21 @@
 
                 html += `
                     <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s ease; cursor:pointer;" onclick="showBranchModal('${r.branch.replace(/'/g, "\\'")}', '${r.state.replace(/'/g, "\\'")}')" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'" title="Click to view submitted members & remaining vacancies">
-                        <td style="padding:12px 16px; color:#94a3b8; font-weight:600;">${idx + 1}</td>
-                        <td style="padding:12px 16px; font-weight:600; color:#334155;">${r.state}</td>
-                        <td style="padding:12px 16px; font-weight:700; color:#0284c7; font-size:0.92rem;">
-                            <span style="display:inline-flex; align-items:center; gap:6px;">
+                        <td style="padding:10px 8px; color:#94a3b8; font-weight:600; text-align:center;">${idx + 1}</td>
+                        <td style="padding:10px 10px; font-weight:600; color:#334155;">${r.state}</td>
+                        <td style="padding:10px 10px; font-weight:700; color:#0284c7; font-size:0.92rem;">
+                            <span style="display:inline-flex; align-items:center; gap:5px;">
                                 <span>🏢</span>
                                 <span style="text-decoration:underline; text-decoration-color:#93c5fd; text-underline-offset:3px;">${r.branch}</span>
                             </span>
                         </td>
-                        <td style="padding:12px 16px; text-align:center;">${distBadge}</td>
-                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bbbh, 1, r.bbbhLeft)}</td>
-                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bbbm, 3, r.bbbmLeft)}</td>
-                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bsbh, 1, r.bsbhLeft)}</td>
-                        <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bsbm, 3, r.bsbmLeft)}</td>
-                        <td style="padding:12px 16px; text-align:center;">${overallBadge}</td>
-                        <td style="padding:12px 16px;" onclick="event.stopPropagation()">${remarkHtml}</td>
+                        <td style="padding:10px 8px; text-align:center;">${distBadge}</td>
+                        <td style="padding:10px 6px; text-align:center;">${getRoleBadge(r.bbbh, 1, r.bbbhLeft)}</td>
+                        <td style="padding:10px 6px; text-align:center;">${getRoleBadge(r.bbbm, 3, r.bbbmLeft)}</td>
+                        <td style="padding:10px 6px; text-align:center;">${getRoleBadge(r.bsbh, 1, r.bsbhLeft)}</td>
+                        <td style="padding:10px 6px; text-align:center;">${getRoleBadge(r.bsbm, 3, r.bsbmLeft)}</td>
+                        <td style="padding:10px 8px; text-align:center;">${overallBadge}</td>
+                        <td style="padding:10px 12px;" onclick="event.stopPropagation()">${remarkHtml}</td>
                     </tr>
                 `;
             });
