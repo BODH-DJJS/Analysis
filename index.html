@@ -4448,6 +4448,18 @@
         // ============================================================
         // Live Branch Status Tracker Logic (India Only)
         // ============================================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
         let trackerDataCache = null;
         let trackerDistrictSubmissions = [];
         let trackerSharedDistrictsMap = {};
@@ -4594,6 +4606,20 @@
             }
 
             if (icon) icon.style.animation = 'none';
+
+            // Merge any locally stored remarks if sheet sync is in progress
+            try {
+                const localRemarks = JSON.parse(localStorage.getItem('bodh_branch_remarks') || '{}');
+                if (trackerDataCache && localRemarks) {
+                    Object.keys(localRemarks).forEach(k => {
+                        if (trackerDataCache[k] && !trackerDataCache[k].remark && localRemarks[k].remark) {
+                            trackerDataCache[k].remark = localRemarks[k].remark;
+                            trackerDataCache[k].remarkUpdated = localRemarks[k].updated;
+                        }
+                    });
+                }
+            } catch(e) {}
+
             renderTrackerTable();
         }
 
@@ -5066,35 +5092,57 @@
                     headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({ action: 'saveBranchRemark', branch: branchName, remark: remarkText })
                 });
-                const json = await res.json();
-                if (json && json.status === 'success') {
-                    if (!cache[normKey]) cache[normKey] = {};
-                    cache[normKey].remark = remarkText;
-                    cache[normKey].remarkUpdated = json.updated || new Date().toLocaleString('en-IN');
+                    const json = await res.json();
+                    if (json && json.status === 'success') {
+                        const savedRemark = json.remark !== undefined ? json.remark : remarkText;
+                        const savedUpdated = json.updated || new Date().toLocaleString('en-IN');
 
-                    statusEl.innerHTML = '<span style="color:#15803d; font-weight:700;">✓ Remark saved successfully!</span>';
+                        // Save in memory cache
+                        if (!trackerDataCache) trackerDataCache = {};
+                        if (!trackerDataCache[normKey]) trackerDataCache[normKey] = {};
+                        trackerDataCache[normKey].remark = savedRemark;
+                        trackerDataCache[normKey].remarkUpdated = savedUpdated;
+
+                        // Also save in localStorage as immediate persistent backup across reloads
+                        try {
+                            const localRemarks = JSON.parse(localStorage.getItem('bodh_branch_remarks') || '{}');
+                            localRemarks[normKey] = { remark: savedRemark, updated: savedUpdated };
+                            localStorage.setItem('bodh_branch_remarks', JSON.stringify(localRemarks));
+                        } catch(e) {}
+
+                        statusEl.innerHTML = '<span style="color:#15803d; font-weight:700;">✓ Remark saved successfully!</span>';
+                        setTimeout(() => {
+                            closeRemarkModal();
+                            renderTrackerTable();
+                        }, 400);
+                        return;
+                    } else {
+                        throw new Error(json.message || 'Failed to save');
+                    }
+                } catch (err) {
+                    console.error('Error saving remark:', err);
+                    // Fallback to local storage
+                    const fallbackUpdated = new Date().toLocaleString('en-IN');
+                    if (!trackerDataCache) trackerDataCache = {};
+                    if (!trackerDataCache[normKey]) trackerDataCache[normKey] = {};
+                    trackerDataCache[normKey].remark = remarkText;
+                    trackerDataCache[normKey].remarkUpdated = fallbackUpdated;
+
+                    try {
+                        const localRemarks = JSON.parse(localStorage.getItem('bodh_branch_remarks') || '{}');
+                        localRemarks[normKey] = { remark: remarkText, updated: fallbackUpdated };
+                        localStorage.setItem('bodh_branch_remarks', JSON.stringify(localRemarks));
+                    } catch(e) {}
+
+                    statusEl.innerHTML = '<span style="color:#15803d; font-weight:700;">✓ Saved locally!</span>';
                     setTimeout(() => {
                         closeRemarkModal();
                         renderTrackerTable();
                     }, 500);
-                } else {
-                    throw new Error(json.message || 'Failed to save');
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '💾 Save Remark';
                 }
-            } catch (err) {
-                console.error('Error saving remark:', err);
-                // Optimistic UI update in cache anyway so user can see it during current session
-                if (!cache[normKey]) cache[normKey] = {};
-                cache[normKey].remark = remarkText;
-                cache[normKey].remarkUpdated = new Date().toLocaleString('en-IN');
-                statusEl.innerHTML = '<span style="color:#b91c1c;">⚠️ Could not sync to sheet, updated locally.</span>';
-                setTimeout(() => {
-                    closeRemarkModal();
-                    renderTrackerTable();
-                }, 1000);
-            } finally {
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '💾 Save Remark';
-            }
         }
 
         function applyTrackerFilters() {
