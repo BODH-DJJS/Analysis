@@ -1663,11 +1663,12 @@
                                     <th style="padding:12px 14px; text-align:center; cursor:pointer; user-select:none;" onclick="setTrackerSort('totalLeft')" title="Click to sort by Overall Status">
                                         <div style="display:inline-flex; align-items:center; gap:4px;">Overall Status <span id="sort_icon_totalLeft">↕️</span></div>
                                     </th>
+                                    <th style="padding:12px 14px; min-width:180px;">Calling Remarks / Notes</th>
                                 </tr>
                             </thead>
                             <tbody id="trackerTableBody">
                                 <tr>
-                                    <td colspan="9" style="text-align:center; padding:40px; color:#64748b;">
+                                    <td colspan="10" style="text-align:center; padding:40px; color:#64748b;">
                                         <div style="font-size:1.8rem; margin-bottom:8px; animation:rSpin 1s linear infinite; display:inline-block;">⏳</div>
                                         <div>Loading real-time branch tracker data from Google Sheet...</div>
                                     </td>
@@ -1699,6 +1700,33 @@
                         <!-- Modal Footer -->
                         <div style="padding:14px 24px; background:#f8fafc; border-top:1px solid #e2e8f0; text-align:right; border-radius:0 0 16px 16px;">
                             <button onclick="closeBranchModal()" style="padding:8px 20px; background:#e2e8f0; color:#334155; font-weight:700; font-size:0.88rem; border:none; border-radius:8px; cursor:pointer;">बंद करें / Close</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add/Edit Branch Calling Remark Modal -->
+                <div id="branchRemarkModal" style="display:none; position:fixed; z-index:10001; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); justify-content:center; align-items:center; padding:16px;">
+                    <div style="background:#fff; border-radius:16px; width:100%; max-width:520px; box-shadow:0 20px 40px rgba(0,0,0,0.25); border:1px solid #e2e8f0; animation:regScaleIn 0.25s ease;">
+                        <div style="background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; padding:16px 22px; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3 style="margin:0; font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                                    <span>📞</span> <span>Calling Remark / Note</span>
+                                </h3>
+                                <div id="remarkModalBranchSub" style="font-size:0.8rem; color:#e0f2fe; margin-top:2px;">Branch Name</div>
+                            </div>
+                            <button onclick="closeRemarkModal()" style="background:rgba(255,255,255,0.2); border:none; color:#fff; font-size:1.1rem; width:30px; height:30px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+                        </div>
+                        <div style="padding:20px 22px;">
+                            <input type="hidden" id="remarkModalBranchInput" value="" />
+                            <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:8px;">
+                                Call Response / Update / Status Note:
+                            </label>
+                            <textarea id="remarkModalTextInput" rows="4" placeholder="e.g. Called Brother XYZ today, will submit 2 BBBM forms by Friday..." style="width:100%; padding:10px 14px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:0.9rem; font-family:inherit; outline:none; resize:vertical; box-sizing:border-box;"></textarea>
+                            <div id="remarkModalStatus" style="font-size:0.8rem; margin-top:6px; min-height:18px;"></div>
+                        </div>
+                        <div style="padding:14px 22px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px; border-radius:0 0 16px 16px;">
+                            <button type="button" onclick="closeRemarkModal()" style="padding:8px 16px; background:#e2e8f0; color:#475569; font-weight:700; font-size:0.88rem; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
+                            <button type="button" id="btnSaveRemark" onclick="submitBranchRemark()" style="padding:8px 20px; background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; font-weight:700; font-size:0.88rem; border:none; border-radius:8px; cursor:pointer; box-shadow:0 2px 6px rgba(2,132,199,0.3);">💾 Save Remark</button>
                         </div>
                     </div>
                 </div>
@@ -4621,7 +4649,9 @@
                     bsbmLeft: bsbmLeft,
                     totalLeft: totalLeft,
                     isPocComplete: isPocComplete,
-                    members: data.members || []
+                    members: data.members || [],
+                    remark: data.remark || '',
+                    remarkUpdated: data.remarkUpdated || ''
                 };
             });
 
@@ -4742,6 +4772,27 @@
                     overallBadge = `<span style="background:#fef3c7; color:#92400e; border:1.5px solid #fcd34d; padding:5px 12px; border-radius:8px; font-weight:800; font-size:0.82rem; display:inline-block; white-space:nowrap; box-shadow:0 1px 4px rgba(245,158,11,0.2);">⚠️ ${r.totalLeft} Left</span>`;
                 }
 
+                let remarkHtml = '';
+                if (r.remark) {
+                    remarkHtml = `
+                        <div style="display:flex; flex-direction:column; gap:4px; max-width:260px;">
+                            <div style="font-size:0.83rem; color:#1e293b; background:#f1f5f9; border-left:3px solid #0284c7; padding:6px 10px; border-radius:4px; line-height:1.35; word-break:break-word;">
+                                ${escapeHtml(r.remark)}
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#94a3b8;">
+                                <span>${r.remarkUpdated ? r.remarkUpdated.split(',')[0] : ''}</span>
+                                <button type="button" onclick="event.stopPropagation(); openRemarkModal('${r.branch.replace(/'/g, "\\'")}')" style="background:none; border:none; color:#0284c7; font-weight:700; cursor:pointer; padding:2px 4px; text-decoration:underline;">✏️ Edit</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    remarkHtml = `
+                        <button type="button" onclick="event.stopPropagation(); openRemarkModal('${r.branch.replace(/'/g, "\\'")}')" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:#f0fdf4; border:1px dashed #86efac; border-radius:6px; color:#166534; font-size:0.78rem; font-weight:700; cursor:pointer; transition:all 0.15s ease;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                            ➕ Add Remark
+                        </button>
+                    `;
+                }
+
                 html += `
                     <tr style="border-bottom:1px solid #e2e8f0; transition:background 0.15s ease; cursor:pointer;" onclick="showBranchModal('${r.branch.replace(/'/g, "\\'")}', '${r.state.replace(/'/g, "\\'")}')" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='transparent'" title="Click to view submitted members & remaining vacancies">
                         <td style="padding:12px 16px; color:#94a3b8; font-weight:600;">${idx + 1}</td>
@@ -4758,6 +4809,7 @@
                         <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bsbh, 1, r.bsbhLeft)}</td>
                         <td style="padding:12px 16px; text-align:center;">${getRoleBadge(r.bsbm, 3, r.bsbmLeft)}</td>
                         <td style="padding:12px 16px; text-align:center;">${overallBadge}</td>
+                        <td style="padding:12px 16px;" onclick="event.stopPropagation()">${remarkHtml}</td>
                     </tr>
                 `;
             });
@@ -4960,7 +5012,90 @@
         window.addEventListener('click', function(e) {
             const modal = document.getElementById('branchMembersModal');
             if (e.target === modal) closeBranchModal();
+            const rModal = document.getElementById('branchRemarkModal');
+            if (e.target === rModal) closeRemarkModal();
         });
+
+        // ============================================================
+        // Branch Calling Remarks Logic
+        // ============================================================
+        function openRemarkModal(branchName) {
+            const modal = document.getElementById('branchRemarkModal');
+            const subEl = document.getElementById('remarkModalBranchSub');
+            const inputBranch = document.getElementById('remarkModalBranchInput');
+            const inputArea = document.getElementById('remarkModalTextInput');
+            const statusEl = document.getElementById('remarkModalStatus');
+            if (!modal) return;
+
+            inputBranch.value = branchName;
+            subEl.textContent = `Branch: ${branchName}`;
+            statusEl.innerHTML = '';
+
+            const normKey = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const cache = trackerDataCache || {};
+            const branchData = cache[normKey];
+            inputArea.value = (branchData && branchData.remark) ? branchData.remark : '';
+
+            modal.style.display = 'flex';
+            setTimeout(() => inputArea.focus(), 100);
+        }
+
+        function closeRemarkModal() {
+            const modal = document.getElementById('branchRemarkModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function submitBranchRemark() {
+            const branchName = document.getElementById('remarkModalBranchInput').value.trim();
+            const remarkText = document.getElementById('remarkModalTextInput').value.trim();
+            const statusEl = document.getElementById('remarkModalStatus');
+            const saveBtn = document.getElementById('btnSaveRemark');
+
+            if (!branchName) return;
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '⏳ Saving...';
+            statusEl.innerHTML = '<span style="color:#0284c7;">Saving remark to Google Sheet...</span>';
+
+            const normKey = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const cache = trackerDataCache || {};
+
+            try {
+                const res = await fetch(REG_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'saveBranchRemark', branch: branchName, remark: remarkText })
+                });
+                const json = await res.json();
+                if (json && json.status === 'success') {
+                    if (!cache[normKey]) cache[normKey] = {};
+                    cache[normKey].remark = remarkText;
+                    cache[normKey].remarkUpdated = json.updated || new Date().toLocaleString('en-IN');
+
+                    statusEl.innerHTML = '<span style="color:#15803d; font-weight:700;">✓ Remark saved successfully!</span>';
+                    setTimeout(() => {
+                        closeRemarkModal();
+                        renderTrackerTable();
+                    }, 500);
+                } else {
+                    throw new Error(json.message || 'Failed to save');
+                }
+            } catch (err) {
+                console.error('Error saving remark:', err);
+                // Optimistic UI update in cache anyway so user can see it during current session
+                if (!cache[normKey]) cache[normKey] = {};
+                cache[normKey].remark = remarkText;
+                cache[normKey].remarkUpdated = new Date().toLocaleString('en-IN');
+                statusEl.innerHTML = '<span style="color:#b91c1c;">⚠️ Could not sync to sheet, updated locally.</span>';
+                setTimeout(() => {
+                    closeRemarkModal();
+                    renderTrackerTable();
+                }, 1000);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '💾 Save Remark';
+            }
+        }
 
         function applyTrackerFilters() {
             renderTrackerTable();
@@ -5235,7 +5370,8 @@
                     "BBBM (Member - Min 3)": bbbm,
                     "BSBH (Head - Min 1)": bsbh,
                     "BSBM (Member - Min 3)": bsbm,
-                    "POC Overall Status": (totalLeft === 0) ? "Completed" : `${totalLeft} Left`
+                    "POC Overall Status": (totalLeft === 0) ? "Completed" : `${totalLeft} Left`,
+                    "Remarks / Notes": data.remark || ""
                 };
             });
 

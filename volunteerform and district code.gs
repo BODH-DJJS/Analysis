@@ -3,6 +3,7 @@ const SPREADSHEET_ID = '1OvVqqDI5JwTMJA4svMKXUb2JuOMQUaPgH7Un-UMum14';
 const SHEET_NAME = 'Master data';
 const RESPONSES_SHEET_NAME = 'POC Team Leaders';
 const DISTRICT_RESPONSES_SHEET_NAME = 'District Information';
+const REMARKS_SHEET_NAME = 'Branch Remarks';
 
 /**
  * Helper test function you can run directly inside the Google Apps Script Editor!
@@ -171,7 +172,71 @@ function getAllBranchTrackerData() {
     console.error('Error reading POC Team Leaders:', e);
   }
 
+  // 3. Process Branch Remarks Sheet
+  try {
+    let remSheet = ss.getSheetByName(REMARKS_SHEET_NAME);
+    if (remSheet) {
+      const remData = remSheet.getDataRange().getValues();
+      if (remData.length > 1) {
+        for (let i = 1; i < remData.length; i++) {
+          const bName = String(remData[i][0] || '').trim();
+          if (!bName) continue;
+          const key = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (branchMap[key]) {
+            branchMap[key].remark = String(remData[i][1] || '').trim();
+            branchMap[key].remarkUpdated = String(remData[i][2] || '').trim();
+          }
+        }
+      }
+    }
+  } catch(e) {
+    console.error('Error reading Branch Remarks:', e);
+  }
+
   return { status: 'success', trackerData: branchMap, districtSubmissions: districtSubmissions };
+}
+
+function saveBranchRemark(branchName, remarkText) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let remSheet = ss.getSheetByName(REMARKS_SHEET_NAME);
+    if (!remSheet) {
+      remSheet = ss.insertSheet(REMARKS_SHEET_NAME);
+      const headers = ['Branch Name', 'Remark', 'Last Updated'];
+      remSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      const hRange = remSheet.getRange(1, 1, 1, headers.length);
+      hRange.setFontWeight('bold');
+      hRange.setBackground('#0f172a');
+      hRange.setFontColor('#ffffff');
+      remSheet.setFrozenRows(1);
+    }
+
+    const data = remSheet.getDataRange().getValues();
+    const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    let foundRow = -1;
+
+    for (let i = 1; i < data.length; i++) {
+      const rowBNorm = String(data[i][0] || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (rowBNorm === bNorm) {
+        foundRow = i + 1; // 1-based row index
+        break;
+      }
+    }
+
+    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+    if (foundRow !== -1) {
+      remSheet.getRange(foundRow, 2).setValue(remarkText);
+      remSheet.getRange(foundRow, 3).setValue(timestamp);
+    } else {
+      remSheet.appendRow([branchName, remarkText, timestamp]);
+    }
+
+    return { status: 'success', branch: branchName, remark: remarkText, updated: timestamp };
+  } catch (err) {
+    console.error('Error saving remark:', err);
+    return { status: 'error', message: err.message };
+  }
 }
 
 function getBranchRolesCount(branchName) {
@@ -327,6 +392,21 @@ function doGet(e) {
         .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);
     }
+
+    if (e && e.parameter && e.parameter.action === 'saveBranchRemark') {
+      const branchName = (e.parameter.branch || '').trim();
+      const remarkText = (e.parameter.remark || '').trim();
+      const callback = (e.parameter.callback || '').trim();
+      const resultObj = saveBranchRemark(branchName, remarkText);
+      if (callback) {
+        return ContentService
+          .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     // ==========================================
 
     const data = getAnalyticsData();
@@ -370,6 +450,16 @@ function doPost(e) {
     // Support getAllBranchTracker via POST
     if (formData && formData.action === 'getAllBranchTracker') {
       const resultObj = getAllBranchTrackerData();
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Support saveBranchRemark via POST
+    if (formData && formData.action === 'saveBranchRemark') {
+      const branchName = (formData.branch || '').trim();
+      const remarkText = (formData.remark || '').trim();
+      const resultObj = saveBranchRemark(branchName, remarkText);
       return ContentService
         .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);
