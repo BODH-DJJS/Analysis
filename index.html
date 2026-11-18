@@ -1730,6 +1730,51 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Change Member Role Modal -->
+                <div id="memberRoleModal" style="display:none; position:fixed; z-index:10002; left:0; top:0; width:100%; height:100%; background:rgba(15,23,42,0.7); backdrop-filter:blur(4px); justify-content:center; align-items:center; padding:16px;">
+                    <div style="background:#fff; border-radius:16px; width:100%; max-width:480px; box-shadow:0 24px 48px rgba(0,0,0,0.3); border:1px solid #e2e8f0; animation:regScaleIn 0.25s ease;">
+                        <div style="background:linear-gradient(135deg, #4f46e5, #3730a3); color:#fff; padding:16px 22px; border-radius:16px 16px 0 0; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h3 style="margin:0; font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                                    <span>✏️</span> <span>Change Member Role</span>
+                                </h3>
+                                <div id="roleModalSub" style="font-size:0.8rem; color:#e0e7ff; margin-top:2px;">Branch Name</div>
+                            </div>
+                            <button onclick="closeMemberRoleModal()" style="background:rgba(255,255,255,0.2); border:none; color:#fff; font-size:1.1rem; width:30px; height:30px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+                        </div>
+                        <div style="padding:20px 22px;">
+                            <input type="hidden" id="roleModalBranchInput" value="" />
+                            <input type="hidden" id="roleModalNameInput" value="" />
+                            <input type="hidden" id="roleModalRowInput" value="" />
+
+                            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; margin-bottom:16px;">
+                                <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Member Name:</div>
+                                <div id="roleModalMemberName" style="font-size:1rem; font-weight:800; color:#0f172a; margin-top:2px;">Name</div>
+                                <div style="display:flex; align-items:center; gap:6px; margin-top:6px; font-size:0.82rem; color:#475569;">
+                                    <span>Current Role:</span>
+                                    <span id="roleModalCurrentRoleBadge" style="font-weight:700; background:#e2e8f0; padding:2px 8px; border-radius:6px; font-size:0.78rem;">BBBH</span>
+                                </div>
+                            </div>
+
+                            <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:8px;">
+                                Select New Role:
+                            </label>
+                            <select id="roleModalNewRoleSelect" style="width:100%; padding:10px 12px; border:1.5px solid #cbd5e1; border-radius:10px; font-size:0.92rem; font-weight:600; outline:none; background:#fff; cursor:pointer;">
+                                <option value="BBBH">👨 BBBH — Bodh Branch Head (Brothers)</option>
+                                <option value="BBBM">👨 BBBM — Bodh Branch Member (Brothers)</option>
+                                <option value="BSBH">👩 BSBH — Bodh Branch Head (Sisters)</option>
+                                <option value="BSBM">👩 BSBM — Bodh Branch Member (Sisters)</option>
+                            </select>
+
+                            <div id="roleModalStatus" style="font-size:0.82rem; margin-top:10px; min-height:20px;"></div>
+                        </div>
+                        <div style="padding:14px 22px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px; border-radius:0 0 16px 16px;">
+                            <button type="button" onclick="closeMemberRoleModal()" style="padding:8px 16px; background:#e2e8f0; color:#475569; font-weight:700; font-size:0.88rem; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
+                            <button type="button" id="btnSaveMemberRole" onclick="submitChangeMemberRole()" style="padding:8px 20px; background:linear-gradient(135deg, #4f46e5, #3730a3); color:#fff; font-weight:700; font-size:0.88rem; border:none; border-radius:8px; cursor:pointer; box-shadow:0 2px 6px rgba(79,70,229,0.3);">💾 Update Role</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- End Branch Status Tracker Tab -->
@@ -4968,16 +5013,27 @@
 
                 if (roleMembers.length > 0) {
                     modalHtml += `
-                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px;">
-                            ${roleMembers.map((m, mIdx) => `
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px;">
+                            ${roleMembers.map((m, mIdx) => {
+                                const mNameEsc = escapeHtml(m.name || 'N/A');
+                                const mBranchEsc = escapeHtml(branchName);
+                                const mRoleEsc = escapeHtml(m.role || cat.key);
+                                const mRow = m.row || '';
+                                return `
                                 <div style="background:#fff; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; display:flex; align-items:center; gap:8px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                                     <span style="font-size:0.75rem; font-weight:700; color:#94a3b8; width:16px;">${mIdx + 1}.</span>
                                     <div style="flex:1; overflow:hidden;">
-                                        <div style="font-weight:700; color:#0f172a; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.name}</div>
+                                        <div style="font-weight:700; color:#0f172a; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${mNameEsc}">${mNameEsc}</div>
                                     </div>
-                                    <span style="font-size:0.8rem; color:#10b981;" title="Form Submitted">✓</span>
+                                    <button type="button" 
+                                        onclick="openMemberRoleModal('${mBranchEsc.replace(/'/g, "\\'")}', '${mNameEsc.replace(/'/g, "\\'")}', '${mRoleEsc}', '${mRow}')" 
+                                        title="Change / Correct Role" 
+                                        style="background:#f1f5f9; hover:background:#e2e8f0; border:1px solid #cbd5e1; border-radius:6px; padding:3px 7px; font-size:0.72rem; font-weight:700; color:#475569; cursor:pointer; display:flex; align-items:center; gap:3px;">
+                                        ✏️ <span>Change</span>
+                                    </button>
                                 </div>
-                            `).join('')}
+                                `;
+                            }).join('')}
                         </div>
                     `;
                 } else {
@@ -5037,7 +5093,123 @@
             if (e.target === modal) closeBranchModal();
             const rModal = document.getElementById('branchRemarkModal');
             if (e.target === rModal) closeRemarkModal();
+            const mModal = document.getElementById('memberRoleModal');
+            if (e.target === mModal) closeMemberRoleModal();
         });
+
+        // ============================================================
+        // Change Member Role Logic
+        // ============================================================
+        function openMemberRoleModal(branchName, memberName, currentRole, row) {
+            const modal = document.getElementById('memberRoleModal');
+            const subEl = document.getElementById('roleModalSub');
+            const nameEl = document.getElementById('roleModalMemberName');
+            const badgeEl = document.getElementById('roleModalCurrentRoleBadge');
+            const branchInput = document.getElementById('roleModalBranchInput');
+            const nameInput = document.getElementById('roleModalNameInput');
+            const rowInput = document.getElementById('roleModalRowInput');
+            const selectEl = document.getElementById('roleModalNewRoleSelect');
+            const statusEl = document.getElementById('roleModalStatus');
+            const saveBtn = document.getElementById('btnSaveMemberRole');
+
+            if (!modal) return;
+
+            branchInput.value = branchName;
+            nameInput.value = memberName;
+            rowInput.value = row || '';
+            subEl.textContent = `Branch: ${branchName}`;
+            nameEl.textContent = memberName;
+            badgeEl.textContent = currentRole;
+            statusEl.innerHTML = '';
+
+            // Clean role to match options BBBH, BBBM, BSBH, BSBM
+            let matchedOption = 'BBBH';
+            const cUpper = (currentRole || '').toUpperCase();
+            if (cUpper.includes('BSBM')) matchedOption = 'BSBM';
+            else if (cUpper.includes('BSBH')) matchedOption = 'BSBH';
+            else if (cUpper.includes('BBBM')) matchedOption = 'BBBM';
+            else if (cUpper.includes('BBBH')) matchedOption = 'BBBH';
+
+            selectEl.value = matchedOption;
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 Update Role';
+
+            modal.style.display = 'flex';
+        }
+
+        function closeMemberRoleModal() {
+            const modal = document.getElementById('memberRoleModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function submitChangeMemberRole() {
+            const branchName = document.getElementById('roleModalBranchInput').value.trim();
+            const memberName = document.getElementById('roleModalNameInput').value.trim();
+            const row = document.getElementById('roleModalRowInput').value.trim();
+            const newRole = document.getElementById('roleModalNewRoleSelect').value.trim();
+            const statusEl = document.getElementById('roleModalStatus');
+            const saveBtn = document.getElementById('btnSaveMemberRole');
+
+            if (!branchName || !memberName || !newRole) return;
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '⏳ Updating...';
+            statusEl.innerHTML = '<span style="color:#4f46e5; font-weight:600;">Updating role in Google Sheet...</span>';
+
+            const normKey = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            try {
+                const res = await fetch(REG_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({
+                        action: 'updateMemberRole',
+                        branch: branchName,
+                        name: memberName,
+                        role: newRole,
+                        row: row
+                    })
+                });
+
+                const json = await res.json();
+                if (json && json.status === 'success') {
+                    statusEl.innerHTML = `<span style="color:#15803d; font-weight:700;">✓ Role updated to ${newRole}!</span>`;
+
+                    // Update memory cache
+                    if (trackerDataCache && trackerDataCache[normKey]) {
+                        const bData = trackerDataCache[normKey];
+                        if (Array.isArray(bData.members)) {
+                            const m = bData.members.find(x => x.name === memberName || (row && String(x.row) === String(row)));
+                            if (m) m.role = newRole;
+                        }
+                        // Recalculate counts
+                        if (Array.isArray(bData.members)) {
+                            bData.BBBH = bData.members.filter(x => (x.role || '').toUpperCase().includes('BBBH')).length;
+                            bData.BBBM = bData.members.filter(x => (x.role || '').toUpperCase().includes('BBBM')).length;
+                            bData.BSBH = bData.members.filter(x => (x.role || '').toUpperCase().includes('BSBH')).length;
+                            bData.BSBM = bData.members.filter(x => (x.role || '').toUpperCase().includes('BSBM')).length;
+                        }
+                    }
+
+                    setTimeout(async () => {
+                        closeMemberRoleModal();
+                        // Re-render tracker table
+                        renderTrackerTable();
+                        // Re-render modal to reflect new role breakdown
+                        const stateEl = document.getElementById('modalBranchSub');
+                        const stateName = stateEl ? stateEl.textContent.split('•')[0].trim() : '';
+                        await showBranchModal(branchName, stateName);
+                    }, 600);
+                } else {
+                    throw new Error(json.message || 'Server error updating role');
+                }
+            } catch (err) {
+                console.error('Error updating member role:', err);
+                statusEl.innerHTML = `<span style="color:#b91c1c; font-weight:700;">⚠️ Failed: ${escapeHtml(err.message || 'Network error')}</span>`;
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '💾 Retry Update';
+            }
+        }
 
         // ============================================================
         // Branch Calling Remarks Logic

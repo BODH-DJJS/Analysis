@@ -162,7 +162,8 @@ function getAllBranchTrackerData() {
             branchMap[key].members.push({
               name: personName || 'N/A',
               role: standardRole || directRole || 'Member',
-              contact: personContact || ''
+              contact: personContact || '',
+              row: i + 1
             });
           }
         }
@@ -235,6 +236,112 @@ function saveBranchRemark(branchName, remarkText) {
     return { status: 'success', branch: branchName, remark: remarkText, updated: timestamp };
   } catch (err) {
     console.error('Error saving remark:', err);
+    return { status: 'error', message: err.message };
+  }
+}
+
+/**
+ * Updates a member's role directly in the POC Team Leaders sheet tab.
+ * Can find the row by exact rowIndex (1-based sheet row) or by matching (branchName, memberName).
+ */
+function updateMemberRoleInSheet(branchName, memberName, newRole, targetRow) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = ss.getSheetByName(RESPONSES_SHEET_NAME);
+    if (!sheet) {
+      const allSheets = ss.getSheets();
+      for (let s of allSheets) {
+        const sName = s.getName().toLowerCase();
+        if (sName.includes('poc') || sName.includes('leader') || sName.includes('volunteer')) {
+          sheet = s;
+          break;
+        }
+      }
+    }
+
+    if (!sheet) {
+      return { status: 'error', message: 'POC Team Leaders sheet not found' };
+    }
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return { status: 'error', message: 'No records in sheet' };
+    }
+
+    let headerRowIdx = 0;
+    let branchCol = -1;
+    let roleCol = -1;
+    let nameCol = -1;
+
+    for (let r = 0; r < Math.min(5, data.length); r++) {
+      const rowHeaders = data[r].map(h => String(h || '').trim().toLowerCase());
+      let bIdx = rowHeaders.findIndex(h => h === 'branch name' || h === 'branch');
+      if (bIdx === -1) bIdx = rowHeaders.findIndex(h => h.includes('branch') && !h.includes('ar'));
+      const rIdx = rowHeaders.findIndex(h => h.includes('role'));
+      const nIdx = rowHeaders.findIndex(h => h === 'full name' || h === 'name');
+      if (bIdx !== -1 && rIdx !== -1) {
+        headerRowIdx = r;
+        branchCol = bIdx;
+        roleCol = rIdx;
+        if (nIdx !== -1) nameCol = nIdx;
+        break;
+      }
+    }
+
+    if (branchCol === -1) branchCol = 8;
+    if (roleCol === -1) roleCol = 12;
+    if (nameCol === -1) nameCol = 1;
+
+    let targetSheetRow = -1;
+    const tRow = parseInt(targetRow, 10);
+
+    // If targetRow is provided and valid, verify it matches
+    if (!isNaN(tRow) && tRow > headerRowIdx + 1 && tRow <= data.length) {
+      const rIdx = tRow - 1;
+      const rBranchNorm = String(data[rIdx][branchCol] || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const bNorm = String(branchName || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const rNameNorm = String(data[rIdx][nameCol] || '').trim().toLowerCase().replace(/\s+/g, '');
+      const mNameNorm = String(memberName || '').trim().toLowerCase().replace(/\s+/g, '');
+
+      if ((!bNorm || rBranchNorm === bNorm) && (!mNameNorm || rNameNorm === mNameNorm)) {
+        targetSheetRow = tRow;
+      }
+    }
+
+    // If not found by row index, search by branch & name
+    if (targetSheetRow === -1 && branchName && memberName) {
+      const bNorm = branchName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const mNorm = memberName.toLowerCase().replace(/\s+/g, '');
+
+      for (let i = headerRowIdx + 1; i < data.length; i++) {
+        const rowBranchNorm = String(data[i][branchCol] || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+        const rowNameNorm = String(data[i][nameCol] || '').trim().toLowerCase().replace(/\s+/g, '');
+        if (rowBranchNorm === bNorm && rowNameNorm === mNorm) {
+          targetSheetRow = i + 1; // 1-based sheet row
+          break;
+        }
+      }
+    }
+
+    if (targetSheetRow === -1) {
+      return { status: 'error', message: 'Member record not found in sheet for branch: ' + branchName + ', member: ' + memberName };
+    }
+
+    // Update the role in the sheet (roleCol is 0-based, so +1 for Sheets 1-based column)
+    const roleCell = sheet.getRange(targetSheetRow, roleCol + 1);
+    const oldRole = String(roleCell.getValue() || '');
+    roleCell.setValue(newRole);
+
+    return {
+      status: 'success',
+      row: targetSheetRow,
+      branch: branchName,
+      name: memberName,
+      oldRole: oldRole,
+      newRole: newRole
+    };
+  } catch (err) {
+    console.error('Error updating member role:', err);
     return { status: 'error', message: err.message };
   }
 }
@@ -335,7 +442,8 @@ function getBranchRolesCount(branchName) {
             members.push({
               name: pName || 'N/A',
               role: standardRole || directRole || 'Member',
-              contact: pContact || ''
+              contact: pContact || '',
+              row: i + 1
             });
           }
         }
@@ -407,6 +515,23 @@ function doGet(e) {
         .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);
     }
+
+    if (e && e.parameter && e.parameter.action === 'updateMemberRole') {
+      const branchName = (e.parameter.branch || '').trim();
+      const memberName = (e.parameter.name || '').trim();
+      const newRole = (e.parameter.role || '').trim();
+      const targetRow = (e.parameter.row || '').trim();
+      const callback = (e.parameter.callback || '').trim();
+      const resultObj = updateMemberRoleInSheet(branchName, memberName, newRole, targetRow);
+      if (callback) {
+        return ContentService
+          .createTextOutput(callback + '(' + JSON.stringify(resultObj) + ')')
+          .setMimeType(ContentService.MimeType.JAVASCRIPT);
+      }
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     // ==========================================
 
     const data = getAnalyticsData();
@@ -460,6 +585,18 @@ function doPost(e) {
       const branchName = (formData.branch || '').trim();
       const remarkText = (formData.remark || '').trim();
       const resultObj = saveBranchRemark(branchName, remarkText);
+      return ContentService
+        .createTextOutput(JSON.stringify(resultObj))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Support updateMemberRole via POST
+    if (formData && formData.action === 'updateMemberRole') {
+      const branchName = (formData.branch || '').trim();
+      const memberName = (formData.name || '').trim();
+      const newRole = (formData.role || '').trim();
+      const targetRow = (formData.row || '').toString().trim();
+      const resultObj = updateMemberRoleInSheet(branchName, memberName, newRole, targetRow);
       return ContentService
         .createTextOutput(JSON.stringify(resultObj))
         .setMimeType(ContentService.MimeType.JSON);
