@@ -4602,7 +4602,6 @@
             if (!dropdown) return;
 
             const indiaStates = Object.keys(REG_BRANCHES).filter(s => s !== "Outside India").sort();
-            const allChecked = trackerSelectedStates.length === 0 || trackerSelectedStates.length === indiaStates.length;
 
             let html = `
                 <div class="filter-actions" style="padding:8px 12px; gap:8px;">
@@ -4613,12 +4612,11 @@
             `;
 
             indiaStates.forEach(st => {
-                const isChecked = allChecked || trackerSelectedStates.includes(st);
                 const safeSt = escapeHtml(st);
                 html += `
-                    <div class="select-option" style="padding:6px 12px; font-size:0.85rem;" onclick="onTrackerStateItemClick('${st.replace(/'/g, "\\'")}', event)">
-                        <input type="checkbox" class="tracker-state-cb" value="${safeSt}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); onTrackerStateCheckboxChange();" />
-                        <label style="cursor:pointer; margin:0; font-size:0.85rem;">${safeSt}</label>
+                    <div class="select-option tracker-state-opt" data-state="${safeSt}" style="padding:6px 12px; font-size:0.85rem;" onclick="onTrackerStateItemClick('${st.replace(/'/g, "\\'")}', event)">
+                        <input type="checkbox" class="tracker-state-cb" value="${safeSt}" checked onclick="onTrackerStateCheckboxClick(event)" />
+                        <label style="cursor:pointer; margin:0; font-size:0.85rem;" onclick="event.preventDefault()">${safeSt}</label>
                     </div>
                 `;
             });
@@ -4639,6 +4637,11 @@
             }
         }
 
+        function onTrackerStateCheckboxClick(e) {
+            e.stopPropagation();
+            onTrackerStateCheckboxChange();
+        }
+
         function onTrackerStateCheckboxChange() {
             const dropdown = document.getElementById('trackerStateDropdown');
             if (!dropdown) return;
@@ -4646,7 +4649,9 @@
             const cbs = dropdown.querySelectorAll('.tracker-state-cb:checked');
             const checkedVals = Array.from(cbs).map(cb => cb.value);
 
-            if (checkedVals.length === 0 || checkedVals.length === indiaStates.length) {
+            if (checkedVals.length === 0) {
+                trackerSelectedStates = ['__NONE__'];
+            } else if (checkedVals.length === indiaStates.length) {
                 trackerSelectedStates = [];
             } else {
                 trackerSelectedStates = checkedVals;
@@ -4724,8 +4729,8 @@
                 const safeSt = escapeHtml(item.state);
                 html += `
                     <div class="select-option tracker-branch-opt" data-branch="${safeB}" data-state="${safeSt}" style="padding:6px 12px; font-size:0.85rem;" onclick="onTrackerBranchItemClick('${item.branch.replace(/'/g, "\\'")}', event)">
-                        <input type="checkbox" class="tracker-branch-cb" value="${safeB}" checked onclick="event.stopPropagation(); onTrackerBranchCheckboxChange();" />
-                        <label style="cursor:pointer; margin:0; font-size:0.85rem;">${safeB}</label>
+                        <input type="checkbox" class="tracker-branch-cb" value="${safeB}" checked onclick="onTrackerBranchCheckboxClick(event)" />
+                        <label style="cursor:pointer; margin:0; font-size:0.85rem;" onclick="event.preventDefault()">${safeB}</label>
                     </div>
                 `;
             });
@@ -4785,6 +4790,11 @@
             }
         }
 
+        function onTrackerBranchCheckboxClick(e) {
+            e.stopPropagation();
+            onTrackerBranchCheckboxChange();
+        }
+
         function onTrackerBranchCheckboxChange() {
             const dropdown = document.getElementById('trackerBranchDropdown');
             if (!dropdown) return;
@@ -4793,7 +4803,9 @@
             const cbs = dropdown.querySelectorAll('.tracker-branch-opt:not([style*="display: none"]) .tracker-branch-cb:checked');
             const checkedVals = Array.from(cbs).map(cb => cb.value);
 
-            if (checkedVals.length === 0 || checkedVals.length === availableBranches.length) {
+            if (checkedVals.length === 0) {
+                trackerSelectedBranches = ['__NONE__'];
+            } else if (checkedVals.length === availableBranches.length) {
                 trackerSelectedBranches = [];
             } else {
                 trackerSelectedBranches = checkedVals;
