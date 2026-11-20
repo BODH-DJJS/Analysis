@@ -332,6 +332,26 @@
             transform: rotate(180deg);
         }
 
+        .tracker-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            margin-top: 5px;
+            max-height: 350px;
+            overflow-y: auto;
+            z-index: 1050;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .tracker-select-dropdown.show {
+            display: block !important;
+        }
+
         .select-dropdown {
             position: absolute;
             top: 100%;
@@ -1583,12 +1603,12 @@
                         <!-- 1. Multi-Select State Filter -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">State:</label>
-                            <div class="custom-select" id="customSelectTrackerState" style="min-width:180px; max-width:260px;">
+                            <div class="custom-select tracker-custom-select" id="customSelectTrackerState" style="min-width:180px; max-width:260px;">
                                 <div class="select-display" onclick="toggleTrackerDropdown('customSelectTrackerState', event)" style="padding:6px 12px; min-height:36px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; font-weight:600; background:#f8fafc;">
                                     <span class="selected-text" id="trackerStateDisplayText">🇮🇳 All States</span>
                                     <span class="select-arrow" style="font-size:0.75rem;">▼</span>
                                 </div>
-                                <div class="select-dropdown" id="trackerStateDropdown" style="width:260px; max-height:320px; z-index:1050;">
+                                <div class="select-dropdown tracker-select-dropdown" id="trackerStateDropdown" style="width:260px; max-height:320px; z-index:1050;">
                                     <!-- Populated dynamically -->
                                 </div>
                             </div>
@@ -1597,12 +1617,12 @@
                         <!-- 2. Multi-Select Branch Filter (with auto-sync to selected States) -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">Branch:</label>
-                            <div class="custom-select" id="customSelectTrackerBranch" style="min-width:190px; max-width:280px;">
+                            <div class="custom-select tracker-custom-select" id="customSelectTrackerBranch" style="min-width:190px; max-width:280px;">
                                 <div class="select-display" onclick="toggleTrackerDropdown('customSelectTrackerBranch', event)" style="padding:6px 12px; min-height:36px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; font-weight:600; background:#f8fafc;">
                                     <span class="selected-text" id="trackerBranchDisplayText">🏢 All Branches</span>
                                     <span class="select-arrow" style="font-size:0.75rem;">▼</span>
                                 </div>
-                                <div class="select-dropdown" id="trackerBranchDropdown" style="width:300px; max-height:340px; z-index:1050;">
+                                <div class="select-dropdown tracker-select-dropdown" id="trackerBranchDropdown" style="width:300px; max-height:340px; z-index:1050;">
                                     <!-- Populated dynamically -->
                                 </div>
                             </div>
@@ -2588,8 +2608,8 @@
         }
 
         function setupFilterListeners() {
-            // Toggle dropdown on click
-            document.querySelectorAll('.custom-select').forEach(select => {
+            // Toggle dropdown on click (exclude tracker dropdowns which have their own handler)
+            document.querySelectorAll('.custom-select:not(.tracker-custom-select)').forEach(select => {
                 const display = select.querySelector('.select-display');
                 const dropdown = select.querySelector('.select-dropdown');
                 const arrow = select.querySelector('.select-arrow');
@@ -4582,12 +4602,12 @@
             e.stopPropagation();
             const container = document.getElementById(containerId);
             if (!container) return;
-            const dropdown = container.querySelector('.select-dropdown');
+            const dropdown = container.querySelector('.tracker-select-dropdown') || container.querySelector('.select-dropdown');
             if (!dropdown) return;
 
             const isOpen = dropdown.classList.contains('show');
             // Close all dropdowns
-            document.querySelectorAll('.select-dropdown').forEach(dd => dd.classList.remove('show'));
+            document.querySelectorAll('.select-dropdown, .tracker-select-dropdown').forEach(dd => dd.classList.remove('show'));
             document.querySelectorAll('.select-arrow').forEach(a => a.classList.remove('rotated'));
 
             if (!isOpen) {
