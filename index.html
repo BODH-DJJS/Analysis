@@ -1580,31 +1580,43 @@
                 <!-- Filters & Controls Bar -->
                 <div style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:14px 18px; margin-bottom:16px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
                     <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center; flex:1;">
-                        <!-- 1. State Filter -->
+                        <!-- 1. Multi-Select State Filter -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">State:</label>
-                            <select id="trackerStateFilter" onchange="onTrackerStateChange()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none; min-width:170px;">
-                                <option value="">🇮🇳 All India States</option>
-                            </select>
+                            <div class="custom-select" id="customSelectTrackerState" style="min-width:180px; max-width:260px;">
+                                <div class="select-display" onclick="toggleTrackerDropdown('customSelectTrackerState', event)" style="padding:6px 12px; min-height:36px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; font-weight:600; background:#f8fafc;">
+                                    <span class="selected-text" id="trackerStateDisplayText">🇮🇳 All States</span>
+                                    <span class="select-arrow" style="font-size:0.75rem;">▼</span>
+                                </div>
+                                <div class="select-dropdown" id="trackerStateDropdown" style="width:260px; max-height:320px; z-index:1050;">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- 2. Branch Dropdown Filter (with auto-sync to selected State) -->
+                        <!-- 2. Multi-Select Branch Filter (with auto-sync to selected States) -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">Branch:</label>
-                            <select id="trackerBranchFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none; min-width:170px; max-width:220px;">
-                                <option value="">🏢 All Branches</option>
-                            </select>
+                            <div class="custom-select" id="customSelectTrackerBranch" style="min-width:190px; max-width:280px;">
+                                <div class="select-display" onclick="toggleTrackerDropdown('customSelectTrackerBranch', event)" style="padding:6px 12px; min-height:36px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; font-weight:600; background:#f8fafc;">
+                                    <span class="selected-text" id="trackerBranchDisplayText">🏢 All Branches</span>
+                                    <span class="select-arrow" style="font-size:0.75rem;">▼</span>
+                                </div>
+                                <div class="select-dropdown" id="trackerBranchDropdown" style="width:300px; max-height:340px; z-index:1050;">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 3. Search Box -->
-                        <div style="min-width:180px; flex:1; max-width:260px;">
-                            <input type="text" id="trackerSearch" oninput="applyTrackerFilters()" placeholder="🔍 Type to search branch..." style="width:100%; padding:8px 14px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; outline:none;" />
+                        <div style="min-width:160px; flex:1; max-width:220px;">
+                            <input type="text" id="trackerSearch" oninput="applyTrackerFilters()" placeholder="🔍 Type to search branch..." style="width:100%; padding:7px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; outline:none;" />
                         </div>
 
                         <!-- 4. Status Filter -->
                         <div style="display:flex; align-items:center; gap:8px;">
                             <label style="font-size:0.85rem; font-weight:700; color:#334155;">Status:</label>
-                            <select id="trackerStatusFilter" onchange="applyTrackerFilters()" style="padding:8px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.88rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none;">
+                            <select id="trackerStatusFilter" onchange="applyTrackerFilters()" style="padding:7px 12px; border:1.5px solid #cbd5e1; border-radius:8px; font-size:0.86rem; font-weight:600; color:#1e293b; background:#f8fafc; outline:none;">
                                 <option value="">All Status</option>
                                 <option value="pending">Pending Roles (⚠️ Left)</option>
                                 <option value="completed">Completed (✓)</option>
@@ -4546,21 +4558,233 @@
             return list;
         }
 
-        function initTracker() {
-            // Populate state dropdown if not done
-            const stateSel = document.getElementById('trackerStateFilter');
-            if (stateSel && stateSel.options.length <= 1) {
-                const indiaStates = Object.keys(REG_BRANCHES).filter(s => s !== "Outside India").sort();
-                indiaStates.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s;
-                    stateSel.appendChild(opt);
+        let trackerSelectedStates = [];
+        let trackerSelectedBranches = [];
+
+        function toggleTrackerDropdown(containerId, e) {
+            e.stopPropagation();
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const dropdown = container.querySelector('.select-dropdown');
+            if (!dropdown) return;
+
+            const isOpen = dropdown.classList.contains('show');
+            // Close all dropdowns
+            document.querySelectorAll('.select-dropdown').forEach(dd => dd.classList.remove('show'));
+            document.querySelectorAll('.select-arrow').forEach(a => a.classList.remove('rotated'));
+
+            if (!isOpen) {
+                dropdown.classList.add('show');
+                const arrow = container.querySelector('.select-arrow');
+                if (arrow) arrow.classList.add('rotated');
+            }
+        }
+
+        function buildTrackerStateDropdown() {
+            const dropdown = document.getElementById('trackerStateDropdown');
+            if (!dropdown) return;
+
+            const indiaStates = Object.keys(REG_BRANCHES).filter(s => s !== "Outside India").sort();
+            const allChecked = trackerSelectedStates.length === 0 || trackerSelectedStates.length === indiaStates.length;
+
+            let html = `
+                <div class="filter-actions" style="padding:8px 12px; gap:8px;">
+                    <button type="button" class="filter-btn" onclick="selectTrackerStatesAll(true)" style="padding:5px 8px; font-size:0.78rem; background:#667eea; color:#fff;">Select All</button>
+                    <button type="button" class="filter-btn clear" onclick="selectTrackerStatesAll(false)" style="padding:5px 8px; font-size:0.78rem; color:#667eea; border-color:#667eea;">Clear</button>
+                </div>
+                <div style="max-height:240px; overflow-y:auto; padding:4px 0;">
+            `;
+
+            indiaStates.forEach(st => {
+                const isChecked = allChecked || trackerSelectedStates.includes(st);
+                const safeSt = escapeHtml(st);
+                html += `
+                    <div class="select-option" style="padding:6px 12px; font-size:0.85rem;" onclick="onTrackerStateItemClick('${st.replace(/'/g, "\\'")}', event)">
+                        <input type="checkbox" class="tracker-state-cb" value="${safeSt}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); onTrackerStateCheckboxChange();" />
+                        <label style="cursor:pointer; margin:0; font-size:0.85rem;">${safeSt}</label>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            dropdown.innerHTML = html;
+            updateTrackerStateDisplayText();
+        }
+
+        function onTrackerStateItemClick(st, e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('trackerStateDropdown');
+            if (!dropdown) return;
+            const cb = dropdown.querySelector(`input[value="${st}"]`);
+            if (cb) {
+                cb.checked = !cb.checked;
+                onTrackerStateCheckboxChange();
+            }
+        }
+
+        function onTrackerStateCheckboxChange() {
+            const dropdown = document.getElementById('trackerStateDropdown');
+            if (!dropdown) return;
+            const indiaStates = Object.keys(REG_BRANCHES).filter(s => s !== "Outside India").sort();
+            const cbs = dropdown.querySelectorAll('.tracker-state-cb:checked');
+            const checkedVals = Array.from(cbs).map(cb => cb.value);
+
+            if (checkedVals.length === 0 || checkedVals.length === indiaStates.length) {
+                trackerSelectedStates = [];
+            } else {
+                trackerSelectedStates = checkedVals;
+            }
+
+            updateTrackerStateDisplayText();
+            // Re-populate and sync branches dropdown according to selected states
+            buildTrackerBranchDropdown();
+            applyTrackerFilters();
+        }
+
+        function selectTrackerStatesAll(selectAll) {
+            const dropdown = document.getElementById('trackerStateDropdown');
+            if (!dropdown) return;
+            dropdown.querySelectorAll('.tracker-state-cb').forEach(cb => cb.checked = selectAll);
+            if (selectAll) {
+                trackerSelectedStates = [];
+            } else {
+                trackerSelectedStates = ['__NONE__'];
+            }
+            updateTrackerStateDisplayText();
+            buildTrackerBranchDropdown();
+            applyTrackerFilters();
+        }
+
+        function updateTrackerStateDisplayText() {
+            const txtEl = document.getElementById('trackerStateDisplayText');
+            if (!txtEl) return;
+            const indiaStates = Object.keys(REG_BRANCHES).filter(s => s !== "Outside India");
+            if (trackerSelectedStates.length === 0 || trackerSelectedStates.length === indiaStates.length) {
+                txtEl.textContent = '🇮🇳 All States';
+            } else if (trackerSelectedStates.includes('__NONE__') || trackerSelectedStates.length === 0) {
+                txtEl.textContent = '0 States Selected';
+            } else if (trackerSelectedStates.length === 1) {
+                txtEl.textContent = trackerSelectedStates[0];
+            } else {
+                txtEl.textContent = `${trackerSelectedStates.length} States Selected`;
+            }
+        }
+
+        function getBranchesForSelectedStates() {
+            const allIndia = getIndiaBranchesList();
+            if (trackerSelectedStates.length === 0) {
+                return allIndia.map(i => i.branch).sort();
+            }
+            if (trackerSelectedStates.includes('__NONE__')) {
+                return [];
+            }
+            const list = [];
+            trackerSelectedStates.forEach(st => {
+                const bArr = REG_BRANCHES[st] || [];
+                bArr.forEach(b => list.push(b));
+            });
+            return list.sort();
+        }
+
+        function buildTrackerBranchDropdown() {
+            const dropdown = document.getElementById('trackerBranchDropdown');
+            if (!dropdown) return;
+
+            const availableBranches = getBranchesForSelectedStates();
+            // Retain any existing selections that are still valid
+            if (!trackerSelectedBranches.includes('__NONE__')) {
+                trackerSelectedBranches = trackerSelectedBranches.filter(b => availableBranches.includes(b));
+            }
+
+            const allChecked = trackerSelectedBranches.length === 0 || trackerSelectedBranches.length === availableBranches.length;
+
+            let html = `
+                <div class="filter-actions" style="padding:8px 12px; gap:8px;">
+                    <button type="button" class="filter-btn" onclick="selectTrackerBranchesAll(true)" style="padding:5px 8px; font-size:0.78rem; background:#667eea; color:#fff;">Select All</button>
+                    <button type="button" class="filter-btn clear" onclick="selectTrackerBranchesAll(false)" style="padding:5px 8px; font-size:0.78rem; color:#667eea; border-color:#667eea;">Clear</button>
+                </div>
+                <div style="max-height:240px; overflow-y:auto; padding:4px 0;">
+            `;
+
+            if (availableBranches.length === 0) {
+                html += `<div style="padding:12px; color:#94a3b8; font-size:0.82rem; text-align:center;">No branches for selected state</div>`;
+            } else {
+                availableBranches.forEach(b => {
+                    const isChecked = allChecked || trackerSelectedBranches.includes(b);
+                    const safeB = escapeHtml(b);
+                    html += `
+                        <div class="select-option" style="padding:6px 12px; font-size:0.85rem;" onclick="onTrackerBranchItemClick('${b.replace(/'/g, "\\'")}', event)">
+                            <input type="checkbox" class="tracker-branch-cb" value="${safeB}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); onTrackerBranchCheckboxChange();" />
+                            <label style="cursor:pointer; margin:0; font-size:0.85rem;">${safeB}</label>
+                        </div>
+                    `;
                 });
             }
 
-            // Populate branch dropdown
-            populateTrackerBranchDropdown();
+            html += `</div>`;
+            dropdown.innerHTML = html;
+            updateTrackerBranchDisplayText();
+        }
+
+        function onTrackerBranchItemClick(b, e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('trackerBranchDropdown');
+            if (!dropdown) return;
+            const cb = dropdown.querySelector(`input[value="${b}"]`);
+            if (cb) {
+                cb.checked = !cb.checked;
+                onTrackerBranchCheckboxChange();
+            }
+        }
+
+        function onTrackerBranchCheckboxChange() {
+            const dropdown = document.getElementById('trackerBranchDropdown');
+            if (!dropdown) return;
+            const availableBranches = getBranchesForSelectedStates();
+            const cbs = dropdown.querySelectorAll('.tracker-branch-cb:checked');
+            const checkedVals = Array.from(cbs).map(cb => cb.value);
+
+            if (checkedVals.length === 0 || checkedVals.length === availableBranches.length) {
+                trackerSelectedBranches = [];
+            } else {
+                trackerSelectedBranches = checkedVals;
+            }
+
+            updateTrackerBranchDisplayText();
+            applyTrackerFilters();
+        }
+
+        function selectTrackerBranchesAll(selectAll) {
+            const dropdown = document.getElementById('trackerBranchDropdown');
+            if (!dropdown) return;
+            dropdown.querySelectorAll('.tracker-branch-cb').forEach(cb => cb.checked = selectAll);
+            if (selectAll) {
+                trackerSelectedBranches = [];
+            } else {
+                trackerSelectedBranches = ['__NONE__'];
+            }
+            updateTrackerBranchDisplayText();
+            applyTrackerFilters();
+        }
+
+        function updateTrackerBranchDisplayText() {
+            const txtEl = document.getElementById('trackerBranchDisplayText');
+            if (!txtEl) return;
+            const availableBranches = getBranchesForSelectedStates();
+            if (trackerSelectedBranches.length === 0 || trackerSelectedBranches.length === availableBranches.length) {
+                txtEl.textContent = '🏢 All Branches';
+            } else if (trackerSelectedBranches.includes('__NONE__') || trackerSelectedBranches.length === 0) {
+                txtEl.textContent = '0 Branches Selected';
+            } else if (trackerSelectedBranches.length === 1) {
+                txtEl.textContent = trackerSelectedBranches[0];
+            } else {
+                txtEl.textContent = `${trackerSelectedBranches.length} Branches Selected`;
+            }
+        }
+
+        function initTracker() {
+            buildTrackerStateDropdown();
+            buildTrackerBranchDropdown();
 
             if (!trackerInitialized || !trackerDataCache) {
                 refreshTrackerData();
@@ -4571,30 +4795,12 @@
         }
 
         function populateTrackerBranchDropdown() {
-            const branchSel = document.getElementById('trackerBranchFilter');
-            const stateSel = document.getElementById('trackerStateFilter');
-            if (!branchSel) return;
-
-            const selectedState = stateSel ? stateSel.value : '';
-            const prevSelectedBranch = branchSel.value;
-            const allIndia = getIndiaBranchesList();
-
-            const branches = (selectedState 
-                ? (REG_BRANCHES[selectedState] || []) 
-                : allIndia.map(i => i.branch)).slice().sort();
-
-            branchSel.innerHTML = '<option value="">🏢 All Branches</option>';
-            branches.forEach(b => {
-                const opt = document.createElement('option');
-                opt.value = b;
-                opt.textContent = b;
-                if (b === prevSelectedBranch) opt.selected = true;
-                branchSel.appendChild(opt);
-            });
+            buildTrackerStateDropdown();
+            buildTrackerBranchDropdown();
         }
 
         function onTrackerStateChange() {
-            populateTrackerBranchDropdown();
+            buildTrackerBranchDropdown();
             applyTrackerFilters();
         }
 
@@ -4669,17 +4875,11 @@
             const tbody = document.getElementById('trackerTableBody');
             if (!tbody) return;
 
-            const selectedState = document.getElementById('trackerStateFilter') ? document.getElementById('trackerStateFilter').value : '';
-            const selectedBranch = document.getElementById('trackerBranchFilter') ? document.getElementById('trackerBranchFilter').value : '';
             const selectedStatus = document.getElementById('trackerStatusFilter') ? document.getElementById('trackerStatusFilter').value : '';
             const searchQ = (document.getElementById('trackerSearch') ? document.getElementById('trackerSearch').value : '').toLowerCase().trim();
 
             const allIndia = getIndiaBranchesList();
             const cache = trackerDataCache || {};
-
-            let totalPocComplete = 0;
-            let totalDistrictFilled = 0;
-            let totalPocPending = 0;
 
             const processedRows = allIndia.map(item => {
                 const normKey = item.branch.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -4698,10 +4898,6 @@
                 const totalLeft = bbbhLeft + bbbmLeft + bsbhLeft + bsbmLeft;
 
                 const isPocComplete = (totalLeft === 0);
-                if (isPocComplete) totalPocComplete++;
-                else totalPocPending++;
-
-                if (distFilled === 1) totalDistrictFilled++;
 
                 return {
                     state: item.state,
@@ -4723,28 +4919,54 @@
                 };
             });
 
-            // Update top cards
+            // 1. Filter rows by State & Branch multi-selection, search box, and status
+            const hasStateFilter = (trackerSelectedStates.length > 0 && !trackerSelectedStates.includes('__NONE__'));
+            const isStateNone = trackerSelectedStates.includes('__NONE__');
+            const hasBranchFilter = (trackerSelectedBranches.length > 0 && !trackerSelectedBranches.includes('__NONE__'));
+            const isBranchNone = trackerSelectedBranches.includes('__NONE__');
+
+            let filtered = processedRows.filter(r => {
+                if (isStateNone) return false;
+                if (hasStateFilter && !trackerSelectedStates.includes(r.state)) return false;
+                if (isBranchNone) return false;
+                if (hasBranchFilter && !trackerSelectedBranches.includes(r.branch)) return false;
+                if (searchQ && !r.branch.toLowerCase().includes(searchQ)) return false;
+                if (selectedStatus === 'completed' && !r.isPocComplete) return false;
+                if (selectedStatus === 'pending' && r.isPocComplete) return false;
+                if (selectedStatus === 'district_pending' && r.distFilled > 0) return false;
+                return true;
+            });
+
+            // 2. Synchronize all Stats Summary Cards with the filtered selection
+            let totalPocComplete = 0;
+            let totalDistrictFilled = 0;
+            let totalPocPending = 0;
+            let sumBBBH = 0, sumBBBM = 0, sumBSBH = 0, sumBSBM = 0;
+            const uniqueStatesInFiltered = new Set();
+
+            filtered.forEach(r => {
+                uniqueStatesInFiltered.add(r.state);
+                if (r.isPocComplete) totalPocComplete++;
+                else totalPocPending++;
+                if (r.distFilled === 1) totalDistrictFilled++;
+                sumBBBH += r.bbbh;
+                sumBBBM += r.bbbm;
+                sumBSBH += r.bsbh;
+                sumBSBM += r.bsbm;
+            });
+
             const totalEl = document.getElementById('statTotalBranches');
             const compEl = document.getElementById('statPocComplete');
             const pendEl = document.getElementById('statPocPending');
             const distEl = document.getElementById('statDistrictFilled');
             const statesEl = document.getElementById('statUniqueStates');
 
-            const uniqueStatesSet = new Set(allIndia.map(i => i.state));
-            if (statesEl) statesEl.textContent = uniqueStatesSet.size;
-            if (totalEl) totalEl.textContent = allIndia.length;
+            if (statesEl) statesEl.textContent = uniqueStatesInFiltered.size;
+            if (totalEl) totalEl.textContent = filtered.length;
             if (compEl) compEl.textContent = totalPocComplete;
             if (pendEl) pendEl.textContent = totalPocPending;
             if (distEl) distEl.textContent = totalDistrictFilled;
 
-            // Compute total role counts across all branches
-            let sumBBBH = 0, sumBBBM = 0, sumBSBH = 0, sumBSBM = 0;
-            processedRows.forEach(r => {
-                sumBBBH += r.bbbh;
-                sumBBBM += r.bbbm;
-                sumBSBH += r.bsbh;
-                sumBSBM += r.bsbm;
-            });
             const bbbhEl = document.getElementById('statTotalBBBH');
             const bbbmEl = document.getElementById('statTotalBBBM');
             const bsbhEl = document.getElementById('statTotalBSBH');
@@ -4760,21 +4982,10 @@
             if (grandEl) grandEl.textContent = grandTotalMembers;
             if (stripGrandEl) stripGrandEl.textContent = grandTotalMembers;
 
-            // Update District Analytics & Shared Districts
-            updateTrackerDistrictAnalytics();
+            // 3. Update District Analytics & Shared Districts (synchronized with active selection)
+            updateTrackerDistrictAnalytics(filtered);
 
-            // Filter rows
-            let filtered = processedRows.filter(r => {
-                if (selectedState && r.state !== selectedState) return false;
-                if (selectedBranch && r.branch !== selectedBranch) return false;
-                if (searchQ && !r.branch.toLowerCase().includes(searchQ)) return false;
-                if (selectedStatus === 'completed' && !r.isPocComplete) return false;
-                if (selectedStatus === 'pending' && r.isPocComplete) return false;
-                if (selectedStatus === 'district_pending' && r.distFilled > 0) return false;
-                return true;
-            });
-
-            // Apply Sorting
+            // 4. Apply Sorting
             updateTrackerSortIcons();
             filtered.sort((a, b) => {
                 let vA = a[trackerSortCol];
@@ -5319,15 +5530,32 @@
         }
 
         function copyStateSummary() {
-            const selectedState = document.getElementById('trackerStateFilter') ? document.getElementById('trackerStateFilter').value : '';
             const allIndia = getIndiaBranchesList();
             const cache = trackerDataCache || {};
 
-            const targetList = selectedState ? allIndia.filter(i => i.state === selectedState) : allIndia;
-            const stateTitle = selectedState ? selectedState : "All India Branches";
+            const hasStateFilter = (trackerSelectedStates.length > 0 && !trackerSelectedStates.includes('__NONE__'));
+            const isStateNone = trackerSelectedStates.includes('__NONE__');
+            const hasBranchFilter = (trackerSelectedBranches.length > 0 && !trackerSelectedBranches.includes('__NONE__'));
+            const isBranchNone = trackerSelectedBranches.includes('__NONE__');
+
+            let targetList = allIndia.filter(item => {
+                if (isStateNone) return false;
+                if (hasStateFilter && !trackerSelectedStates.includes(item.state)) return false;
+                if (isBranchNone) return false;
+                if (hasBranchFilter && !trackerSelectedBranches.includes(item.branch)) return false;
+                return true;
+            });
+
+            let stateTitle = "All India Branches";
+            if (hasStateFilter) {
+                stateTitle = trackerSelectedStates.join(', ');
+            }
+            if (hasBranchFilter && trackerSelectedBranches.length <= 5) {
+                stateTitle += ` (Branches: ${trackerSelectedBranches.join(', ')})`;
+            }
 
             let text = `📊 *DJJS BODH - POC Team Leaders & District Status*\n`;
-            text += `📍 *State:* ${stateTitle}\n`;
+            text += `📍 *Selection:* ${stateTitle}\n`;
             text += `📅 *Date:* ${new Date().toLocaleDateString('en-IN')}\n\n`;
 
             targetList.forEach((item, idx) => {
@@ -5358,7 +5586,7 @@
 
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(() => {
-                    alert(`✅ State Summary for "${stateTitle}" copied to clipboard! You can now paste and send it on WhatsApp or Email.`);
+                    alert(`✅ Summary for "${stateTitle}" copied to clipboard! You can now paste and send it on WhatsApp or Email.`);
                 });
             } else {
                 alert('Please allow clipboard access to copy.');
@@ -5367,10 +5595,17 @@
 
         /**
          * Update District Analytics: Total, Unique, Shared Districts
+         * Synchronized with active filtered selection
          */
-        function updateTrackerDistrictAnalytics() {
+        function updateTrackerDistrictAnalytics(activeRows) {
             const cache = trackerDataCache || {};
             const submissions = trackerDistrictSubmissions || [];
+
+            // Set of normalized branch keys currently active in the filter
+            let activeBranchKeySet = null;
+            if (Array.isArray(activeRows)) {
+                activeBranchKeySet = new Set(activeRows.map(r => r.branch.toLowerCase().replace(/[^a-z0-9]/g, '')));
+            }
 
             // districtMap: districtName -> Set of branchNames
             const districtMap = {};
@@ -5379,6 +5614,9 @@
             // Strategy A: Parse from submissions if present
             submissions.forEach(sub => {
                 const bName = sub.branch || '';
+                const bKey = bName.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (activeBranchKeySet && !activeBranchKeySet.has(bKey)) return;
+
                 const bd = sub.breakdown || '';
                 if (!bd) return;
 
@@ -5401,7 +5639,9 @@
             // Strategy B fallback: If submissions array not returned yet from older Apps Script deployment,
             // check if any breakdown exists in cache
             if (Object.keys(districtMap).length === 0) {
-                Object.values(cache).forEach(bData => {
+                Object.keys(cache).forEach(k => {
+                    if (activeBranchKeySet && !activeBranchKeySet.has(k)) return;
+                    const bData = cache[k];
                     if (bData && bData.breakdown) {
                         const bName = bData.branchName || '';
                         const parts = bData.breakdown.split('|');
@@ -5425,7 +5665,9 @@
             // calculate sum of districtCount as fallback
             if (totalDistrictEntries === 0) {
                 let sumCount = 0;
-                Object.values(cache).forEach(b => {
+                Object.keys(cache).forEach(k => {
+                    if (activeBranchKeySet && !activeBranchKeySet.has(k)) return;
+                    const b = cache[k];
                     sumCount += (b.districtCount || 0);
                 });
                 totalDistrictEntries = sumCount;
@@ -5566,10 +5808,22 @@
 
             const allIndia = getIndiaBranchesList();
             const cache = trackerDataCache || {};
-            const submissions = trackerDistrictSubmissions || [];
+
+            const hasStateFilter = (trackerSelectedStates.length > 0 && !trackerSelectedStates.includes('__NONE__'));
+            const isStateNone = trackerSelectedStates.includes('__NONE__');
+            const hasBranchFilter = (trackerSelectedBranches.length > 0 && !trackerSelectedBranches.includes('__NONE__'));
+            const isBranchNone = trackerSelectedBranches.includes('__NONE__');
+
+            const targetBranches = allIndia.filter(item => {
+                if (isStateNone) return false;
+                if (hasStateFilter && !trackerSelectedStates.includes(item.state)) return false;
+                if (isBranchNone) return false;
+                if (hasBranchFilter && !trackerSelectedBranches.includes(item.branch)) return false;
+                return true;
+            });
 
             // 1. Sheet 1: Branch Status Tracker Summary
-            const trackerRows = allIndia.map((item, idx) => {
+            const trackerRows = targetBranches.map((item, idx) => {
                 const normKey = item.branch.toLowerCase().replace(/[^a-z0-9]/g, '');
                 const data = cache[normKey] || { BBBH: 0, BBBM: 0, BSBH: 0, BSBM: 0, districtCount: 0 };
                 const bbbh = data.BBBH || 0;
